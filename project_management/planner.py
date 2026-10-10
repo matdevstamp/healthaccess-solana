@@ -63,6 +63,20 @@ KICKOFF_ASSIGNMENTS = {
     "19": "Team",
     "20": "matdevstamp",
     "21": "Team",
+    # Colosseum Crypto World's Fair hackathon (solo submission).
+    "22": "matdevstamp",
+    "23": "matdevstamp",
+    "24": "matdevstamp",
+    "25": "matdevstamp",
+    "26": "matdevstamp",
+    "27": "matdevstamp",
+    "28": "matdevstamp",
+    "29": "matdevstamp",
+    "30": "matdevstamp",
+    "31": "matdevstamp",
+    "32": "matdevstamp",
+    "33": "matdevstamp",
+    "34": "matdevstamp",
 }
 
 
