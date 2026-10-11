@@ -17,11 +17,11 @@
 
 ## Meeting Scope Policy
 
-Organization/vårdcentral governance and the other deferred areas were kept outside the current Task 17 merge.
+Organization/primary care centre governance and the other deferred areas were kept outside the current Task 17 merge.
 
 | Parked topic | Why separate time is needed | Required participants | Owner | Proposed meeting | Decision needed |
 |---|---|---|---|---|---|
-| Organization/vårdcentral governance | It requires separate scope and must not expand the current PR | Relevant stream owners | Project lead | After the Task 17 merge | Create a follow-up branch from `main` and define the work |
+| Organization/primary care centre governance | It requires separate scope and must not expand the current PR | Relevant stream owners | Project lead | After the Task 17 merge | Create a follow-up branch from `main` and define the work |
 | Audit logging, role changes, and session timeout | These are separate follow-up changes | Relevant backend/frontend owners | Project lead | After the Task 17 merge | Define tasks, owners, and acceptance criteria |
 
 ## Previous Actions
@@ -39,7 +39,7 @@ Organization/vårdcentral governance and the other deferred areas were kept outs
 | Role-based access and authorization | Task 17 PR | In progress | Add or update the permission tests and complete the review |
 | JWT-based frontend flow | Task 17 PR | In progress | The frontend integration will be fixed in the current PR |
 | Two-server Socket.IO broadcasting | Task 18 | In progress | Finish the implementation and provide the reviewable result |
-| Organization/vårdcentral boundary | Deferred follow-up | Unclear | Define the boundary and acceptance criteria in a separate task after the merge |
+| Organization/primary care centre boundary | Deferred follow-up | Unclear | Define the boundary and acceptance criteria in a separate task after the merge |
 | Audit logging, role changes, and session timeout | Deferred follow-up | Missing evidence | Create separate tasks with named owners |
 | Documented meetings | This note | Covered | Continue documenting at least two meetings per week |
 
@@ -49,7 +49,7 @@ Organization/vårdcentral governance and the other deferred areas were kept outs
 - Task 17 was reported fixed and pushed. All checks were reported green, the PR was ready for a new review, and no blockers were reported at the time of the meeting.
 - The Task 17 review comments are being addressed and the next update will be pushed. The goal is for Task 17 to be ready for merge by Friday evening.
 - The current Task 17 PR will also include the JWT-based frontend, permission rules, and additional tests.
-- Organization/vårdcentral scope stays outside the current merge. Audit logging, role changes, and session timeout are handled separately.
+- Organization/primary care centre scope stays outside the current merge. Audit logging, role changes, and session timeout are handled separately.
 - The team will fix the remaining agreed items in the current PR first, merge Task 17, and then create a follow-up branch from the updated `main` for the later work.
 - The resolved portions of Task 17 and the sequence for completing the remaining work were discussed.
 

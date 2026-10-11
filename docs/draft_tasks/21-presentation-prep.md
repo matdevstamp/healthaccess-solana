@@ -80,7 +80,7 @@ Potential Challenges to Discuss:
 ├── Role-based access control implementation
 ├── GDPR compliance while maintaining functionality
 ├── P2P network communication
-├── Handling Swedish characters in search
+├── Handling Polish characters in search
 ├── WebSocket connection management
 └── Database migration and seed data
 ```

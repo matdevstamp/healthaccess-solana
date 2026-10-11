@@ -169,23 +169,22 @@ Run `python3 -m project_management labels sync` to create or refresh them.
 
 ---
 
-## Graphify
+## Ripwire
 
-Graphify is installed globally (not a project dependency):
-
-```bash
-npm install --global @sentropic/graphify
-graphify --version
-```
-
-To generate architecture artifacts:
+Ripwire is a standalone CLI (not a project dependency):
 
 ```bash
-graphify install vscode
-graphify .
+ripwire --version
 ```
 
-Keep only `graphify-out/graph.html` and `graphify-out/GRAPH_REPORT.md` under version control.
+To generate the tracked architecture artifacts:
+
+```bash
+npm run ripwire          # ripwire-out/graph.html + ripwire-out/GRAPH_REPORT.md
+```
+
+Keep only `ripwire-out/graph.html` and `ripwire-out/GRAPH_REPORT.md` under version
+control. See [docs/ripwire.md](../docs/ripwire.md) for the full guide.
 
 ---
 

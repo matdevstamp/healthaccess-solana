@@ -73,21 +73,21 @@ The lead can inspect and promote reports with `python3 -m project_management bug
 
 Meeting scope policy: each meeting protects its stated purpose. When a topic needs a longer discussion, different participants, or preparation, the facilitator parks it in the meeting note and books a separate meeting with a clear decision question. Urgent blockers and decisions required for the current agenda stay in the current meeting.
 
-## Global Graphify
+## Global Ripwire
 
-Graphify is installed globally as a CLI, so it is not added to this project’s dependency files:
-
-```bash
-npm install --global @sentropic/graphify
-graphify --version
-graphify --help
-```
-
-To generate the approved architecture artifacts:
+Ripwire is a standalone CLI, installed globally rather than as a project dependency:
 
 ```bash
-graphify install vscode
-graphify .
+ripwire --version
+ripwire --help
 ```
 
-Keep only `graphify-out/graph.html` and `graphify-out/GRAPH_REPORT.md` under version control. Other generated state remains ignored.
+To generate the tracked architecture artifacts:
+
+```bash
+npm run ripwire          # writes ripwire-out/graph.html + ripwire-out/GRAPH_REPORT.md
+```
+
+Keep only `ripwire-out/graph.html` and `ripwire-out/GRAPH_REPORT.md` under version
+control; ripwire's parse cache stays in `TMPDIR`. See [docs/ripwire.md](ripwire.md)
+for the full guide.

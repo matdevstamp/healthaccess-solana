@@ -85,7 +85,7 @@ export const CAPTIONS: Record<string, Caption> = {
   },
   "p2p-how": {
     speaker: "mattias",
-    text: "Spridning via Socket.io, signering på blockkedje-P2P.",
+    text: "Anteckningar sprids via Socket.io. Åtkomstloggen ankar till Solana.",
   },
 
   // Patient.
@@ -140,11 +140,11 @@ export const CAPTIONS: Record<string, Caption> = {
   },
   "par-own-ledger": {
     speaker: "sofie",
-    text: "Varje server verifierar sin egen accesslogg mot sin egen blockkedja.",
+    text: "Speglingen i SQL verifieras mot det gemensamma kedjehuvudet på Solana.",
   },
   "par-ledger-split": {
     speaker: "mattias",
-    text: "Två oberoende loggar, men samma medicinska data i SQL.",
+    text: "En gemensam kedja för båda servrarna, och samma medicinska data i SQL.",
   },
 };
 

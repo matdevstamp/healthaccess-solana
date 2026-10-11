@@ -77,7 +77,7 @@ sequenceDiagram
 │                                     │
 │ Results:                            │
 │ ┌─────────────────────────────────┐ │
-│ │ Anna Andersson                  │ │
+│ │ Anna Kowalska                   │ │
 │ │ DOB: 1985-03-15                 │ │
 │ │ Records: 5 | Last visit: 2024-01│ │
 │ └─────────────────────────────────┘ │
@@ -91,7 +91,7 @@ sequenceDiagram
 #### Doctor View
 ```
 ┌─────────────────────────────────────┐
-│ Patient: Anna Andersson             │
+│ Patient: Anna Kowalska              │
 │ DOB: 1985-03-15 | ID: 12345        │
 ├─────────────────────────────────────┤
 │ Tabs: [Records] [Notes] [Access]   │
@@ -231,7 +231,7 @@ Never put permissions in a query key or assume that changing a URL protects pati
 
 ## Questions to Resolve
 
-- [ ] How to handle Swedish characters in search? (å, ä, ö)
+- [ ] How to handle Polish characters in search? (ł, ż, ó)
 - [ ] Should we implement autocomplete for search?
 - [ ] What's the optimal page size for search results?
 - [ ] Should we cache search results?

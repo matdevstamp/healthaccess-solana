@@ -1,124 +1,124 @@
-# Gruppkontrakt — Inl 3 Grupparbete (HealthAccess)
+# Group Contract — Inl 3 Group Assignment (HealthAccess)
 
-> **Status:** v0.4 — signerat av Matias fre 4 sep (omfattar kickoff-besluten: roller, branch-regel, PR-granskning, schema); övriga signerar senast lör 5 sep. Najma (`umoraghad0-del`) var inte på kickoffet och har deklarerat sitt fokus i efterhand (5 sep): **huvudansvar för blockchain/access-logging (Stream D, task 15)** + pair-programmering på P2P (16) och Socket.IO (18). Ramadan behåller task 12 (Frontend UI).
-> Mall: [Gruppkontrakt mall](https://gist.github.com/postmodernistx/6afcbe224bce912a6da1a86b8b94adbc) · Scope: [`docs/Raw_Requirements.md`](docs/Raw_Requirements.md)
+> **Status:** v0.4 — signed by Matias Fri 4 Sep (covers the kickoff decisions: roles, branch rule, PR review, schedule); the others sign no later than Sat 5 Sep. Najma (`umoraghad0-del`) was not at the kickoff and declared her focus afterwards (5 Sep): **main responsibility for blockchain/access-logging (Stream D, task 15)** + pair programming on P2P (16) and Socket.IO (18). Ramadan keeps task 12 (Frontend UI).
+> Template: [Group contract template](https://gist.github.com/postmodernistx/6afcbe224bce912a6da1a86b8b94adbc) · Scope: [`docs/Raw_Requirements.md`](docs/Raw_Requirements.md)
 
 ## Team
 
-| Namn | GitHub | Roll |
+| Name | GitHub | Role |
 |---|---|---|
-| Matias Marti | `matdevstamp` | Koordinator / Lead (fokus på Gate 1–2) |
-| Kassim Segerberg | `Kassim10` | Backend (API-routes, DB/Prisma, middleware); stream D chain core öppen |
-| Ramadan | `rcilomba` | UI / Frontend (all UI, stream D-vyn TBD) |
-| Najma Hasan | `umoraghad0-del` | Blockchain/access-logging (Stream D huvudansvar, task 15); pair på P2P (16) & Socket.IO (18) |
+| Matias Marti | `matdevstamp` | Coordinator / Lead (focus on Gate 1–2) |
+| Kassim Segerberg | `Kassim10` | Backend (API routes, DB/Prisma, middleware); stream D chain core open |
+| Ramadan | `rcilomba` | UI / Frontend (all UI, stream D view TBD) |
+| Najma Hasan | `umoraghad0-del` | Blockchain/access-logging (Stream D main responsibility, task 15); pair on P2P (16) & Socket.IO (18) |
 
-## 1. Projekt & ambitionsnivå
+## 1. Project & level of ambition
 
-Vi bygger HealthAccess: ett system där medicinska journaler ligger i en SQL-databas och varje journal-åtkomst loggas till en blockkedja, distribuerad över två servrar (P2P). Vi jobbar enligt `docs/PROJECT_PLAN.md` med PR-only arbetsflöde och minst **2 dokumenterade möten per vecka** i repot (kurskrav).
+We are building HealthAccess: a system where medical records are stored in a SQL database and every record access is logged to a blockchain, distributed across two servers (P2P). We work according to `docs/PROJECT_PLAN.md` with a PR-only workflow and at least **2 documented meetings per week** in the repository (course requirement).
 
-- **Ambitionsnivå:** TBD (förslag: G med marginal — fungerande demo av hela flödet + snygg dokumentation)
-- **Krav på oss själva:** TBD
+- **Level of ambition:** TBD (proposal: G with margin — working demo of the whole flow + polished documentation)
+- **Requirements on ourselves:** TBD
 
-## 2. Roller & ansvarsområden
+## 2. Roles & areas of responsibility
 
-Vi avviker från exempelfördelningen Person 1–4 i `docs/Raw_Requirements.md` — vi delar i stället på backend/UI/koordinering (beslut på kickoff 4 sep, se `docs/meetings/2026-09-04-kickoff.md`). Stream D (chain core + P2P) tilldelades Najma 5 sep (se statusraden ovan).
+We deviate from the example distribution Person 1–4 in `docs/Raw_Requirements.md` — instead we share backend/UI/coordination (decision at the kickoff on 4 Sep, see `docs/meetings/2026-09-04-kickoff.md`). Stream D (chain core + P2P) was assigned to Najma on 5 Sep (see the status line above).
 
-| Person | Ansvarsområde | Streams |
+| Person | Area of responsibility | Streams |
 |---|---|---|
-| Kassim Segerberg (`Kassim10`) | Backend: Next.js API-routes, databas & Prisma, middleware, `auditLogger` | A/B/C (backend) |
-| Ramadan (`rcilomba`) | Frontend/UI: task 12 (inloggning, dashboard-shell, access-denied), journal-sök/-vy, live access-log-vy, verifikationsbadge | A/B/C (frontend), D-vy |
-| Matias Marti (`matdevstamp`) | Koordinator/Lead: möten, PR-review, unblocking, Gate 1–2 | — |
-| Najma Hasan (`umoraghad0-del`) | Blockchain/access-logging (chain core, task 15); pair på P2P (16) & Socket.IO (18) | D (chain core + P2P) |
+| Kassim Segerberg (`Kassim10`) | Backend: Next.js API routes, database & Prisma, middleware, `auditLogger` | A/B/C (backend) |
+| Ramadan (`rcilomba`) | Frontend/UI: task 12 (login, dashboard shell, access denied), record search/view, live access-log view, verification badge | A/B/C (frontend), D view |
+| Matias Marti (`matdevstamp`) | Coordinator/Lead: meetings, PR review, unblocking, Gate 1–2 | — |
+| Najma Hasan (`umoraghad0-del`) | Blockchain/access-logging (chain core, task 15); pair on P2P (16) & Socket.IO (18) | D (chain core + P2P) |
 
-- **Scrum master:** TBD (vi kan rotera)
+- **Scrum master:** TBD (we can rotate)
 - **Lead:** Matias Marti (`matdevstamp`)
-- **Backup/review:** backend ↔ UI-par (Kassim ↔ Ramadan); Matias PR:er granskas av den som har mest koll på området. Stream D-kod (blockchain/P2P/Socket.IO) granskas av Najma tillsammans med backend (Kassim).
+- **Backup/review:** backend ↔ UI pair (Kassim ↔ Ramadan); Matias's PRs are reviewed by whoever knows the area best. Stream D code (blockchain/P2P/Socket.IO) is reviewed by Najma together with backend (Kassim).
 
-## 3. Tidigare grupparbeteserfarenheter
+## 3. Previous group work experience
 
-> Fyll i på kickoffet. Top 3 sämsta erfarenheter + negativa förväntningar, per person.
+> Fill in at the kickoff. Top 3 worst experiences + negative expectations, per person.
 
 - Kassim: ____
 - Ramadan: ____
 - Najma: ____
-- Matias: Otydlig ansvarsfördelning (diffust ägande → saker faller mellan stolorna); allt skjuts till sista dagen → panik i slutet
+- Matias: Unclear division of responsibility (diffuse ownership → things fall between the cracks); everything is postponed to the last day → panic at the end
 
-## 4. Mötestider & format
+## 4. Meeting times & format
 
-Fast återkommande schema: **2 möten/vecka — tisdagar och torsdagar** (tider fylls i på kickoffet — låst när alla fyllt i [`docs/team-availability.md`](docs/team-availability.md)):
+Fixed recurring schedule: **2 meetings/week — Tuesdays and Thursdays** (times are filled in at the kickoff — locked once everyone has filled in [`docs/team-availability.md`](docs/team-availability.md)):
 
-- **Möte 1 — tisdag:** quick sync, blockers (standup)
-- **Möte 2 — torsdag:** progress review (+ sprint planning/retro efter behov)
-- Mötesanteckningar hamnar i `docs/meetings/` med [`docs/MEETING_TEMPLATE.md`](docs/MEETING_TEMPLATE.md), samma dag.
-- Facilitator/timekeeper/note-taker roterar (alfabetisk ordning per vecka som default).
-- Varje möte innehåller en requirements checkpoint mot `docs/Raw_Requirements.md`.
+- **Meeting 1 — Tuesday:** quick sync, blockers (standup)
+- **Meeting 2 — Thursday:** progress review (+ sprint planning/retro as needed)
+- Meeting notes go into `docs/meetings/` using [`docs/MEETING_TEMPLATE.md`](docs/MEETING_TEMPLATE.md), the same day.
+- Facilitator/timekeeper/note-taker rotate (alphabetical order per week by default).
+- Every meeting includes a requirements checkpoint against `docs/Raw_Requirements.md`.
 
-## 5. Möteskanaler & kommunikation
+## 5. Meeting channels & communication
 
-- **Kanal:** Microsoft Teams ✓
-- **Kamera:** TBD (rekommendation: på)
-- **Förberedda eller gemensam genomgång:** TBD
-- **Svarstid på meddelanden:** TBD
-- **Förhinder meddelas:** TBD (hur tidigt?)
-- **Brådskande ärenden:** TBD (SMS/telefon?)
+- **Channel:** Microsoft Teams ✓
+- **Camera:** TBD (recommendation: on)
+- **Prepared or shared walkthrough:** TBD
+- **Response time for messages:** TBD
+- **Unavailability is announced:** TBD (how early?)
+- **Urgent matters:** TBD (SMS/phone?)
 
-## 6. Loggbok & dokumentation
+## 6. Logbook & documentation
 
-Vi för en **loggbok per person** för dagliga standups och mötesdeltagande (se [`docs/logbooks/README.md`](docs/logbooks/README.md)).
+We keep a **logbook per person** for daily standups and meeting attendance. (The per-member logbooks were later removed from the hackathon fork to reduce noise; see task 36.)
 
-- **Default (förslag):** en CSV per person i `docs/logbooks/` — incheckad i repot.
-- **Beslut på kickoff:** CSV (repo) **eller** Excel/Sheets externt. Väljer vi externt krävs en **ägare som inte är Matias**: ____
-- Antecknare för veckans möten dokumenterar daily/standup i repot (rotera gärna).
+- **Default (proposal):** one CSV per person in `docs/logbooks/` — checked into the repository (the directory was later removed from the fork; see task 36).
+- **Decision at kickoff:** CSV (repo) **or** Excel/Sheets externally. If we choose externally, an **owner other than Matias** is required: ____
+- The note-taker for the week's meetings documents the daily/standup in the repository (rotate preferably).
 
-## 7. Uppgiftsfördelning & arbetsflöde
+## 7. Task distribution & workflow
 
-- Ingenting committas direkt till `main` — allt går via **PR** med minst **1 review**. **Undantag (beslut på kickoff):** allt under `docs/` (markdown, CSV, diagram, `.mmd` m.m.) och Python-verktyget (`project_management/`) får pushas direkt till `main`; all app-kod (Next.js/TS, Prisma/DB-schema, config) kräver PR + review.
-- **Ingen granskar eller slår ihop sin egen PR** — inte heller lead: Matias app-kod granskas av någon annan i teamet (den som har mest koll på området: Kassim för backend, Ramadan för UI, Najma där hon är inkopplad).
-- Branch-namn: `feature/<task-id>-<topic>` eller `chore/<task-id>-<topic>`.
-- Uppgifter bryts ner till ~en halv dags arbete och tas från draft-tasks/issues; tar man på sig en uppgift utanför standupen säger man till på nästa.
-- Kodkonflikter löser vi tillsammans med den som äger filerna (shared files ändras bara via reviewad integrationstask).
-- **Definition of done:** PR merged + CI grön + reviewer godkänd + mötesanteckning/requirements checkpoint uppdaterad.
+- Nothing is committed directly to `main` — everything goes via a **PR** with at least **1 review**. **Exception (decision at kickoff):** everything under `docs/` (markdown, CSV, diagrams, `.mmd` etc.) and the Python tool (`project_management/`) may be pushed directly to `main`; all app code (Next.js/TS, Prisma/DB schema, config) requires a PR + review.
+- **No one reviews or merges their own PR** — not even the lead: Matias's app code is reviewed by someone else on the team (whoever knows the area best: Kassim for backend, Ramadan for UI, Najma where she is involved).
+- Branch names: `feature/<task-id>-<topic>` or `chore/<task-id>-<topic>`.
+- Tasks are broken down to ~half a day's work and taken from draft tasks/issues; if you take on a task outside the standup, you mention it at the next one.
+- We resolve code conflicts together with whoever owns the files (shared files are only changed via a reviewed integration task).
+- **Definition of done:** PR merged + CI green + reviewer approved + meeting note/requirements checkpoint updated.
 
-## 8. Kodstandard
+## 8. Code standard
 
-- **Commits:** ____ (förslag: Conventional Commits)
-- **Lint/format:** ESLint + Prettier (se draft tasks 07–08)
-- **Språk i kod (identifierare, kommentarer):** ____
-- **Branch protection:** enforce PR reviews på `main` för app-kod; allt under `docs/` + `project_management/` får pushas direkt
+- **Commits:** ____ (proposal: Conventional Commits)
+- **Lint/format:** ESLint + Prettier (see draft tasks 07–08)
+- **Language in code (identifiers, comments):** ____
+- **Branch protection:** enforce PR reviews on `main` for app code; everything under `docs/` + `project_management/` may be pushed directly
 
-## 9. Feedback & återkoppling
+## 9. Feedback & follow-up
 
-- Code reviews görs på PR:er, tidsfrist: **ingen fast tidsgräns** — granskaren svarar så snart som möjligt
-- Feedback på design/UI: ____
-- Tidsfrist för återkoppling på det någon gjort: ____
+- Code reviews are done on PRs, deadline: **no fixed deadline** — the reviewer responds as soon as possible
+- Feedback on design/UI: ____
+- Deadline for follow-up on what someone has done: ____
 
-## 10. Personlighetstyp, stress & roller
+## 10. Personality type, stress & roles
 
-> Fyll i på kickoffet — hur reagerar du vid stress? Vilken roll tar du oftast (ledare, planerare, expert, slutförare, granskare, …)?
+> Fill in at the kickoff — how do you react under stress? Which role do you usually take (leader, planner, expert, finisher, reviewer, …)?
 
-- Kassim: Slutförare
+- Kassim: Finisher
 - Ramadan: ____
 - Najma: ____
-- Matias: Slutförare — fokuserar och kör klart under stress
+- Matias: Finisher — focuses and gets things done under stress
 
-## 11. Övriga förväntningar & konsekvenser
+## 11. Other expectations & consequences
 
-- Hur aktiv ska man vara? Meddela förhinder i förväg på Teams; aktiv på möten och i loggboken (förslag från lead, bekräftas vid signering)
-- Konsekvenser om någon inte dyker upp/gör sitt: mjukare linje (förslag från lead) — först ett snack i gruppen, läraren kontaktas först vid upprepad frånvaro/uteblivet arbete.
-- Vad är du bra på / sämre på? Vad vill du träna extra på (HTML/CSS/git/projektledning/…)?
-  - Matias: Bra på kod; vill träna på PM/facilitering/koordinering
+- How active should one be? Announce unavailability in advance on Teams; active in meetings and in the logbook (proposal from the lead, confirmed on signing)
+- Consequences if someone does not show up/does their part: a softer line (proposal from the lead) — first a chat in the group, the teacher is only contacted on repeated absence/missing work.
+- What are you good at / less good at? What do you want to practise extra (HTML/CSS/git/project management/…)?
+  - Matias: Good at code; wants to practise PM/facilitation/coordination
 
-## 12. Övrigt
+## 12. Other
 
-- (Egna rubriker/överenskommelser vi vill lägga till — t.ex. arbetstider, helgpolicy, AI-användning.)
+- (Own headings/agreements we want to add — e.g. working hours, weekend policy, AI usage.)
 
-## 13. Underskrifter
+## 13. Signatures
 
-Vi har läst och godkänner gruppkontraktet:
+We have read and approve the group contract:
 
-| Namn | GitHub | Datum | Signatur |
+| Name | GitHub | Date | Signature |
 |---|---|---|---|
 | Matias Marti | `matdevstamp` | 2026-09-04 | ✅ (v0.3) |
 | Kassim Segerberg | `Kassim10` | 2026-09-05 | ✅ (v0.3) |
-| Ramadan Cilomba | `rcilomba` | 2026-09-05 | Godkänner (v0.3) |
+| Ramadan Cilomba | `rcilomba` | 2026-09-05 | Approves (v0.3) |
 | Najma Hasan | `umoraghad0-del` | 2026-09-14 | ✅ |

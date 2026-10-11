@@ -10,11 +10,13 @@ coverage/
 *.db-journal
 src/backend/prisma/migrations/
 
-# Graphify: commit only the browsable report and human-readable report.
-graphify-out/*
-!graphify-out/
-!graphify-out/graph.html
-!graphify-out/GRAPH_REPORT.md
+# Ripwire: commit only the browsable call graph and the human-readable report.
+# Regenerate both with `npm run ripwire` (see docs/ripwire.md). Ripwire's warm
+# parse cache lives in TMPDIR, not the repo, so nothing else needs ignoring.
+ripwire-out/*
+!ripwire-out/
+!ripwire-out/graph.html
+!ripwire-out/GRAPH_REPORT.md
 .*buff*/**
 **/__pycache__/**
 

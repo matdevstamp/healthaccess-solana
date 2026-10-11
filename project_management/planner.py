@@ -35,8 +35,8 @@ TEAM_MEMBERS = {
 # (task 15) as main responsibility, pair-programming P2P (16) and
 # Socket.IO (18).
 ROLE_TO_USER = {
-    "Person 1": "umoraghad0-del",  # Crypto & liggare (chain core) → Najma
-    "Person 2": "umoraghad0-del",  # P2P-nätverk → Najma (pair)
+    "Person 1": "umoraghad0-del",  # Crypto & ledger (chain core) → Najma
+    "Person 2": "umoraghad0-del",  # P2P network → Najma (pair)
     "Person 3": None,  # legacy Express API & middleware label (no longer used)
     "Person 4": None,  # legacy frontend label (no longer used)
 }

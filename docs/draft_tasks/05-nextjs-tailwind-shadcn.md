@@ -6,7 +6,7 @@
 - **Status:** DONE
 - **Assignee:** matdevstamp
 - **Tags:** frontend, tooling, ui, required, gate:2-scaffold
-- **Dependencies:** 01-project-setup-group-contract.md, 03-graphify-architecture-artifacts.md
+- **Dependencies:** 01-project-setup-group-contract.md, 03-ripwire-architecture-artifacts.md
 - **GitHub Issue:** #6 (https://github.com/matdevstamp/inl-3-awesome-journal/issues/6)
 - **Estimated Effort:** 3h
 

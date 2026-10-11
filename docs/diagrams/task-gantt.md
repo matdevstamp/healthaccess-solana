@@ -2,7 +2,7 @@
 
 _Auto-generated from the draft tasks in `docs/draft_tasks/`. Do not edit by hand._
 
-Open in **[Mermaid Live](https://mermaid.live/edit#pako:eNqVVdtO20AQ_ZWRJVBQCbHXISS8hThAJEApgVateFnsjT3g7Fq7a0KE-Iq-9j_63k_pl3QcOxcqIMUv8Wa8Z86cM7P75IQqEs6hE3Np7Y0EeizaVMBQqzsRWrjCiUhRijIWcSuOlZ5wC_CNnvr5eT0Iyhh_RLOIbd3CVnQjy4AhHFQSTmgzePVAhGhobcqo6y1zjYTNM9iGE63ot6ek1Zz-_vPzBxxCpKTYBeayVt3t1N3mLnhRhcAg4JbfciOglygMBQRowtwUWTbv9ikfzxIcz6CrwwQtUcm1oIXFMeU3r0McrCBeFMjqo5CPxypd4DdX7AJhMJZUYVnpJlx3Hy7Eo927M_AJrjimU5QR9EYjWpqER6Fs5Pi_WC044uG9IICXctcWKS5VTvRPuYxSoc2cpH4gMc3OZvADuJplYhRqzAjXaiR48m-Mca65fdOGdYg29EdnKC3VNtTCWhT6oxAdGKZ8NtUYJxb6rA9XwliU8es7W_Re7fRcOEF7mt9Cd-6kgd6g0Qvgq9L341RNP9YBfv1Y8KKFqg73vKX03eGAhO3mNhHSYvhOXZ01dgyONQ1DAXA9oCZ6EKnKJoQAtY6_Bb9_AWs3fLd4iRTVu0Nw1Lj48A-gvwD0YUipC4AvKKZzqzm1_qtMvOYakyaci4h4p3ChrDAwRZsQhsFbTNHOyplVKdSYN-e132DNd2kxthLR24ejVIX3YcJRkhPUegbOVBy_ZSFz16i1YMiGNC92SqbBYJKlopDobYnXd7_wr1kfkNhx2XUV-gFcG2rIS5WKYjQqcsty2-68XK_VYO_bwPw1ym0YUbnC7qGCI61ooHnZr7V2u7TV26hf-40m3KdzNqVP9axK1llOwzZ8zvncrq4xNFySDsxXBWIrrlRWoMJ8peg2XPa7wXkfah6bc202_A1UOyuqrDj0hVmi0SLj1ZjXSi3dBvPfxfMr_5xdJ9YYOYdW52LXmQi6goql8_RMoYzL70pNFlG6WeLEORzz1NAqz4oLLUBOZlefPP8FwuwuEQ)** (pako/zlib-compressed, verified to round-trip).
+Open in **[Mermaid Live](https://mermaid.live/edit#pako:eNqVVttu2zgQ_ZWBgQQuNq4lyte8OZZzAZrWG6cNdtEXWqItNpQokJSdbNGv2Nf9j773U_ZLdijZkpJNbMcwINMUz5yZOTPD741Ahqxx2ljSxJivCeDHcCMYTJX8xgIDtzxmgies2AupYedSxdQA_IGf1vV1y_eLPfrA9XbvaA5H4dek2NCIw2UCF3gY3JbPAq5xrYtdxy1tzZjJUjiGCyXxOZaJURT__vefv-EUQpmwEyAO6bWcYcvpnIAbbhAI-NTQOdUMxpHkAQOf6yDT1sr-0x7c8HTNFYORCiJukEmWLwxfoHn9MkK_QnjiH2nNArpYSLGF71TkfKb5MkEHC0f34Tpd-MgezPtvGn6DW8rFmichjGczXOqIhkHSzvihWD04o8E9Q4Cn0W5uTdzIDOlf0iQUTOmcpFphLPW7_eB9uH1M2SxQPEVcozjCY_oWfJkpal7NQh1iAJPZB54Y9G2qmDGcqbdCDGEq6ONa8WVkYEImcMu04cny5ZM9_L056Tpwwc1lNodRnkkN46v22Ic7qe4XQq7fpgCvdc6oldBG4K5bhn40vcLAjjITscTwYIdfwxo7AucKa8ECfL5CEa2YkGmMCNAcekfw6yeQQdtz7I9Qor_vEA6Fy1fPAL0toAdTNG0BvnC2zlNNUfovMnE7NSYduGYh8hbwURqmYc1NhBiaz7ng5rEoWSmgSdycV7dNOjtpEVIF0e3CmZDBfRBRnmAmUHoaPsjl8rUUEqdGrQdTMsV6MWtMGlzFqWA2RK-HuH76Sf46rSsM9rJQ3Qa9D581CvJGCmZLY0OudHfQzd11-22yOw3Eq1EewAzdZeY9l3CmJBY0LfTaHAyKtLp74zd4RYRdbLMCX1WPG2PDshqO4feM5ukaaY3FlWC_fDFApOKKbvkyyKqIHsPNZORfT6Dpkpxrp-3toTqsqBLb85ku0XCR0k2ZN50cz2kTbyee91r-PmF1qY0dgiEWNKFww1IJsxTdBuxwcCulKHTWdAupkjbmA59GhvJ_5lwHvzX6HlYkY38xQFNg1aJwUrBqYlU-uAdjdrZUsT-j-GLYzpGD0dwaWhemdohdUh3hTLSOXssww7legqEiDgXrgY86mePpT5mZy4c8hBu25yLTGO8ayc4-3FJUfTjLODpoozhKgkiq0vmK5uBgmgPbGxNm8JEK-VjD6B6MMXyeBVs1-i0J3XqHDXkDNRZ5r7VBmyQrjr28aN4lprMTs9YiPReFHMtVIbxLGbOYhqzeNt-glZIogTt7-9lm0sgc_VkcDg1mnW01Z-6oEJiYWmOtAfYPZlrWyBem-GI7QHEovkEuJVg3vyPkUs7mMS9ui_biKKS2tVNhegd73MOKC-6piSzUk4Z5aH3U0fo1tBpHSxkv0ff6ea_c5bYd_o2TxlLxsHFqVMZOGjHDy7pdNr7_wK2UJn9KGW938Q6-jBqnCyo0rrLUXv19Tq0Yild-_AewobpC)** (pako/zlib-compressed, verified to round-trip).
 
 Regenerate whenever task metadata changes:
 
@@ -33,7 +33,7 @@ gantt
     section Gate 1-Decisions
     01 Project Setup & Group Contract ✓ : done, 2026-09-04, 1d
     02 Database Choice Discussion ✓ : done, 2026-09-04, 1d
-    03 Graphify Architecture Artifacts ✓ : done, 2026-09-07, 1d
+    03 Ripwire Architecture Artifacts ✓ : done, 2026-09-07, 1d
     section Gate 2-Scaffold
     04 Database Design & Setup ✓ : done, 2026-09-07, 1d
     05 Next.js + Tailwind CSS + shadcn/ui Setup ✓ : done, 2026-09-07, 1d
@@ -50,10 +50,27 @@ gantt
     15 Blockchain Access Logging ✓ : done, 2026-09-20, 2d
     16 P2P Network Implementation ✓ : done, 2026-09-20, 2d
     section Gate 4-Integration
-    17 User Roles & Access Control (80% · 16/20 · doing) : active, 2026-09-23, 2d
+    17 User Roles & Access Control (85% · 17/20 · doing) : active, 2026-09-23, 2d
     18 Socket.io Broadcasting (88% · 21/24 · doing) : active, 2026-09-28, 1d
     section Gate 5-Delivery
     19 Testing & Quality Assurance ✓ : done, 2026-09-22, 2d
     20 Documentation & README (12% · 4/34 · doing) : active, 2026-09-29, 1d
     21 Presentation Preparation (0% · 0/23 · doing) : active, 2026-09-30, 2d
+    section Gate Other
+    22 Solana Repo Split and Toolchain (11% · 2/18 · todo) : active, 2026-10-10, 1d
+    23 Freeze the Interface Contract (0% · 0/21 · todo) : active, 2026-10-10, 1d
+    24 Solana Program Scaffold (0% · 0/21 · todo) : active, 2026-10-11, 1d
+    25 Pure Hash Chain Module (0% · 0/19 · todo) : active, 2026-10-11, 1d
+    26 Durable Outbox and Solana Flusher (0% · 0/24 · todo) : active, 2026-10-11, 2d
+    27 Build the Anchor Program (0% · 0/18 · todo) : active, 2026-10-11, 1d
+    28 Devnet Deploy (0% · 0/15 · todo) : active, 2026-10-11, 1d
+    29 Solana Program Tests (0% · 0/21 · todo) : active, 2026-10-10, 2d
+    30 Solana Client and Environment (0% · 0/20 · todo) : active, 2026-10-12, 1d
+    31 Remove the Homemade Blockchain (0% · 0/21 · todo) : active, 2026-10-11, 2d
+    32 Wire Flusher to the Solana Program (0% · 0/15 · todo) : active, 2026-10-12, 1d
+    33 Patient Wallet Integration (0% · 0/17 · todo) : active, 2026-10-11, 2d
+    34 Solana Verification UI (0% · 0/18 · todo) : active, 2026-10-11, 2d
+    35 E2E and Submission Disclosure (0% · 0/13 · todo) : active, 2026-10-12, 1d
+    36 Hackathon Documentation (0% · 0/24 · todo) : active, 2026-10-12, 1d
+    37 Hackathon Submission and Decks (0% · 0/23 · todo) : active, 2026-10-11, 3d
 ```

@@ -1,159 +1,166 @@
-# Inl 3 – Grupparbete
+# Inl 3 – Group Assignment
 
-## Innehåll
+## Contents
 
 - [Information](#information)
-- [Uppgiftsbeskrivning](#uppgiftsbeskrivning)
-- [Att göra](#att-göra)
-- [Kravlista](#kravlista)
-- [Redovisning](#redovisning)
-- [Exempel på ansvarsfördelning & tidsplan (ej krav)](#exempel-på-ansvarsfördelning-tidsplan-ej-krav)
-- [Resurser](#resurser)
-- [Bedömningsexempel](#bedömningsexempel)
-  - [För IG](#för-ig)
-  - [För G](#för-g)
+- [Task Description](#task-description)
+- [To Do](#to-do)
+- [Requirements List](#requirements-list)
+- [Presentation](#presentation)
+- [Example of Responsibility Distribution & Schedule (not a requirement)](#example-of-responsibility-distribution--schedule-not-a-requirement)
+- [Resources](#resources)
+- [Assessment Examples](#assessment-examples)
+  - [For IG](#for-ig)
+  - [For G](#for-g)
 
 ## Information
 
-- **Betygsskala:** IG/G
-- **Deadline:** fredagen 2 oktober 2026 kl. 11.00
-- **Mål från kursplanen som examineras:**
-  1. (4) Utveckla komplett blockkedje-driven programmering från grunden
-  2. (8) Använda och koppla samman tidigare kunskaper och färdigheter i frontend och blockchain i ett Node.js-projekt
-- **Inlämning:**
-  1. Commit:a _och pusha_ koden till repot på GitHub. Verifiera att det ni har på datorn även syns på GitHub.
-  2. Se till att repot är publikt och/eller bjud in användaren `postmodernistx` som en "collaborator" till repot.
-  3. Klistra in länken till repot på itslearning i inlämningsboxen, samt zippa & ladda upp koden (du får hemskt gärna exkludera `node_modules`-mappen)
+- **Grading scale:** IG/G
+- **Deadline:** Friday 2 October 2026 at 11:00
+- **Learning objectives from the syllabus being examined:**
+  1. (4) Develop complete blockchain-driven programming from scratch
+  2. (8) Apply and connect previous knowledge and skills in frontend and blockchain in a Node.js project
+- **Submission:**
+  1. Commit _and push_ the code to the repository on GitHub. Verify that what you have on your computer also shows on GitHub.
+  2. Make sure the repository is public and/or invite the user `postmodernistx` as a "collaborator" to the repository.
+  3. Paste the link to the repository on itslearning in the submission box, and zip & upload the code (you are very welcome to exclude the `node_modules` folder)
 
-## Uppgiftsbeskrivning
+## Task Description
 
-GDPR-lagen kräver att patienter ska ha rätt att få veta vem som har tittat på deras (sjukvårds)journaler. Nyfiken personal tjuvkikar ibland på t.ex. kända personers eller anhörigas patientuppgifter eller raderar serverloggar för att dölja obehörig åtkomst.
+The GDPR law requires that patients have the right to know who has looked at their (medical) records. Curious staff sometimes peek at, for example, famous people's or relatives' patient data, or delete server logs to hide unauthorised access.
 
-Ni ska skapa ett system där de faktiska medicinska uppgifterna lagras i en SQL-databas, men varje gång en läkare, sjuksköterska, patienten själv eller någon annan tittar på uppgifterna så ska en "access log" genereras till blockkedjan.
+You are to create a system where the actual medical data is stored in a SQL database, but every time a doctor, nurse, the patient themselves or anyone else looks at the data, an "access log" is generated to the blockchain.
 
-## Att göra
+## To Do
 
-I projektet ska ni ha med:
+The project must include:
 
-- Ett front end/UI i valfritt ramverk (ej endast HTML)
-- 1 login-sida (inloggningssätt väljer ni själva)
-- 5 användarroller:
-  1. läkare
-  2. sjuksköterska/ambulanspersonal
-  3. en vårdcentral
-  4. patienten själv
-  5. en "obehörig"
-- 1 patientvy, som varierar beroende på inloggad roll
-- Tillhörande backend, databaser och routing
+- A front end/UI in a framework of your choice (not only HTML)
+- 1 login page (you choose the login method yourselves)
+- 5 user roles:
+  1. doctor
+  2. nurse/ambulance staff
+  3. a primary care centre
+  4. the patient themselves
+  5. an "unauthorised" person
+- 1 patient view, which varies depending on the logged-in role
+- Associated backend, databases and routing
 
-**Exempelflöde – läkare/sjuksköterska/ambulanspersonal**
+**Example flow – doctor/nurse/ambulance staff**
 
-- Personen loggar in, och ska då få upp en sökruta där de kan söka efter patientens namn.
-- När de har valt patient ska de få upp journalen, och även "access logs" ska visas.
-- Personen ska kunna lägga till en anteckning och spara den, samt välja vem den ska vara synlig för av följande alternativ:
-  - Endast sig själv/den som är inloggad (privat anteckning)
-  - Endast sjukvårdspersonal (läkare, sjuksköterska, ambulanspersonal)
-  - Alla (dvs. ovanstående plus patienten)
+- The person logs in and should then see a search box where they can search for the patient's name.
+- Once they have selected a patient, the record should appear, and "access logs" should also be displayed.
+- The person should be able to add a note and save it, and choose who it should be visible to from the following options:
+  - Only themselves/the logged-in user (private note)
+  - Only healthcare staff (doctor, nurse, ambulance staff)
+  - Everyone (i.e. the above plus the patient)
 
-**Exempelflöde – patient**
+**Example flow – patient**
 
-- Personen loggar in, och ska då direkt dirigeras till sin journalsida med all data
-- Personen ska inte kunna manipulera URL:en för att få upp någon annans data
-- Patienten ska kunna se "access logs"
-- Patienten ska endast se anteckningar som ingår i kategorin "alla", dvs. inte läkarens privata anteckningar. Däremot ska åtkomst synas.
+- The person logs in and should then be directed straight to their record page with all data
+- The person should not be able to manipulate the URL to bring up someone else's data
+- The patient should be able to see "access logs"
+- The patient should only see notes that fall into the "everyone" category, i.e. not the doctor's private notes. However, access should be visible.
 
-**Exempelflöde – obehörig**
+**Example flow – unauthorised**
 
-- Det säger nog sig självt att det bara ska visas en "Åtkomst nekad"-sida.
+- It goes without saying that only an "Access denied" page should be shown.
 
-Därutöver ska ni ha med ett P2P-nätverk:
+In addition, you must include a P2P network:
 
-- Ni ska ha minst 2 samtidiga servar igång, t.ex. en på port 3001 och en på port 3002. Syftet är att simulera t.ex. Sjukhus S och Ambulans A och deras samtidiga åtkomst till systemet.
-- Om en person är inloggad på server 1 skriver en medicinsk anteckning, så ska den åtkomstloggen distribueras ut i blockkedjan.
-- Om en person är samtidigt inloggad på server 2 och har behörighet att läsa den medicinska anteckningen, så ska den komma upp i "anteckningslistan" (använd sockets/broadcasting för detta).
+- You must have at least 2 simultaneous servers running, e.g. one on port 3001 and one on port 3002. The purpose is to simulate, for example, Hospital S and Ambulance A and their simultaneous access to the system.
+- If a person logged in on server 1 writes a medical note, that access log should be distributed out into the blockchain.
+- If a person is simultaneously logged in on server 2 and has permission to read the medical note, it should appear in the "note list" (use sockets/broadcasting for this).
 
-**Övrigt:**
+**Other:**
 
-- Om ni vill implementera ett "passwordless login", så går det bra, men det är inget krav. Är ni uttråkade kan ni ju prova med en passkey, om det går.
-- Arbeta gärna testdrivet även i detta projekt
-- ⚠️ Ni ska dokumentera minst 2 st projektmöten (t.ex. daily standups) _per vecka_ i ert repo. Det räcker med en anteckning, men det ska framgå hur ni har drivit projektet framåt och vad som ännu är kvar (så att inte allt arbete görs i sista minuten sista veckan). Använd gärna ett agilt arbetssätt från start.
-- Projektet behöver inte ligga live/online, men ska fungera på era respektive datorer.
+- If you want to implement a "passwordless login", that is fine, but it is not a requirement. If you are bored, you could try a passkey, if possible.
+- Preferably work test-driven in this project too
+- ⚠️ You must document at least 2 project meetings (e.g. daily standups) _per week_ in your repository. A note is enough, but it must be clear how you have driven the project forward and what remains (so that not all work is done at the last minute in the final week). Preferably use an agile way of working from the start.
+- The project does not need to be live/online, but must work on your respective computers.
 
-**Viktigt:**
+**Important:**
 
-- Medicinska journaler ska ALDRIG lagras på blockkedjan, vilket strider mot GDPR.
-- Ni _ska_ skriva ett gruppkontrakt.
+- Medical records must NEVER be stored on the blockchain, which is contrary to the GDPR.
+- You _must_ write a group contract.
 
-## Kravlista
+## Requirements List
 
-- Gruppkontrakt ska skrivas innan ni sätter igång med projektet, se [mall](https://gist.github.com/postmodernistx/6afcbe224bce912a6da1a86b8b94adbc). Checka in det i repot som `gruppkontrakt.md`.
-- Fungerande flöde/demo redovisat på lektionen.
-- README i repot
-- Agilt arbetssätt
-- **Pull requests/kodgranskning:** ni ska arbeta med PRs så att ni aktivt tar del av varandras kod och kvalitetssäkras den. Ingenting får committas till `main` utan att gå via en PR. Ni kan sätta upp regler för detta i ert repo, om ni har dålig koll på arbetsflödet.
+- The group contract must be written before you start the project, see [template](https://gist.github.com/postmodernistx/6afcbe224bce912a6da1a86b8b94adbc). Check it into the repository as `gruppkontrakt.md`.
+- A working flow/demo presented in class.
+- README in the repository
+- Agile way of working
+- **Pull requests/code review:** you must work with PRs so that you actively take part in each other's code and ensure its quality. Nothing may be committed to `main` without going via a PR. You can set up rules for this in your repository if you are unsure about the workflow.
 
-## 🖥️ Redovisning
+## 🖥️ Presentation
 
-- 10 min per grupp inkl. teknikstrul
-- Det är OK om en person redovisar, ni delar upp redovisningen sinsemellan som ni önskar.
-- Öva på presentationen; avsätt tid till detta i er projektplanering!
-- I redovisningen ska ni:
-  - Demonstrera ett fungerande flöde i front end (se till att ha projektet igång innan det är dags för er att redovisa)
-  - Berätta om 4 utmaningar och hur ni löste dessa (t.ex. 1 per person)
+- 10 min per group incl. technical hiccups
+- It is OK if one person presents; you divide the presentation among yourselves as you wish.
+- Practise the presentation; set aside time for this in your project planning!
+- In the presentation you must:
+  - Demonstrate a working flow in the front end (make sure the project is running before it is your turn to present)
+  - Talk about 4 challenges and how you solved them (e.g. 1 per person)
 
-## Exempel på ansvarsfördelning & tidsplan (ej krav)
+## Example of Responsibility Distribution & Schedule (not a requirement)
 
-Jag ser dock gärna att ni samarbetar, parkodar och delar på uppgiftsområden så att ni får en bred uppfattning om hur ett projekt fungerar i sin helhet.
+However, I would like to see you collaborate, pair-programme and share task areas so that you get a broad understanding of how a project works as a whole.
 
-**Person 1 – Crypto & liggare**
+> **Status (Colosseum-hackathon).** The list below is the course's *example* of
+> responsibility distribution, not a requirement. Here is what was actually built in the hackathon fork:
+> signing and immutability were moved **on-chain** to an Anchor program
+> (hash chain on an `AuditTrail` PDA). Merkle trees and "longest chain
+> rule" fork handling were **never** built; they are marked below. See
+> `docs/hackathon/INTERFACE-CONTRACT.md`.
 
-- Ansvarar för oföränderliga audit logs och säkerhet
-- `Block` & `Blockchain`-kodklasserna.
-- Implementation av public/private key-signering.
-- Verifikationslogik för att säkerställa att hasharna matchar läkarens signatur.
-- Merkle tree-implementation för batchning av accessloggar.
+**Person 1 – Crypto & ledger**
 
-**Person 2 – P2P-nätverk**
+- Responsible for immutable audit logs and security
+- The `Block` & `Blockchain` code classes.
+- Implementation of public/private key signing. ✅ *Now: the program's authority signer on Solana.*
+- Verification logic to ensure the hashes match the doctor's signature. ✅ *Now: `head = sha256(prev ‖ borsh(event))`, verified against the chain.*
+- Merkle tree implementation for batching access logs. ❌ *Not built.*
 
-- Ansvarar för synkronisering mellan flera sjukhus och nätverksintegritet
-- WebSocket server/klient-kommunikation mellan olika sjukhus
-- Synka "audit blocks" mellan sjukhus
-- Lösa "fork"-problem med "longest chain rule" om ett sjukhus t.ex. råkar gå ner/offline.
+**Person 2 – P2P Network**
+
+- Responsible for synchronisation between multiple hospitals and network integrity
+- WebSocket server/client communication between different hospitals
+- Sync "audit blocks" between hospitals
+- Solve "fork" problems with the "longest chain rule" if a hospital happens to go down/offline.
 
 **Person 3 – Express API & middleware**
 
-- Express routes för att skriva/läsa data.
-- `auditLogger` middleware: avlyssnar automatiskt databas-access, signerar händelsen och utvinner ett block.
-- Eventuell test coverage
+- Express routes for writing/reading data.
+- `auditLogger` middleware: automatically intercepts database access, signs the event and extracts a block.
+- Possible test coverage
 
 **Person 4 – Front end**
 
-- Söka efter och visa patientens journal
-- Inloggning
-- Live-vy över vilka som läst/öppnat/skrivit till journalen
-- Kryptografisk "verification badge" om en logg ändrats
+- Search for and display the patient's record
+- Login
+- Live view of who has read/opened/written to the record
+- Cryptographic "verification badge" if a log has been changed
 
-## 📚 Resurser
+## 📚 Resources
 
 - [socket.io](https://socket.io/docs/v4/tutorial/introduction)
-- [Gruppkontrakt mall](https://gist.github.com/postmodernistx/6afcbe224bce912a6da1a86b8b94adbc)
-- [JavaScript-baserad passkey](https://simplewebauthn.dev/)
+- [Group contract template](https://gist.github.com/postmodernistx/6afcbe224bce912a6da1a86b8b94adbc)
+- [JavaScript-based passkey](https://simplewebauthn.dev/)
 
-## Bedömningsexempel
+## Assessment Examples
 
-### För IG
+### For IG
 
-- Punkterna på kravlistan uppfylls inte
-- Projektet fungerar inte
+- The points in the requirements list are not met
+- The project does not work
 
-### För G
+### For G
 
-- Punkterna på kravlistan/i uppgiftsbeskrivningen är uppfyllda _och redovisade_
-- Redovisning har genomförts
-- I README-filen ska följande finnas:
-  - Beskrivning av projektet
-  - Skärmdumpar på det färdiga projektet
-  - Instruktioner för installation/hur man kommer igång (uppdatera gärna löpande under projektets gång, så blir det lättare, t.ex. en gång varje vecka)
-  - Beskrivning av databasens struktur och gärna ett `CREATE`-script så att det går att återskapa databasen
-  - Vilka som jobbat med det
-  - Använd gärna t.ex. [README.so](https://readme.so/editor)
+- The points in the requirements list/task description are met _and presented_
+- The presentation has been carried out
+- The README file must contain the following:
+  - A description of the project
+  - Screenshots of the finished project
+  - Installation/getting-started instructions (preferably update them continuously during the project, as it makes things easier, e.g. once a week)
+  - A description of the database structure and preferably a `CREATE` script so that the database can be recreated
+  - Who has worked on it
+  - You are welcome to use e.g. [README.so](https://readme.so/editor)

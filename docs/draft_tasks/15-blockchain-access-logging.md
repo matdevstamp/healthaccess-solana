@@ -1,5 +1,12 @@
 # Task: Blockchain Access Logging
 
+> **Superseded (hackathon).** This task describes the original in-memory hash
+> chain. The hackathon replaced it with the Solana program `healthaccess_audit`:
+> the trail is a rolling `head_hash` on a single `AuditTrail` PDA, and the two
+> servers share that chain instead of syncing a private copy. The access-log P2P
+> routes were removed. Kept for provenance; see
+> `docs/hackathon/INTERFACE-CONTRACT.md`.
+
 ## Metadata
 - **Priority:** P0 - Critical
 - **Deadline:** 2026-09-21

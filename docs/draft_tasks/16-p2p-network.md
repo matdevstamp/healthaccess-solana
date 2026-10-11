@@ -1,5 +1,11 @@
 # Task: P2P Network Implementation
 
+> **Superseded (hackathon).** This task describes replicating a private
+> in-memory chain between the two servers. That replication is gone: both
+> servers now commit to one shared Solana `AuditTrail` PDA, so consistency comes
+> from the chain rather than a peer sync. Note sync and the heartbeat remain.
+> Kept for provenance; see `docs/hackathon/INTERFACE-CONTRACT.md`.
+
 ## Metadata
 - **Priority:** P0 - Critical
 - **Deadline:** 2026-09-21

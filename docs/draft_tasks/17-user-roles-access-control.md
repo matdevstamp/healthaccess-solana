@@ -71,12 +71,12 @@ each user's role and optional organization relation.
 Notes marked `all` are visible to patients. Healthcare notes are visible to staff. Private notes are
 visible only to their author. A note can only be edited or deleted by its author.
 
-Vårdcentral is implemented as the login role `primary_care`, holding the same clinical permissions as
+Primary care centre is implemented as the login role `primary_care`, holding the same clinical permissions as
 hospital staff. The raw requirements count it as one of five user roles, and the spec gives it no
 unique permission of its own, so it grants none.
 
 The clinic is simultaneously the organization its staff belong to: `Organization.type = "clinic"`
-with `User.organizationId` pointing at it (demo user `vc_test`, Vårdcentralen Ekfors). Organization
+with `User.organizationId` pointing at it (demo user `vc_test`, Ekfors Primary Care Centre). Organization
 IDs still do not restrict patient search, journals, notes, or access logs — `primary_care` sees the
 same patients as any other staff member. Organization-scoped access remains an explicit open
 decision rather than a completed permission.
@@ -151,7 +151,7 @@ tampering. The server check remains authoritative.
 
 ## Questions to Resolve
 
-- [x] How to handle organization-based access for vårdcentral? Answered: vårdcentral is the login role
+- [x] How to handle organization-based access for primary care centre? Answered: primary care centre is the login role
       `primary_care` plus an `Organization.type = "clinic"` record. Scoping clinical access to the own
       clinic's patients is still open and would require filtering the patient search.
 - [ ] Should we implement audit logging for all access attempts?
