@@ -6,6 +6,10 @@ rust-version.workspace = true
 description = "Tamper-evident access-log commitment for HealthAccess on Solana"
 
 [lib]
+# "lib" is required, not incidental. `tests/error_codes.rs` links the normally
+# compiled crate to pin the `#[error_code]` wire numbers, and `declare_program!`
+# needs a linkable lib target too. Dropping it turns `cargo test --features
+# anchor` into a compile error, which silently disables the error-code guards.
 crate-type = ["cdylib", "lib"]
 name = "healthaccess_audit"
 
@@ -60,6 +64,10 @@ solana-system-program = { version = "3", optional = true }
 
 [dev-dependencies]
 hex = "0.4"
+# Already in the lockfile via anchor-lang; used only to parse the committed IDL
+# in the program-id consistency test. Pinning the same major keeps `Cargo.lock`
+# unchanged.
+serde_json = "1"
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }

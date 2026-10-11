@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-healthaccess_audit = "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS"
+healthaccess_audit = "Co2EarRRbhBbisT1dcVoeYuNNs3fuRR1zFdyRd3ewxrE"
 
 [provider]
 cluster = "localnet"

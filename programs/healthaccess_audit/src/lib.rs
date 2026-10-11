@@ -62,10 +62,49 @@ use anchor_lang::prelude::*;
 #[cfg(feature = "anchor")]
 declare_program!(healthaccess_audit);
 
-// Program ID. Generated at `anchor init` time; must match `Anchor.toml` and the
-// deployed program. Replaced by the real keypair on `anchor build`.
+// Program ID. `declare_program!` emits its own copy inside the generated
+// `healthaccess_audit` module, but the `#[account]` macro also needs `ID` at the
+// crate root, so this declaration has to exist too.
+//
+// It MUST stay in sync with the keypair that `anchor build` produces, because
+// Anchor deploys to that keypair's address while the binary declares whatever
+// is written here. Nothing checks the pair: build succeeds, deploy succeeds, and
+// the mismatch only surfaces at runtime as DeclaredProgramIdMismatch (4100) on
+// the first instruction. That happened once already.
+//
+// `declare_id_matches_committed_idl()` guards the pair, and a fresh clone with a
+// stale IDL fails `cargo test --features anchor` rather than waiting to be run on
+// a cluster.
 #[cfg(feature = "anchor")]
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("Co2EarRRbhBbisT1dcVoeYuNNs3fuRR1zFdyRd3ewxrE");
+
+/// Fails if the `declare_id!` above disagrees with the committed IDL.
+///
+/// This compares against `crate::ID`, which comes from `declare_id!` — NOT
+/// `crate::healthaccess_audit::ID`, which `declare_program!` derives *from the
+/// IDL itself*. Asserting the latter against the IDL is a tautology: it passes
+/// for any IDL, including one carrying a stale or placeholder address, which is
+/// exactly the failure this test exists to catch.
+#[cfg(all(feature = "anchor", test))]
+#[test]
+fn declare_id_matches_committed_idl() {
+    let idl: serde_json::Value =
+        serde_json::from_str(include_str!("../../../idls/healthaccess_audit.json"))
+            .expect("committed IDL is not valid JSON");
+    let in_idl = idl
+        .get("address")
+        .and_then(serde_json::Value::as_str)
+        .unwrap_or("<no top-level address>");
+    let declared = crate::ID.to_string();
+    assert_eq!(
+        in_idl,
+        declared,
+        "declare_id! ({declared}) does not match the committed IDL ({in_idl}). \
+         Anchor deploys to the keypair in `keys/` while the binary declares the \
+         value above, so a mismatch surfaces at runtime as \
+         DeclaredProgramIdMismatch (4100) on the first instruction."
+    );
+}
 
 // `declare_program!` generates the `healthaccess_audit` module (entrypoints plus
 // typed `accounts::*` / `instruction::*` clients) from the IDL, so there is no

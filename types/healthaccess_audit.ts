@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/healthaccess_audit.json`.
  */
 export type HealthaccessAudit = {
-  "address": "Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS",
+  "address": "Co2EarRRbhBbisT1dcVoeYuNNs3fuRR1zFdyRd3ewxrE",
   "metadata": {
     "name": "healthaccessAudit",
     "version": "0.1.0",
