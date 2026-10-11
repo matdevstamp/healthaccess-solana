@@ -51,12 +51,12 @@ test.describe("medical records", () => {
     await page.goto("/patients/2");
 
     await expect(page.getByText("Patients can only open their own journal.")).toBeVisible();
-    await expect(page.getByText("Erik's record — private to patient 2.")).not.toBeVisible();
+    await expect(page.getByText("Mark's record — private to patient 2.")).not.toBeVisible();
   });
 
   // This suite covers reading records only. Writing a medical record is not in
   // the specced scope: docs/Raw_Requirements.md:53 and task 14 both ask staff to
-  // add an "anteckning" (note) with a visibility choice, and the records
+  // add a note with a visibility choice, and the records
   // user stories (task 12, US-06/07/08) are read-only. Note creation is covered
   // by e2e/notes/visibility.spec.ts and e2e/realtime/notes.spec.ts.
 });

@@ -129,7 +129,7 @@ test.describe("anchoring", () => {
 
     // Fixed-size, hashes and enums only. No name, no personal number, no note
     // body, no date of birth — the payload has no field that could carry one.
-    expect(serialized).not.toMatch(/dr_test|patient_test|Andersson/);
+    expect(serialized).not.toMatch(/dr_test|patient_test|Kowalska/);
     expect(serialized).not.toMatch(/19\d{10}/);
     expect(Object.keys(event).sort()).toEqual([
       "action",

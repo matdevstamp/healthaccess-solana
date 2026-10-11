@@ -165,13 +165,13 @@ Render explicit loading, error, empty, and success states. The query key improve
 │ Search: [_______________] [Search]  │
 │                                     │
 │ ┌─────────────────────────────────┐ │
-│ │ Patient: Anna Andersson         │ │
+│ │ Patient: Anna Kowalska          │ │
 │ │ DOB: 1985-03-15                 │ │
 │ │ Records: 5 | Notes: 3           │ │
 │ └─────────────────────────────────┘ │
 │                                     │
 │ ┌─────────────────────────────────┐ │
-│ │ Patient: Erik Eriksson          │ │
+│ │ Patient: Mark Thompson          │ │
 │ │ DOB: 1992-07-22                 │ │
 │ │ Records: 2 | Notes: 1           │ │
 │ └─────────────────────────────────┘ │

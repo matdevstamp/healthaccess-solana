@@ -17,7 +17,7 @@ async function main() {
       update: {},
       create: {
         id: 1,
-        name: "Stadsjukhuset",
+        name: "City Hospital",
         type: "hospital",
       },
     }),
@@ -26,7 +26,7 @@ async function main() {
       update: {},
       create: {
         id: 2,
-        name: "Ambulans Syd",
+        name: "Ambulance South",
         type: "ambulance service",
       },
     }),
@@ -37,7 +37,7 @@ async function main() {
       update: {},
       create: {
         id: 3,
-        name: "Vårdcentralen Ekfors",
+        name: "Ekfors Primary Care Centre",
         type: "clinic",
       },
     }),
@@ -95,12 +95,12 @@ async function main() {
 
   const patient = await prisma.patient.upsert({
     where: { id: 1 },
-    update: { userId: 4 },
+    update: { userId: 4, firstName: "Anna", lastName: "Kowalska" },
     create: {
       id: 1,
       personalNumber: "199001011234",
       firstName: "Anna",
-      lastName: "Andersson",
+      lastName: "Kowalska",
       dateOfBirth: new Date("1990-01-01"),
       userId: 4,
     },
@@ -109,12 +109,12 @@ async function main() {
   // A second patient so e2e can assert patients cannot open other patients' notes.
   const otherPatient = await prisma.patient.upsert({
     where: { id: 2 },
-    update: {},
+    update: { firstName: "Mark", lastName: "Thompson" },
     create: {
       id: 2,
       personalNumber: "199207225678",
-      firstName: "Erik",
-      lastName: "Eriksson",
+      firstName: "Mark",
+      lastName: "Thompson",
       dateOfBirth: new Date("1992-07-22"),
     },
   });
@@ -137,7 +137,7 @@ async function main() {
     create: {
       id: 2,
       recordType: "diagnosis",
-      content: "Erik's record — private to patient 2.",
+      content: "Mark's record — private to patient 2.",
       patientId: otherPatient.id,
       authorId: 1,
     },

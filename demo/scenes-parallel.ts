@@ -58,7 +58,7 @@ export const PARALLEL_NOTE_TEXTS = {
   handover: "Handover agreed with primary care. Continue inhalers.",
 } as const;
 
-const HEADING = /Anna Andersson/;
+const HEADING = /Anna Kowalska/;
 const LANE_TITLES = ["Dr. Sofia Berg · hospital-s", "Nurse Alex Lind · ambulance-a"] as const;
 
 /** Sign both lanes in and put both on the same patient's notes tab. */
@@ -90,7 +90,7 @@ function twoLanes(run: (left: Page, right: Page) => Promise<void>): Scene["run"]
 export const PARALLEL_SCENES: Scene[] = [
   {
     id: "par-setup",
-    label: "Två servrar, två användare",
+    label: "Two servers, two users",
     chapter: "Setup",
     lanes: 2,
     laneTitles: [...LANE_TITLES],
@@ -104,8 +104,8 @@ export const PARALLEL_SCENES: Scene[] = [
 
   {
     id: "par-realtime",
-    label: "Anteckning sprids i realtid",
-    chapter: "Realtid",
+    label: "Note spreads in realtime",
+    chapter: "Realtime",
     lanes: 2,
     laneTitles: [...LANE_TITLES],
     run: twoLanes(async (left, right) => {
@@ -127,8 +127,8 @@ export const PARALLEL_SCENES: Scene[] = [
 
   {
     id: "par-concurrent",
-    label: "Båda skriver samtidigt",
-    chapter: "Samtidigt",
+    label: "Both write at the same time",
+    chapter: "Concurrent",
     lanes: 2,
     laneTitles: [...LANE_TITLES],
     run: twoLanes(async (left, right) => {
@@ -168,8 +168,8 @@ export const PARALLEL_SCENES: Scene[] = [
 
   {
     id: "par-ledger",
-    label: "Varje server verifierar sin logg",
-    chapter: "Blockkedja",
+    label: "Each server verifies its log",
+    chapter: "Blockchain",
     lanes: 2,
     laneTitles: [...LANE_TITLES],
     run: twoLanes(async (left, right) => {
@@ -196,8 +196,8 @@ export const PARALLEL_SCENES: Scene[] = [
       await toast(left, "par-own-ledger");
       await humanRead(left, 900, 1500);
 
-      // Each pane verifies against its own chain, so the two servers show
-      // their own history for the same patient.
+      // Both panes verify against the shared Solana chain head, so the same
+      // patient history reconciles across the two servers.
       await humanHover(left, left.getByText("Blockchain verified").first());
       await humanRead(left, 800, 1400);
       await humanHover(right, right.getByText("Blockchain verified").first());

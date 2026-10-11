@@ -44,7 +44,7 @@ function patientRow(overrides: Record<string, unknown> = {}) {
   return {
     id: 1,
     firstName: "Anna",
-    lastName: "Andersson",
+    lastName: "Kowalska",
     dateOfBirth: new Date("1990-01-01T00:00:00.000Z"),
     personalNumber: "199001011234",
     records: [
@@ -87,7 +87,7 @@ describe("getDatabasePatientJournal", () => {
 
     expect(journal?.patient).toEqual({
       id: 1,
-      name: "Anna Andersson",
+      name: "Anna Kowalska",
       dateOfBirth: "1990-01-01",
       personalNumber: "199001011234",
       recordCount: 1,

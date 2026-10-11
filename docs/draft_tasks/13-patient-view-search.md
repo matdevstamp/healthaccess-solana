@@ -99,7 +99,7 @@ sequenceDiagram
 │ Medical Records:                    │
 │ ┌─────────────────────────────────┐ │
 │ │ 2024-01-15: Annual checkup     │ │
-│ │ Doctor: Dr. Svensson            │ │
+│ │ Doctor: Dr. Sofia Berg          │ │
 │ │ [View Details]                  │ │
 │ └─────────────────────────────────┘ │
 │                                     │
@@ -122,7 +122,7 @@ sequenceDiagram
 │                                     │
 │ Access Log:                         │
 │ ┌─────────────────────────────────┐ │
-│ │ 2024-01-15 10:30 - Dr. Svensson│ │
+│ │ 2024-01-15 10:30 - Dr. S. Berg  │ │
 │ │ viewed your records             │ │
 │ └─────────────────────────────────┘ │
 └─────────────────────────────────────┘

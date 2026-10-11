@@ -56,7 +56,7 @@ Demo Flow:
 1. Start both servers (port 3001, 3002)
 2. Open browser - Server 1
 3. Login as Doctor
-4. Search for patient "Anna Andersson"
+4. Search for patient "Anna Kowalska"
 5. View patient records
 6. Create a note with "Healthcare" visibility
 7. Open second browser - Server 2

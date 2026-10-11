@@ -79,7 +79,7 @@ function progressFill(total: number): string[] {
  *
  * Every scene label is written to its own file and referenced with `textfile`
  * rather than inlined, because ffmpeg's own escaping rules for `:` and `'` make
- * inlined Swedish text a reliable source of broken builds.
+ * inlined non-ASCII text a reliable source of broken builds.
  */
 export async function chapterFilter(chapters: Chapter[], total: number): Promise<string> {
   const labelDir = join("demo", "out", "segments", "labels");
