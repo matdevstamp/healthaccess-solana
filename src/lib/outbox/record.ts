@@ -12,6 +12,7 @@
  *    Web3 bundle.
  */
 
+import { env } from "@/lib/env";
 import { prismaOutboxStore, type EnqueueInput } from "./store";
 import type { AccessLogEvent } from "@/lib/types/api";
 
@@ -120,6 +121,16 @@ export function isDraining(): boolean {
 }
 
 async function runFlush(): Promise<void> {
+  // Nothing to anchor to yet. This check has to happen *before* the submitter
+  // is constructed: a missing SOLANA_PROGRAM_ID surfaces as a thrown error on
+  // every attempt, and the flusher would burn each event through its full
+  // retry budget and park it as `failed` — permanently — for a deployment
+  // that has simply not happened yet. Queued is the correct state, and it is
+  // what the sweep drains once the program id appears.
+  if (env.solanaProgramId.trim().length === 0) {
+    return;
+  }
+
   // Imported here, not at the top: the request path must not pay for the SDK.
   const [{ flushPending }, { solanaSubmitter }, { getConnection }] = await Promise.all([
     import("./flusher"),

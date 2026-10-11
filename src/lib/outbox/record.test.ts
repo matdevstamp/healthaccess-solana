@@ -29,6 +29,7 @@ const { enqueueAccessEvent, isDraining, recordAccessEvent, resetDrain, scheduleF
 
 beforeEach(() => {
   resetDrain();
+  process.env.SOLANA_PROGRAM_ID = "11111111111111111111111111111111";
   enqueue.mockReset().mockResolvedValue({ id: 5 });
   flushPending.mockReset().mockResolvedValue([]);
   getConnection.mockReset().mockReturnValue({ getTransaction: vi.fn() });
@@ -38,6 +39,7 @@ beforeEach(() => {
 
 afterEach(() => {
   resetDrain();
+  delete process.env.SOLANA_PROGRAM_ID;
 });
 
 describe("recordAccessEvent", () => {
@@ -214,5 +216,32 @@ describe("scheduleFlush", () => {
     scheduleFlush();
 
     await vi.waitFor(() => expect(flushPending).toHaveBeenCalled());
+  });
+});
+
+describe("scheduleFlush without a deployment", () => {
+  it("does not touch the submitter, because queued is the correct state", async () => {
+    // Without this guard every event burned its full retry budget and was
+    // parked as `failed` — permanently — for a deploy that had not happened.
+    delete process.env.SOLANA_PROGRAM_ID;
+
+    scheduleFlush();
+    await vi.waitFor(() => expect(isDraining()).toBe(false));
+
+    expect(flushPending).not.toHaveBeenCalled();
+  });
+
+  it("still records the event durably, so nothing is lost while unconfigured", async () => {
+    delete process.env.SOLANA_PROGRAM_ID;
+
+    await recordAccessEvent({
+      userId: 1,
+      patientId: 2,
+      recordId: 3,
+      action: "view",
+      serverId: "hospital-s",
+    });
+
+    expect(enqueue).toHaveBeenCalledTimes(1);
   });
 });
