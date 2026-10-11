@@ -65,6 +65,11 @@ test.describe("access log privacy", () => {
       data: { username: "dr_test", password: "test123" },
     });
 
+    // Self-contained: record a view before asserting on the log, so the
+    // assertion holds on a freshly seeded database and not only when this
+    // file happens to run after view.spec.ts.
+    await request.get("/api/patients/1");
+
     const { accessLogs } = await apiGet<{ accessLogs: AccessLogEvent[] }>(
       request,
       "/api/access-log",
@@ -84,6 +89,12 @@ test.describe("access log privacy", () => {
   test("records a denied access, because a refusal is what a patient most needs to see", async ({
     request,
   }) => {
+    await request.post("/api/auth/login", {
+      data: { username: "dr_test", password: "test123" },
+    });
+    // A successful journal open is the "view" event.
+    await request.get("/api/patients/1");
+
     await request.post("/api/auth/login", {
       data: { username: "patient_test", password: "test123" },
     });
