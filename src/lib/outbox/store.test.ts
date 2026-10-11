@@ -55,7 +55,7 @@ function row(overrides: Record<string, unknown> = {}) {
     clientTime: new Date(1_700_000_000_000),
     attempt: 0,
     status: "pending",
-    user: { role: "nurse" },
+    actorRole: "nurse",
     ...overrides,
   };
 }
@@ -110,6 +110,7 @@ describe("prismaOutboxStore.enqueue", () => {
         eventId: "e-9",
         patientId: 1,
         userId: 2,
+        role: "doctor",
         recordId: null,
         action: "view",
         serverId: "hospital-s",

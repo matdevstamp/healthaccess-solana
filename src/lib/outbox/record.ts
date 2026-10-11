@@ -41,6 +41,8 @@ export async function recordAccessEvent(input: {
   recordId: number | null;
   action: string;
   serverId: string;
+  /** Acting role. Snapshotted onto the outbox row at enqueue time. */
+  role: string;
 }): Promise<AccessLogEvent> {
   const event: AccessLogEvent = {
     eventId: crypto.randomUUID(),
@@ -63,6 +65,7 @@ export async function recordAccessEvent(input: {
     recordId: event.recordId,
     action: event.action,
     serverId: event.serverId,
+    role: input.role,
     clientTime: new Date(event.timestamp),
   });
 

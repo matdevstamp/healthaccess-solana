@@ -20,9 +20,13 @@ const AUTHORITY = new PublicKey("SysvarC1ock11111111111111111111111111111111");
  * type-checks and unit-tests perfectly on both sides and still fails on the
  * cluster, on demo day, with nothing local to debug.
  *
- * So these read the real artifact. When the Rust clone is absent the whole
- * suite skips rather than passing vacuously — a green that proves nothing is
- * worse than a skip that says so.
+ * So these read the real artifact. When the Rust clone is absent the suite
+ * must not pass vacuously — a green that proves nothing is worse than a fail
+ * that says so. On a developer machine the suite skips with the candidates
+ * printed, so the rest of the unit suite still runs without a Rust checkout.
+ * In CI there is no such excuse: post-merge the IDL lives at the repo root
+ * (`idls/healthaccess_audit.json`), so the suite FAILS hard on a missing IDL
+ * instead of going green by defaulting to the frozen-contract fallback.
  */
 
 function findCommittedIdl(): string | null {
@@ -30,12 +34,16 @@ function findCommittedIdl(): string | null {
 }
 
 const idlPath = findCommittedIdl();
-const describeIfIdl = idlPath ? describe : describe.skip;
+const describeIfIdl = idlPath ? describe : process.env.CI === "true" ? describe : describe.skip;
 
 if (!idlPath) {
-  console.warn(
-    `[solana] No committed IDL found; cross-check skipped. Looked in:\n  ${idlCandidates().join("\n  ")}`,
-  );
+  const msg = `[solana] No committed IDL found. ${
+    process.env.CI === "true" ? "FAILING: CI needs the committed IDL." : "Cross-check skipped."
+  }\n  Looked in:\n  ${idlCandidates().join("\n  ")}`;
+  if (process.env.CI === "true") {
+    throw new Error(msg);
+  }
+  console.warn(msg);
 }
 
 describeIfIdl("client vs the committed IDL", () => {

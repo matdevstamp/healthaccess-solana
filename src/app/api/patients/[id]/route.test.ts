@@ -100,6 +100,7 @@ describe("GET /api/patients/[id]", () => {
       recordId: null,
       action: "view_denied",
       serverId: expect.any(String),
+      role: "patient",
     });
   });
 

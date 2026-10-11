@@ -166,6 +166,11 @@ export function idlCandidates(): string[] {
     join(homedir(), "Skola", "ha-solana", "idl", "healthaccess_audit.json"),
     join(homedir(), "Skola", "ha-solana", "idls", "healthaccess_audit.json"),
     join(homedir(), "Skola", "ha-solana", "target", "idl", "healthaccess_audit.json"),
+    // After the Rust PR merges, both repos share one root, so the IDL is at the
+    // merge root. This candidate is the post-merge contract that tests run
+    // against in CI; the ha-solana-relative paths above only exist pre-merge.
+    join(process.cwd(), "idls", "healthaccess_audit.json"),
+    join(process.cwd(), "idl", "healthaccess_audit.json"),
   ];
 }
 

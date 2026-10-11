@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     }
 
     if (!canAccessPatient(user, record.patientId)) {
-      await logNoteAccess(user.id, record.patientId, record.id, "view_denied");
+      await logNoteAccess(user.id, record.patientId, record.id, "view_denied", user.role);
       return fail("UNAUTHORIZED", "Patients can only read their own journal notes.", 403);
     }
 
@@ -67,7 +67,7 @@ export async function GET(request: Request) {
       canViewNote({ visibility: note.visibility, authorUserId: note.authorId }, user),
     );
 
-    await logNoteAccess(user.id, record.patientId, record.id, "view");
+    await logNoteAccess(user.id, record.patientId, record.id, "view", user.role);
 
     return ok({
       notes: readNotes.map(serializeNote),
@@ -131,7 +131,7 @@ export async function POST(request: Request) {
       },
     });
 
-    await logNoteAccess(user.id, record.patientId, record.id, "create");
+    await logNoteAccess(user.id, record.patientId, record.id, "create", user.role);
 
     const serializedNote = serializeNote(note);
 

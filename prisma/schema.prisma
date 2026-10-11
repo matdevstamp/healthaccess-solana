@@ -136,6 +136,14 @@ model AccessLog {
   serverId         String   @map("server_id") // which of the two servers handled it
   user             User     @relation(fields: [userId], references: [id])
   userId           Int      @map("user_id")
+  /// Role snapshot taken at enqueue time.
+  ///
+  /// NOT a live read of `users.role`. The chain payload is built from this
+  /// column, so a role change after recording must not silently re-sign the
+  /// same event with a different role — that would make the same logical
+  /// access verify as two different on-chain events, and a rebuildable mirror
+  /// would disagree with what was actually anchored.
+  actorRole        String   @map("actor_role")
   /// Intentionally NOT a foreign key. See the note on the model.
   patientId        Int      @map("patient_id")
   record           MedicalRecord? @relation(fields: [recordId], references: [id])

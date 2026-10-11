@@ -192,6 +192,21 @@ describe("flushEntry", () => {
       expect(store.rows.get(1)?.error).toBe("contention");
       expect(store.rows.get(1)?.attempt).toBe(MAX_ATTEMPTS);
     });
+
+    it("parks a row that already exhausted its lifetime cap, without one more attempt", async () => {
+      // A row swept, retried, and re-swept across several process restarts: the
+      // Postgres attempt count is already at the cap. Before the lifetime check
+      // this row would burn another full per-call budget on every sweep forever.
+      const store = fakeStore([entry({ attempt: MAX_ATTEMPTS })]);
+      const submitter = createMockSubmitter();
+
+      const result = await flushEntry(entry(), { store, submitter, sleep: async () => {} });
+
+      expect(result.status).toBe("failed");
+      expect(store.rows.get(1)?.status).toBe("failed");
+      // claim() already recorded one attempt; no further budget was spent.
+      expect(store.rows.get(1)?.attempt).toBe(MAX_ATTEMPTS + 1);
+    });
   });
 
   describe("error classification", () => {

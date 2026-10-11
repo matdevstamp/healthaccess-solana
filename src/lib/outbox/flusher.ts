@@ -66,6 +66,24 @@ export async function flushEntry(entry: OutboxEntry, deps: FlusherDeps): Promise
     return { status: "skipped", signature: null, kind: null, error: null };
   }
 
+  // Lifetime cap, not a per-call one. `claim` already incremented `attempt`,
+  // so a row that has been picked up MAX_ATTEMPTS times across any number of
+  // sweeps is parked here instead of burning rate limit forever. Without this,
+  // every sweep re-attempts a permanently-stuck row MAX_ATTEMPTS more times.
+  if (claimed.attempt >= MAX_ATTEMPTS) {
+    await deps.store.markFailed(
+      entry.id,
+      claimed.attempt,
+      `max attempts reached (${claimed.attempt}/${MAX_ATTEMPTS})`,
+    );
+    return {
+      status: "failed",
+      signature: null,
+      kind: null,
+      error: `max attempts (${MAX_ATTEMPTS})`,
+    };
+  }
+
   // Snapshot it. The store's row is mutated in place by the mark* calls, and
   // reading `claimed.attempt` inside the loop would compound the increments.
   // `claim` already recorded one attempt, so the loop's index is added to it

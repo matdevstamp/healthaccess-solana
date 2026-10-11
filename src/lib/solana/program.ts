@@ -150,11 +150,18 @@ export function recordAccessInstruction(input: {
     if (account.name === "trail") {
       return { pubkey: trail, isSigner: false, isWritable: true };
     }
-    // Anything else the IDL declares and we do not construct. Every declared
-    // account must be supplied; the system program is the only one the client
-    // can name without context, which is why authority and trail are matched
-    // by name above rather than by position.
-    return { pubkey: SYSTEM_PROGRAM, isSigner: false, isWritable: false };
+    if (account.name === "system_program") {
+      return { pubkey: SYSTEM_PROGRAM, isSigner: false, isWritable: false };
+    }
+    // Fail loud, not silent. An account the IDL declares and this client does
+    // not construct is a bug: mapping it to SYSTEM_PROGRAM produces a
+    // transaction that passes local tests and fails on the cluster with an
+    // account-ownership error. That failure mode was exactly how the first
+    // broken build shipped — the cluster error names the wrong account, not
+    // the wrong line of client code.
+    throw new Error(
+      `record_access declares an account this client cannot supply: '${account.name}'. Add it to ${"recordAccessInstruction"} or the IDL is ahead of the client.`,
+    );
   });
 
   return {
@@ -199,7 +206,10 @@ export function initializeInstruction(input: {
     if (account.name === "trail") {
       return { pubkey: trail, isSigner: false, isWritable: true };
     }
-    return { pubkey: SYSTEM_PROGRAM, isSigner: false, isWritable: false };
+    if (account.name === "system_program") {
+      return { pubkey: SYSTEM_PROGRAM, isSigner: false, isWritable: false };
+    }
+    throw new Error(`initialize declares an account this client cannot supply: '${account.name}'.`);
   });
 
   return {

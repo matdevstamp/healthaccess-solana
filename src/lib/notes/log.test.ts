@@ -18,7 +18,7 @@ beforeEach(() => {
 
 describe("logNoteAccess", () => {
   it("records the event against this server's id", async () => {
-    await logNoteAccess(1, 2, 3, "view");
+    await logNoteAccess(1, 2, 3, "view", "doctor");
 
     expect(recordAccessEvent).toHaveBeenCalledWith({
       userId: 1,
@@ -26,17 +26,18 @@ describe("logNoteAccess", () => {
       recordId: 3,
       action: "view",
       serverId: process.env.SERVER_ID,
+      role: "doctor",
     });
   });
 
   it.each(["view", "create", "edit", "delete"])("passes the %s action through", async (action) => {
-    await logNoteAccess(1, 2, 3, action);
+    await logNoteAccess(1, 2, 3, action, "doctor");
 
     expect(recordAccessEvent).toHaveBeenCalledWith(expect.objectContaining({ action }));
   });
 
   it("records a denied access, which is an audit event rather than an error", async () => {
-    await logNoteAccess(1, 2, 3, "view_denied");
+    await logNoteAccess(1, 2, 3, "view_denied", "doctor");
 
     expect(recordAccessEvent).toHaveBeenCalledWith(
       expect.objectContaining({ action: "view_denied" }),
@@ -55,7 +56,7 @@ describe("logNoteAccess", () => {
         ),
     );
 
-    await logNoteAccess(1, 2, 3, "view");
+    await logNoteAccess(1, 2, 3, "view", "doctor");
 
     expect(resolved).toBe(true);
   });
@@ -63,6 +64,6 @@ describe("logNoteAccess", () => {
   it("propagates a failed durable write rather than losing the audit entry", async () => {
     recordAccessEvent.mockRejectedValue(new Error("database is gone"));
 
-    await expect(logNoteAccess(1, 2, 3, "view")).rejects.toThrow("database is gone");
+    await expect(logNoteAccess(1, 2, 3, "view", "doctor")).rejects.toThrow("database is gone");
   });
 });

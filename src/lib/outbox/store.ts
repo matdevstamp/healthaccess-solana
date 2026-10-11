@@ -32,6 +32,8 @@ export interface EnqueueInput {
   eventId: string;
   patientId: number;
   userId: number;
+  /** Acting role, snapshotted onto the row at enqueue time. */
+  role: string;
   recordId: number | null;
   action: string;
   serverId: string;
@@ -104,6 +106,7 @@ export const prismaOutboxStore: OutboxStore = {
         eventId: input.eventId,
         patientId: input.patientId,
         userId: input.userId,
+        actorRole: input.role,
         recordId: input.recordId,
         action: input.action,
         serverId: input.serverId,
@@ -120,7 +123,6 @@ export const prismaOutboxStore: OutboxStore = {
       where: { status: "pending" },
       orderBy: { id: "asc" },
       take: limit,
-      include: { user: { select: { role: true } } },
     });
 
     return rows.map((row) => ({
@@ -128,7 +130,7 @@ export const prismaOutboxStore: OutboxStore = {
       eventId: row.eventId ?? `row-${row.id}`,
       patientId: row.patientId,
       userId: row.userId,
-      role: row.user.role,
+      role: row.actorRole,
       action: row.action,
       recordId: row.recordId,
       serverId: row.serverId,
@@ -150,7 +152,6 @@ export const prismaOutboxStore: OutboxStore = {
 
     const row = await prisma.accessLog.findUnique({
       where: { id },
-      include: { user: { select: { role: true } } },
     });
     if (!row) {
       return null;
@@ -161,7 +162,7 @@ export const prismaOutboxStore: OutboxStore = {
       eventId: row.eventId ?? `row-${row.id}`,
       patientId: row.patientId,
       userId: row.userId,
-      role: row.user.role,
+      role: row.actorRole,
       action: row.action,
       recordId: row.recordId,
       serverId: row.serverId,

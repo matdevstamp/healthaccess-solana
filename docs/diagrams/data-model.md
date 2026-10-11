@@ -75,6 +75,7 @@ all all
     String action 
     String server_id 
     Int user_id 
+    String actor_role 
     Int patient_id 
     Int record_id "❓"
     String status 

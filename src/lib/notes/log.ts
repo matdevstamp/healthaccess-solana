@@ -14,6 +14,7 @@ export async function logNoteAccess(
   patientId: number,
   recordId: number,
   action: string,
+  role: string,
 ) {
   await recordAccessEvent({
     userId,
@@ -21,5 +22,6 @@ export async function logNoteAccess(
     recordId,
     action,
     serverId: env.serverId,
+    role,
   });
 }

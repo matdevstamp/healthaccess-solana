@@ -29,6 +29,7 @@ export async function GET(_request: Request, context: RouteContext) {
         recordId: null,
         action: "view_denied",
         serverId: env.serverId,
+        role: user.role,
       });
 
       return fail("UNAUTHORIZED", "Patients can only open their own journal.", 403);
@@ -42,6 +43,7 @@ export async function GET(_request: Request, context: RouteContext) {
         recordId: null,
         action: "view_not_found",
         serverId: env.serverId,
+        role: user.role,
       });
 
       return fail("PATIENT_NOT_FOUND", "Patient could not be found.", 404);
@@ -53,6 +55,7 @@ export async function GET(_request: Request, context: RouteContext) {
       recordId: null,
       action: "view",
       serverId: env.serverId,
+      role: user.role,
     });
 
     return ok(journal satisfies PatientJournalResponse);

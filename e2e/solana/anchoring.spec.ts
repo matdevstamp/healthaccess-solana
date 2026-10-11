@@ -76,6 +76,7 @@ test.describe("anchoring", () => {
         action: "view",
         serverId: "hospital-s",
         status: "pending",
+        actorRole: "doctor",
       },
     });
 
@@ -97,7 +98,6 @@ test.describe("anchoring", () => {
     const row = await prisma.accessLog.findFirst({
       where: { status: "anchored" },
       orderBy: { id: "desc" },
-      include: { user: { select: { role: true } } },
     });
     if (!row) {
       test.skip(true, "nothing anchored yet");
@@ -109,7 +109,7 @@ test.describe("anchoring", () => {
       eventId: row.eventId ?? "",
       patientId: row.patientId,
       userId: row.userId,
-      role: row.user.role,
+      role: row.actorRole,
       action: row.action,
       recordId: row.recordId,
       serverId: row.serverId,

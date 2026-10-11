@@ -193,7 +193,7 @@ describe("PATCH /api/notes/[id]", () => {
 
     await patch("5", { text: "Edited." });
 
-    expect(logNoteAccess).toHaveBeenCalledWith(3, 1, 1, "edit");
+    expect(logNoteAccess).toHaveBeenCalledWith(3, 1, 1, "edit", "nurse");
   });
 
   it("returns 500 when Prisma throws", async () => {
@@ -259,7 +259,7 @@ describe("DELETE /api/notes/[id]", () => {
 
     await del("5");
 
-    expect(logNoteAccess).toHaveBeenCalledWith(3, 1, 1, "delete");
+    expect(logNoteAccess).toHaveBeenCalledWith(3, 1, 1, "delete", "nurse");
   });
 
   it("returns 500 when Prisma throws", async () => {

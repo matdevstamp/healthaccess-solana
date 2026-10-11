@@ -50,6 +50,7 @@ describe("recordAccessEvent", () => {
       recordId: 3,
       action: "view",
       serverId: "hospital-s",
+      role: "doctor",
     });
 
     expect(enqueue).toHaveBeenCalledTimes(1);
@@ -65,6 +66,7 @@ describe("recordAccessEvent", () => {
       recordId: null,
       action: "view_denied",
       serverId: "hospital-s",
+      role: "nurse",
     });
 
     expect(event).toMatchObject({
@@ -85,6 +87,7 @@ describe("recordAccessEvent", () => {
       recordId: 3,
       action: "view",
       serverId: "hospital-s",
+      role: "doctor",
     });
 
     expect((enqueue.mock.calls[0]?.[0] as { eventId: string }).eventId).toBe(event.eventId);
@@ -100,6 +103,7 @@ describe("recordAccessEvent", () => {
         recordId: 3,
         action: "view",
         serverId: "hospital-s",
+        role: "doctor",
       }),
     ).rejects.toThrow("database is gone");
 
@@ -113,6 +117,7 @@ describe("recordAccessEvent", () => {
       recordId: 3,
       action: "view",
       serverId: "hospital-s",
+      role: "doctor",
     });
 
     await vi.waitFor(() => expect(flushPending).toHaveBeenCalledTimes(1));
@@ -129,6 +134,7 @@ describe("enqueueAccessEvent", () => {
         recordId: 3,
         action: "view",
         serverId: "hospital-s",
+        role: "doctor",
       }),
     ).resolves.toBe(5);
   });
@@ -143,6 +149,7 @@ describe("enqueueAccessEvent", () => {
       recordId: null,
       action: "view",
       serverId: "hospital-s",
+      role: "doctor",
       clientTime,
     });
 
@@ -240,6 +247,7 @@ describe("scheduleFlush without a deployment", () => {
       recordId: 3,
       action: "view",
       serverId: "hospital-s",
+      role: "doctor",
     });
 
     expect(enqueue).toHaveBeenCalledTimes(1);

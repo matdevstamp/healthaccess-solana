@@ -28,7 +28,6 @@ import { toChainEvent } from "./store";
 export async function verifyLocalOutbox(): Promise<ChainVerification> {
   const rows = await prisma.accessLog.findMany({
     orderBy: { id: "asc" },
-    include: { user: { select: { role: true } } },
   });
 
   const localHead = foldHead(
@@ -38,7 +37,7 @@ export async function verifyLocalOutbox(): Promise<ChainVerification> {
         eventId: row.eventId ?? `row-${row.id}`,
         patientId: row.patientId,
         userId: row.userId,
-        role: row.user.role,
+        role: row.actorRole,
         action: row.action,
         recordId: row.recordId,
         serverId: row.serverId,

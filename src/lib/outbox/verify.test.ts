@@ -33,9 +33,10 @@ function rows(count: number) {
     serverId: "hospital-s",
     clientTime: new Date(1_700_000_000_000),
     attempt: 0,
-    // `user.role` is what the route reads; `role` is what toChainEvent wants.
+    // `actorRole` is the snapshot written at enqueue time; verify folds the
+    // same snapshot so a role change after recording cannot re-sign events.
     role: "doctor",
-    user: { role: "doctor" },
+    actorRole: "doctor",
   }));
 }
 
