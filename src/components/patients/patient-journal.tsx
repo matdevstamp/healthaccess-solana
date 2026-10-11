@@ -22,19 +22,20 @@ import { apiRequest } from "@/lib/api/client";
 import { roleLabel } from "@/components/auth/mock-auth";
 import type {
   AccessLogActorMap,
+  AccessLogEvent,
+  ChainVerificationBlock,
   JournalNotePreview,
   NoteMutationResponse,
   NoteVisibility,
   PatientJournalResponse,
   SessionUser,
 } from "@/lib/types/api";
-import type { BlockchainAccessLog } from "@/lib/blockchain/access-log";
 
 export function PatientJournal({ patientId, user }: { patientId: string; user: SessionUser }) {
   const [journal, setJournal] = useState<PatientJournalResponse | null>(null);
-  const [blockchainAccessLogs, setBlockchainAccessLogs] = useState<BlockchainAccessLog[]>([]);
+  const [accessLogs, setAccessLogs] = useState<AccessLogEvent[]>([]);
   const [actors, setActors] = useState<AccessLogActorMap>({});
-  const [chainValid, setChainValid] = useState(false);
+  const [verification, setVerification] = useState<ChainVerificationBlock | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [socketConnected, setSocketConnected] = useState(false);
@@ -77,8 +78,8 @@ export function PatientJournal({ patientId, user }: { patientId: string; user: S
         };
       });
     });
-    socket.on("access-log-created", ({ accessLog }: { accessLog: BlockchainAccessLog }) => {
-      setBlockchainAccessLogs((currentLogs) => {
+    socket.on("access-log-created", ({ accessLog }: { accessLog: AccessLogEvent }) => {
+      setAccessLogs((currentLogs) => {
         const alreadyExists = currentLogs.some((log) => log.eventId === accessLog.eventId);
 
         if (alreadyExists) {
@@ -109,16 +110,16 @@ export function PatientJournal({ patientId, user }: { patientId: string; user: S
       try {
         const data = await apiRequest<PatientJournalResponse>(`/api/patients/${patientId}`);
         const accessLogData = await apiRequest<{
-          accessLogs: BlockchainAccessLog[];
+          accessLogs: AccessLogEvent[];
           actors: AccessLogActorMap;
-          chainValid: boolean;
+          verification: ChainVerificationBlock;
           viewerUserId: number;
         }>("/api/access-log");
         if (isMounted) {
           setJournal(data);
-          setBlockchainAccessLogs(accessLogData.accessLogs);
+          setAccessLogs(accessLogData.accessLogs);
           setActors(accessLogData.actors ?? {});
-          setChainValid(accessLogData.chainValid);
+          setVerification(accessLogData.verification);
           setError(null);
         }
       } catch {
@@ -284,9 +285,7 @@ export function PatientJournal({ patientId, user }: { patientId: string; user: S
               <ActivityIcon className="size-5" aria-hidden="true" />
               <span>
                 <span className="block font-medium">Access log</span>
-                <span className="block text-xs opacity-75">
-                  {blockchainAccessLogs.length} events
-                </span>
+                <span className="block text-xs opacity-75">{accessLogs.length} events</span>
               </span>
             </TabsTrigger>
           </TabsList>
@@ -296,9 +295,7 @@ export function PatientJournal({ patientId, user }: { patientId: string; user: S
               <CardHeader>
                 <FileTextIcon className="size-5 text-muted-foreground" aria-hidden="true" />
                 <CardTitle>Medical records</CardTitle>
-                <CardDescription>
-                  Medical records are read from SQL and never written to the blockchain.
-                </CardDescription>
+                <CardDescription>Medical records live in SQL only. Never on chain.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3">
                 {journal.records.map((record) => (
@@ -325,11 +322,19 @@ export function PatientJournal({ patientId, user }: { patientId: string; user: S
                 <ActivityIcon className="size-5 text-muted-foreground" aria-hidden="true" />
                 <CardTitle>Access log</CardTitle>
                 <CardDescription>
-                  Access events recorded and verified by the blockchain audit chain.{" "}
+                  Access events anchored to Solana. Patient and staff ids are salted hashes; nothing
+                  identifying is written on chain.
+                  {verification ? (
+                    <span data-testid="access-log-verification" className="mt-1 block">
+                      {verification.match
+                        ? `Local mirror matches the chain head (${verification.localHead.slice(0, 8)}…).`
+                        : "Local mirror does not match the chain head."}
+                    </span>
+                  ) : null}
                 </CardDescription>
               </CardHeader>
               <CardContent className="grid gap-3">
-                {blockchainAccessLogs.map((log) => {
+                {accessLogs.map((log) => {
                   const actor = actors[String(log.userId)];
 
                   return (
@@ -353,9 +358,13 @@ export function PatientJournal({ patientId, user }: { patientId: string; user: S
                         <p className="text-xs text-muted-foreground">Server: {log.serverId}</p>
                       </div>
 
-                      <Badge variant="secondary" className="w-fit">
+                      <Badge
+                        variant={log.status === "failed" ? "destructive" : "secondary"}
+                        className="w-fit"
+                        data-testid="access-log-status"
+                      >
                         <CheckCircle2Icon className="size-3" aria-hidden="true" />
-                        {chainValid ? "Blockchain verified" : "Blockchain verification failed"}
+                        {anchorLabel(log)}
                       </Badge>
                     </div>
                   );
@@ -367,4 +376,22 @@ export function PatientJournal({ patientId, user }: { patientId: string; user: S
       </section>
     </>
   );
+}
+
+/**
+ * One row's anchoring state.
+ *
+ * `pending` is the normal state between the durable write and the flusher's
+ * next pass, so it says "anchoring" rather than "failed": a queued event is
+ * not an error, and a demo that shows every row red because the flusher has
+ * not run yet reads as broken when it is merely in flight.
+ */
+function anchorLabel(log: AccessLogEvent): string {
+  if (log.status === "anchored") {
+    return log.signature ? `Anchored ${log.signature.slice(0, 8)}…` : "Anchored";
+  }
+  if (log.status === "failed") {
+    return "Anchor failed";
+  }
+  return "Anchoring…";
 }

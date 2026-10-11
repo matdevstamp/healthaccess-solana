@@ -144,7 +144,7 @@ describe("GET /api/notes", () => {
     const response = await get();
 
     expect(response.status).toBe(403);
-    expect(logNoteAccess).toHaveBeenCalledWith(4, 2, 1, "view_denied");
+    expect(logNoteAccess).toHaveBeenCalledWith(4, 2, 1, "view_denied", "patient");
   });
 
   it("returns only the notes the viewer may see and counts the rest as hidden", async () => {
@@ -188,7 +188,7 @@ describe("GET /api/notes", () => {
 
     await get();
 
-    expect(logNoteAccess).toHaveBeenCalledWith(1, 1, 1, "view");
+    expect(logNoteAccess).toHaveBeenCalledWith(1, 1, 1, "view", "doctor");
   });
 
   it("orders the notes oldest first", async () => {
@@ -289,7 +289,7 @@ describe("POST /api/notes", () => {
 
     await post(body);
 
-    expect(logNoteAccess).toHaveBeenCalledWith(3, 1, 1, "create");
+    expect(logNoteAccess).toHaveBeenCalledWith(3, 1, 1, "create", "nurse");
   });
 
   it("broadcasts to sockets and syncs the peer", async () => {

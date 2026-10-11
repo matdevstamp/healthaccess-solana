@@ -71,12 +71,21 @@ all all
 
   "access_logs" {
     Int id "🗝️"
+    String event_id "❓"
     String action 
     String server_id 
     Int user_id 
+    String actor_role 
     Int patient_id 
     Int record_id "❓"
-    Boolean blockchain_synced 
+    String status 
+    BigInt slot "❓"
+    String signature "❓"
+    String head_hash "❓"
+    Int attempt 
+    String error "❓"
+    DateTime claimed_at "❓"
+    DateTime client_time 
     DateTime created_at 
     }
   
@@ -89,6 +98,5 @@ all all
     "notes" }o--|| "medical_records" : "record"
     "notes" }o--|| "users" : "author"
     "access_logs" }o--|| "users" : "user"
-    "access_logs" }o--|| "patients" : "patient"
     "access_logs" }o--|o "medical_records" : "record"
 ```

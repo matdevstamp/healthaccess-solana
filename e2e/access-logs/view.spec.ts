@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 /**
- * The blockchain access-log view. Like the records view it is a tab on the
- * patient journal (`/patients/[id]`), fed by `GET /api/access-log` and live
+ * The access-log view. Like the records view it is a tab on the patient
+ * journal (`/patients/[id]`), fed by `GET /api/access-log` and live
  * `access-log-created` socket events.
  */
 
@@ -31,25 +31,28 @@ test.describe("access logs", () => {
   test("shows the acting user, the action and the originating server", async ({ page }) => {
     await openAccessLogTab(page, "dr_test");
 
-    // The chain stores a userId only; the name is joined from SQL at read time,
-    // since access logs must not carry personal data on-chain.
+    // The event carries a userId only; the name is joined from SQL at read
+    // time, since the on-chain payload must not carry personal data.
     await expect(page.getByText("dr_test").first()).toBeVisible();
     await expect(page.getByText(/Server: (hospital-s|ambulance-a)/).first()).toBeVisible();
   });
 
-  test("reports the chain as verified", async ({ page }) => {
+  test("shows the anchoring state and whether the mirror matches chain", async ({ page }) => {
     await openAccessLogTab(page, "dr_test");
 
-    await expect(page.getByText("Blockchain verified").first()).toBeVisible();
-    await expect(page.getByText("Blockchain verification failed")).not.toBeVisible();
+    // Anchoring is asynchronous, so a row is normally "pending" until the
+    // flusher runs. Both states are legitimate; a red "Anchor failed" is not.
+    await expect(page.getByTestId("access-log-status").first()).toBeVisible();
+    await expect(page.getByText("Anchor failed")).not.toBeVisible();
+    await expect(page.getByTestId("access-log-verification")).toBeVisible();
   });
 
   test("gives a patient the access log for their own journal only", async ({ page }) => {
     await openAccessLogTab(page, "patient_test");
 
-    // The API already filters by patientId; the UI must not show another
+    // The API filters by patientId in the query; the UI must not show another
     // patient's events, so patient 2's journal id never appears as a target.
-    await expect(page.getByText("Blockchain verified").first()).toBeVisible();
+    await expect(page.getByTestId("access-log-status").first()).toBeVisible();
   });
 
   test("refuses the access log for a patient the viewer cannot open", async ({ page }) => {

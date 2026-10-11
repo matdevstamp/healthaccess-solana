@@ -24,6 +24,7 @@
     "test:unit:watch": "vitest",
     "test:unit:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:solana": "playwright test --config playwright.blockchain.config.ts",
     "test:install": "playwright install chromium",
     "demo:narrate": "esbuild demo/narrate.ts --bundle --platform=node --format=esm --outfile=demo/out/narrate.mjs --log-level=warning && node demo/out/narrate.mjs",
     "demo:record": "playwright test --config demo/playwright.demo.config.ts",
@@ -33,6 +34,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
     "@prisma/client": "^6.19.3",
+    "@solana/web3.js": "^1.99.0",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.2.5",

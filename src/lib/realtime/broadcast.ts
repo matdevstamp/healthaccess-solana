@@ -1,8 +1,7 @@
-import type { BlockchainAccessLog } from "@/lib/blockchain/access-log";
 import { isStaffRole } from "@/lib/auth/permissions";
 import { canViewNote } from "@/lib/notes/visibility";
 import { getSocketServer } from "@/lib/realtime/socket-server";
-import type { Note, SessionUser } from "@/lib/types/api";
+import type { AccessLogEvent, Note, SessionUser } from "@/lib/types/api";
 
 export async function broadcastNoteCreated(patientId: number, note: Note): Promise<void> {
   const io = getSocketServer();
@@ -20,7 +19,7 @@ export async function broadcastNoteCreated(patientId: number, note: Note): Promi
   }
 }
 
-export async function broadcastAccessLogCreated(accessLog: BlockchainAccessLog): Promise<void> {
+export async function broadcastAccessLogCreated(accessLog: AccessLogEvent): Promise<void> {
   const io = getSocketServer();
   const sockets = await io.in(`patient:${accessLog.patientId}`).fetchSockets();
 

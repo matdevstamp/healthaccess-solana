@@ -113,3 +113,69 @@ describe("env validation", () => {
     expect(() => env.databaseUrl).not.toThrow();
   });
 });
+
+describe("solana env", () => {
+  it("applies devnet defaults", async () => {
+    const env = await loadEnv();
+
+    expect(env.solanaRpcUrl).toBe("https://api.devnet.solana.com");
+    expect(env.solanaCluster).toBe("devnet");
+    expect(env.solanaCommitment).toBe("confirmed");
+    expect(env.solanaProgramId).toBe("");
+  });
+
+  it("does not require a program id, so the app boots before the deploy", async () => {
+    setEnv({ SOLANA_PROGRAM_ID: undefined });
+
+    const env = await loadEnv();
+
+    expect(env.solanaProgramId).toBe("");
+  });
+
+  it("reads the program id lazily", async () => {
+    const env = await loadEnv();
+
+    process.env.SOLANA_PROGRAM_ID = "4wJqSetGround";
+
+    expect(env.solanaProgramId).toBe("4wJqSetGround");
+  });
+
+  it("rejects an unknown commitment rather than silently falling back", async () => {
+    setEnv({ SOLANA_COMMITMENT: "eventually" });
+
+    await expect(loadEnv()).rejects.toThrow("Invalid SOLANA_COMMITMENT value: eventually");
+  });
+
+  it("defaults the keypair path outside the repo", async () => {
+    const env = await loadEnv();
+
+    expect(env.solanaKeypairPath).toBe("~/.config/solana/devnet.json");
+  });
+
+  it("fails fast when ACCESS_HASH_SALT is missing", async () => {
+    setEnv({ ACCESS_HASH_SALT: undefined });
+
+    const env = await loadEnv();
+
+    expect(() => env.accessHashSalt).toThrow(
+      "Missing required environment variable: ACCESS_HASH_SALT",
+    );
+  });
+
+  it("rejects a salt that is not 32 bytes of hex", async () => {
+    setEnv({ ACCESS_HASH_SALT: "tooshort" });
+
+    const env = await loadEnv();
+
+    expect(() => env.accessHashSalt).toThrow(/32 bytes of hex/);
+  });
+
+  it("parses a valid salt into 32 bytes", async () => {
+    setEnv({ ACCESS_HASH_SALT: "ab".repeat(32) });
+
+    const env = await loadEnv();
+
+    expect(env.accessHashSalt).toHaveLength(32);
+    expect(env.accessHashSalt[0]).toBe(0xab);
+  });
+});

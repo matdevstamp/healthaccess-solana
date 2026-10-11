@@ -4,6 +4,10 @@
  * no OpenAPI/generated client; both sides live in one TS codebase).
  */
 
+import type { AnchorStatus } from "@/lib/solana/types";
+
+export type { AnchorStatus } from "@/lib/solana/types";
+
 /** The supported access roles. */
 export const ROLES = [
   "doctor",
@@ -32,6 +36,26 @@ export interface SessionUser {
 export type ApiResponse<T> =
   { ok: true; data: T } | { ok: false; error: { code: string; message: string } };
 
+/**
+ * Chain block of the health payload.
+ *
+ * `pendingEvents > 0` is not an error: it means the flusher is behind, and
+ * surfacing it stops a demo looking broken when it is merely in flight.
+ * `programDeployed: false` is the normal state before the task-28 deploy and
+ * must not fail the check either — the off-chain audit view works without it.
+ */
+export interface SolanaHealth {
+  reachable: boolean;
+  cluster: string;
+  programId: string | null;
+  programDeployed: boolean;
+  headHash: string | null;
+  currentSlot: string | null;
+  /** Outbox rows still waiting to be anchored. `null` when unqueryable. */
+  pendingEvents: number | null;
+  error: string | null;
+}
+
 /** GET /api/health payload. */
 export interface HealthData {
   status: "ok";
@@ -43,6 +67,21 @@ export interface HealthData {
     serverId: string | null;
     lastCheckedAt: string | null;
   };
+  solana?: SolanaHealth;
+}
+
+/**
+ * Whether the off-chain mirror still agrees with chain state.
+ *
+ * `match: false` is the tamper signal: a dropped, reordered, or edited local
+ * entry changes the folded head. A `bigint` slot must cross JSON as a decimal
+ * string; `Number(someSlot)` silently corrupts anything past 2^53.
+ */
+export interface ChainVerificationBlock {
+  localHead: string;
+  chainHead: string;
+  match: boolean;
+  checkedAt: string;
 }
 
 /** POST /api/auth/login request payload. */
@@ -148,14 +187,75 @@ export interface NoteDeleteResponse {
  */
 export type AccessLogActorMap = Record<string, { username: string; role: Role }>;
 
-/** Access event preview for patient and staff views. */
-export interface AccessLogPreview {
+/**
+ * One recorded access event, as the app sees it.
+ *
+ * Lives in SQL and in the outbox, not on chain — the on-chain form is
+ * `OnChainAccessEvent`, where the two ids are 32-byte salted hashes and there
+ * is no `eventId` at all. Keeping them apart is the point: this shape carries
+ * ids, so it must never cross the chain boundary, and `toChainEvent` is the
+ * one function allowed to convert between them.
+ */
+export interface AccessLogEvent {
+  eventId: string;
+  userId: number;
+  patientId: number;
+  recordId: number | null;
+  action: string;
+  serverId: string;
+  /** Client-supplied ISO time. The Solana slot is the trusted clock. */
+  timestamp: string;
+  /** Anchoring state. Absent on a live socket push, which has not flushed yet. */
+  status?: AnchorStatus;
+  signature?: string | null;
+  /** Decimal string. BigInt on chain; a number would corrupt it silently. */
+  slot?: string | null;
+  headHash?: string | null;
+}
+
+/** GET /api/access-log payload. */
+export interface AccessLogResponse {
+  accessLogs: AccessLogEvent[];
+  actors: AccessLogActorMap;
+  /** Whether the local mirror still agrees with chain state. */
+  verification: ChainVerificationBlock;
+  viewerUserId: number;
+}
+
+/**
+ * Access event preview for the patient journal.
+ *
+ * Named apart from the contract's `AccessLogPreview` (which is the anchored,
+ * outbox-shaped one) because this is the *display* projection: it resolves the
+ * actor's name and a coarse action verb, neither of which may go on chain.
+ */
+export interface JournalAccessLogPreview {
   id: number;
   timestamp: string;
   actorName: string;
   actorRole: Role;
   action: "viewed" | "created_note" | "updated_record";
   verified: boolean;
+}
+
+/**
+ * Anchored access event preview. Contract §6, verbatim.
+ *
+ * `slot` is a decimal string rather than a number because Solana slots exceed
+ * `Number.MAX_SAFE_INTEGER`; the same rule governs `recordId` on chain.
+ */
+export interface AccessLogPreview {
+  eventId: string;
+  patientId: number;
+  userId: number;
+  recordId: number | null;
+  action: string; // human-readable, for display only
+  serverId: string;
+  clientTime: string; // ISO
+  status: AnchorStatus;
+  signature: string | null; // null until anchored
+  slot: string | null; // decimal string; BigInt-backed
+  headHash: string | null;
 }
 
 /** GET /api/patients/[id] journal payload. */
@@ -167,5 +267,5 @@ export interface PatientJournalResponse {
   records: MedicalRecordPreview[];
   notes: JournalNotePreview[];
   hiddenNotesCount: number;
-  accessLogs: AccessLogPreview[];
+  accessLogs: JournalAccessLogPreview[];
 }

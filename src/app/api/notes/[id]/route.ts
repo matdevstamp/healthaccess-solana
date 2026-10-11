@@ -79,7 +79,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       },
     });
 
-    await logNoteAccess(user.id, note.record.patientId, note.recordId, "edit");
+    await logNoteAccess(user.id, note.record.patientId, note.recordId, "edit", user.role);
 
     return ok({
       note: serializeNote(updatedNote),
@@ -127,7 +127,7 @@ export async function DELETE(_request: Request, context: RouteContext) {
       where: { id: noteId },
     });
 
-    await logNoteAccess(user.id, note.record.patientId, note.recordId, "delete");
+    await logNoteAccess(user.id, note.record.patientId, note.recordId, "delete", user.role);
 
     return ok({
       deletedId: noteId,

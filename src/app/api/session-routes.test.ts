@@ -15,6 +15,13 @@ vi.mock("next/headers", () => ({
 const getPeerHealth = vi.fn();
 vi.mock("@/lib/p2p/peer-health", () => ({ getPeerHealth }));
 
+// The health route counts pending outbox rows. Mocked here so the assertion is
+// about the envelope and the peer payload, not about whether Postgres happens
+// to be running on the machine.
+vi.mock("@/lib/outbox/store", () => ({
+  prismaOutboxStore: { countPending: async () => 0 },
+}));
+
 const { GET: getMe } = await import("@/app/api/auth/me/route");
 const { POST: postLogout } = await import("@/app/api/auth/logout/route");
 const { GET: getHealth } = await import("@/app/api/health/route");
