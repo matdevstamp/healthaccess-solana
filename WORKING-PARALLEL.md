@@ -143,8 +143,23 @@ airdrop stall both streams.
 
 ## Status
 
-At setup time, on both clones:
+Updated at the time both branches were first pushed for review.
 
-- Task 25 (pure hash chain) **complete**, 15 tests passing
-- Tasks 24, 27 next in the Rust clone
-- Tasks 30, 26 next in the app clone
+Rust clone (`ha-solana`):
+
+- Task 25 (pure hash chain) **complete** — 17 tests, tamper detection green
+- Tasks 24 + 27 (Anchor program) **complete** — `declare_program!` adopted,
+  `cargo test --features anchor` is 18 unit + 2 integration tests
+- Task 28 (devnet deploy) **not done** — `SOLANA_PROGRAM_ID` is still empty in
+  `.env`. Until it is filled the outbox stays `queued` and nothing is submitted;
+  see the guard in `src/lib/outbox/record.ts`
+- Task 29 (program tests) **in progress** — LiteSVM blocker documented in
+  `docs/hackathon/KNOWN-ISSUES.md`
+
+App clone (`ha-app`):
+
+- Tasks 26 + 30 (outbox, chain client, salted ids) **complete**
+- Task 31 (homemade chain removed) **complete**, plus the AccessLog→Patient
+  foreign-key drop
+- Tasks 32–35 **complete**
+- Task 36 next
