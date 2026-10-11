@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="HealthAccess icon" width="256" height="256">
+  <defs>
+    <linearGradient id="ha-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#141a33"/>
+      <stop offset="1" stop-color="#0b1024"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="256" height="256" rx="56" fill="url(#ha-bg)"/>
+  <rect x="4" y="4" width="248" height="248" rx="52" fill="none" stroke="#2a3566" stroke-width="2"/>
+  <path d="M44 156 H86 L108 100 L138 196 L162 132 H212"
+        fill="none" stroke="#5eead4" stroke-width="12"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="#0b1024" stroke="#5eead4" stroke-width="8">
+    <circle cx="108" cy="100" r="11"/>
+    <circle cx="138" cy="196" r="11"/>
+    <circle cx="162" cy="132" r="11"/>
+  </g>
+</svg>
