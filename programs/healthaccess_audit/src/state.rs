@@ -31,6 +31,26 @@ pub enum AccessAction {
     ViewNotFound = 5,
 }
 
+impl AccessAction {
+    /// Decode from the wire. Unknown values map to `View`, which is the least
+    /// privileged interpretation: a log entry should never be upgraded into a
+    /// stronger action by being unrecognizable.
+    pub fn from_u8(v: u8) -> Self {
+        match v {
+            1 => AccessAction::Create,
+            2 => AccessAction::Edit,
+            3 => AccessAction::Delete,
+            4 => AccessAction::ViewDenied,
+            5 => AccessAction::ViewNotFound,
+            _ => AccessAction::View,
+        }
+    }
+
+    pub fn as_u8(self) -> u8 {
+        self as u8
+    }
+}
+
 /// The acting role.
 ///
 /// `ViewDenied` and `ViewNotFound` on [`AccessAction`] are audit events rather
@@ -44,6 +64,25 @@ pub enum AccessRole {
     PrimaryCare = 3,
     Patient = 4,
     Unauthorized = 5,
+}
+
+impl AccessRole {
+    /// Decode from the wire. Unknown values map to `Unauthorized`, the least
+    /// privileged role, for the same reason as `AccessAction::from_u8`.
+    pub fn from_u8(v: u8) -> Self {
+        match v {
+            0 => AccessRole::Doctor,
+            1 => AccessRole::Nurse,
+            2 => AccessRole::Ambulance,
+            3 => AccessRole::PrimaryCare,
+            4 => AccessRole::Patient,
+            _ => AccessRole::Unauthorized,
+        }
+    }
+
+    pub fn as_u8(self) -> u8 {
+        self as u8
+    }
 }
 
 /// `record_id` sentinel for "this event is not tied to a specific record".
@@ -90,5 +129,38 @@ impl AccessEvent {
         out[74] = self.server;
         out[75..83].copy_from_slice(&self.timestamp.to_le_bytes());
         out
+    }
+}
+
+/// Anchor-facing wrapper. Not the hash input.
+///
+/// Anchor needs Borsh to deserialize instruction arguments, but the hash must
+/// use [`AccessEvent::canonical_bytes`] so the TypeScript client and this
+/// program agree byte for byte. Both encodings are pinned by a test, so the
+/// shim cannot silently drift from the canonical layout.
+#[cfg(feature = "anchor")]
+#[derive(anchor_lang::AnchorSerialize, anchor_lang::AnchorDeserialize, Clone)]
+pub struct AccessEventArg {
+    pub patient_hash: [u8; 32],
+    pub actor_hash: [u8; 32],
+    pub action: u8,
+    pub role: u8,
+    pub record_id: i64,
+    pub server: u8,
+    pub timestamp: i64,
+}
+
+#[cfg(feature = "anchor")]
+impl From<AccessEventArg> for AccessEvent {
+    fn from(a: AccessEventArg) -> Self {
+        AccessEvent {
+            patient_hash: a.patient_hash,
+            actor_hash: a.actor_hash,
+            action: AccessAction::from_u8(a.action),
+            role: AccessRole::from_u8(a.role),
+            record_id: a.record_id,
+            server: a.server,
+            timestamp: a.timestamp,
+        }
     }
 }
