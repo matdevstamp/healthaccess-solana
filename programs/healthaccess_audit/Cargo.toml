@@ -7,9 +7,10 @@ description = "Tamper-evident access-log commitment for HealthAccess on Solana"
 
 [lib]
 # "lib" is required, not incidental. `tests/error_codes.rs` links the normally
-# compiled crate to pin the `#[error_code]` wire numbers, and `declare_program!`
-# needs a linkable lib target too. Dropping it turns `cargo test --features
-# anchor` into a compile error, which silently disables the error-code guards.
+# compiled crate to pin the `#[error_code]` wire numbers, and the `#[program]`
+# entrypoint needs a linkable lib target too. Dropping it turns `cargo test
+# --features anchor` into a compile error, which silently disables the
+# error-code guards.
 crate-type = ["cdylib", "lib"]
 name = "healthaccess_audit"
 

@@ -59,6 +59,19 @@ pub fn handle_initialize(ctx: Context<Initialize>) -> Result<()> {
 /// racing produce exactly one winner; the loser gets `ChainBroken` and must
 /// re-read the head and retry. A blind retry would resubmit the same stale value
 /// and fail identically forever.
+///
+/// Trust boundary: this program proves *append authenticity* — only the
+/// authority key may write, and each write carries a transaction signature. It
+/// cannot prove *event truthfulness*: the authority is the application layer,
+/// so a compromised server can still log a lie at write time. The salted hashes
+/// keep that pseudonymous, but do not make it honest; the authorization layer
+/// above this program is still trusted. This is a stated, accepted limit (task
+/// 27), not a gap. The authority itself is the `payer` chosen in
+/// [`Initialize`] and is not rotatable on-chain yet — see KNOWN-ISSUES.md.
+///
+/// `server` and `timestamp` arrive signed by the client: `timestamp` is
+/// presentation only (the chain slot remains the trusted clock), and `server`
+/// must already match one of the two known node ids at the application layer.
 #[derive(Accounts)]
 pub struct RecordAccess<'info> {
     #[account(mut)]

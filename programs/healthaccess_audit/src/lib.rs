@@ -55,16 +55,41 @@ pub use constants::*;
 #[cfg(feature = "anchor")]
 use anchor_lang::prelude::*;
 
-// Generate the typed client surface (`accounts::*`, `instruction::*`) from the
-// committed IDL. Anchor 1.2 reads `../../idl/healthaccess_audit.json` relative
-// to this crate at compile time, which is what lets the LiteSVM integration
-// tests build real instructions instead of hand-rolling discriminators.
+// Handlers live in `instructions.rs`; this module is the entry surface only.
+// The actual on-chain entrypoint (`process_instruction`) is generated from the
+// `#[program]` block below. It used to be a `declare_program!(healthaccess_audit)`
+// call, but the Anchor 1.2 `declare_program!` macro does NOT emit an entrypoint
+// (it generates `accounts::*`/`instruction::*` client types from the IDL only),
+// so a build produced a 544-byte `.so` with no exported `entrypoint` — deployed
+// fine, failed at runtime on the first call. See deploy history at 7a0e5c7.
 #[cfg(feature = "anchor")]
-declare_program!(healthaccess_audit);
+use crate::state::AccessEventArg as RecordAccessEvent;
 
-// Program ID. `declare_program!` emits its own copy inside the generated
-// `healthaccess_audit` module, but the `#[account]` macro also needs `ID` at the
-// crate root, so this declaration has to exist too.
+#[cfg(feature = "anchor")]
+#[program]
+pub mod healthaccess_audit {
+    use super::*;
+
+    /// Create the audit trail. Idempotent-guarded by the `init` constraint.
+    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
+        instructions::handle_initialize(ctx)
+    }
+
+    /// Append one access event to the chain.
+    ///
+    /// `prev_hash` must equal the current head. On a mismatch the transaction
+    /// fails with `ChainBroken` and the caller re-reads the head and retries.
+    pub fn record_access(
+        ctx: Context<RecordAccess>,
+        event: RecordAccessEvent,
+        prev_hash: [u8; 32],
+    ) -> Result<()> {
+        instructions::handle_record_access(ctx, event.into(), prev_hash)
+    }
+}
+
+// Program ID. Declared at the crate root because the `#[account]` macro in
+// `audit.rs` re-exports `ID`, and `declare_id!` is the single source of it.
 //
 // It MUST stay in sync with the keypair that `anchor build` produces, because
 // Anchor deploys to that keypair's address while the binary declares whatever
@@ -80,11 +105,10 @@ declare_id!("Co2EarRRbhBbisT1dcVoeYuNNs3fuRR1zFdyRd3ewxrE");
 
 /// Fails if the `declare_id!` above disagrees with the committed IDL.
 ///
-/// This compares against `crate::ID`, which comes from `declare_id!` — NOT
-/// `crate::healthaccess_audit::ID`, which `declare_program!` derives *from the
-/// IDL itself*. Asserting the latter against the IDL is a tautology: it passes
-/// for any IDL, including one carrying a stale or placeholder address, which is
-/// exactly the failure this test exists to catch.
+/// Compares against `crate::ID`, which comes from `declare_id!`. It asserts the
+/// committed IDL's `address` matches it, so a stale or placeholder address in
+/// the IDL is caught here rather than surfaced as DeclaredProgramIdMismatch
+/// (4100) at runtime.
 #[cfg(all(feature = "anchor", test))]
 #[test]
 fn declare_id_matches_committed_idl() {
@@ -106,7 +130,7 @@ fn declare_id_matches_committed_idl() {
     );
 }
 
-// `declare_program!` generates the `healthaccess_audit` module (entrypoints plus
-// typed `accounts::*` / `instruction::*` clients) from the IDL, so there is no
-// separate `#[program]` block here. The handlers themselves live in
-// `instructions.rs`; the generated module is the entry surface.
+// `#[program]` generates the on-chain entrypoint above. Typed
+// `accounts::*` / `instruction::*` clients are NOT produced here — the
+// TypeScript side consumes the committed `idls/healthaccess_audit.json` instead
+// (see task 30), and the LiteSVM integration tests hand-roll instructions.
