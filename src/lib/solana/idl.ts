@@ -19,21 +19,57 @@ import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 
-/** Anchor discriminator for a `u8`-based enum-free instruction argument set. */
-export interface IdlField {
+import { PublicKey } from "@solana/web3.js";
+
+/** An account an instruction expects, in declaration order. */
+export interface IdlInstructionAccount {
   name: string;
-  type: string;
+  writable?: boolean;
+  signer?: boolean;
+  pda?: { seeds: { kind: string; value: number[] | string }[] };
 }
 
 /** Anchor 0.30+ IDL shape. Only the parts the client actually reads. */
 export interface AuditIdl {
   address: string;
-  metadata: { name: string; version: string };
-  instructions: { name: string; discriminator: number[]; args: IdlField[] }[];
+  metadata: { name: string; version: string; [key: string]: unknown };
+  instructions: {
+    name: string;
+    discriminator: number[];
+    args: { name: string; type: unknown }[];
+    accounts: IdlInstructionAccount[];
+  }[];
   accounts: { name: string; discriminator: number[] }[];
-  events: { name: string; discriminator: number[]; fields: IdlField[] }[];
-  types: { name: string; fields: IdlField[] }[];
+  events: { name: string; discriminator: number[] }[];
+  types: { name: string; type?: { kind: string; fields?: { name: string; type: unknown }[] } }[];
   errors: { code: number; name: string; msg: string }[];
+}
+
+/** The system program. Declared by every Anchor instruction that moves lamports. */
+export const SYSTEM_PROGRAM = new PublicKey("11111111111111111111111111111111");
+
+/** One instruction by name. Throws rather than returning undefined. */
+export function idlInstruction(idl: AuditIdl, name: string): AuditIdl["instructions"][number] {
+  const instruction = idl.instructions.find((candidate) => candidate.name === name);
+  if (!instruction) {
+    throw new Error(`Unknown instruction: ${name}`);
+  }
+  return instruction;
+}
+
+/**
+ * Field names of an IDL-defined struct, in declaration order.
+ *
+ * Declaration order is the whole point: Borsh encodes positionally, so this is
+ * what tells the decoder where `record_id` sits inside `AccessLogged`.
+ */
+export function idlStructFields(idl: AuditIdl, typeName: string): string[] {
+  const type = idl.types.find((candidate) => candidate.name === typeName);
+  const fields = type?.type?.fields;
+  if (!fields) {
+    throw new Error(`Unknown IDL type: ${typeName}`);
+  }
+  return fields.map((field) => field.name);
 }
 
 /** PDA seeds for the one global trail. Contract §1. */
@@ -64,46 +100,44 @@ export const CONTRACT_IDL: AuditIdl = {
       name: "initialize",
       discriminator: discriminator("global", "initialize"),
       args: [],
+      accounts: [
+        { name: "payer", writable: true, signer: true },
+        { name: "trail", writable: true },
+        { name: "system_program", address: SYSTEM_PROGRAM.toBase58() } as IdlInstructionAccount,
+      ],
     },
     {
       name: "record_access",
       discriminator: discriminator("global", "record_access"),
       args: [
-        { name: "event", type: "publicKey" },
-        { name: "prev_hash", type: "publicKey" },
+        { name: "event", type: { defined: { name: "AccessEventArg" } } },
+        { name: "prev_hash", type: { array: ["u8", 32] } },
+      ],
+      accounts: [
+        { name: "authority", writable: true, signer: true },
+        { name: "trail", writable: true },
+        { name: "system_program", address: SYSTEM_PROGRAM.toBase58() } as IdlInstructionAccount,
       ],
     },
   ],
   accounts: [{ name: "AuditTrail", discriminator: discriminator("account", "AuditTrail") }],
-  events: [
+  events: [{ name: "AccessLogged", discriminator: discriminator("event", "AccessLogged") }],
+  types: [
+    { name: "AccessEventArg" },
     {
       name: "AccessLogged",
-      discriminator: discriminator("event", "AccessLogged"),
-      fields: [
-        { name: "seq", type: "u64" },
-        { name: "head_hash", type: "publicKey" },
-        { name: "patient_hash", type: "publicKey" },
-        { name: "actor_hash", type: "publicKey" },
-        { name: "action", type: "u8" },
-        { name: "role", type: "u8" },
-        { name: "record_id", type: "i64" },
-        { name: "server", type: "u8" },
-        { name: "timestamp", type: "i64" },
-      ],
-    },
-  ],
-  types: [
-    {
-      name: "AccessEvent",
-      fields: [
-        { name: "patient_hash", type: "publicKey" },
-        { name: "actor_hash", type: "publicKey" },
-        { name: "action", type: "u8" },
-        { name: "role", type: "u8" },
-        { name: "record_id", type: "i64" },
-        { name: "server", type: "u8" },
-        { name: "timestamp", type: "i64" },
-      ],
+      type: {
+        kind: "struct",
+        fields: [
+          { name: "seq", type: "u64" },
+          { name: "head_hash", type: { array: ["u8", 32] } },
+          { name: "action", type: "u8" },
+          { name: "role", type: "u8" },
+          { name: "record_id", type: "i64" },
+          { name: "server", type: "u8" },
+          { name: "timestamp", type: "i64" },
+        ],
+      },
     },
   ],
   errors: [
@@ -124,7 +158,13 @@ export function idlCandidates(): string[] {
   return [
     ...(configured ? [resolve(configured)] : []),
     join(process.cwd(), "target", "idl", "healthaccess_audit.json"),
-    join(process.cwd(), "..", "ha-solana", "target", "idl", "healthaccess_audit.json"),
+    // Where the Rust clone actually commits its IDL. It moved out of target/
+    // so the artifact is reviewable, and the plural directory is the in-flight
+    // copy during a rebuild. Both are read-only to this repo.
+    join(process.cwd(), "..", "ha-solana", "idl", "healthaccess_audit.json"),
+    join(process.cwd(), "..", "ha-solana", "idls", "healthaccess_audit.json"),
+    join(homedir(), "Skola", "ha-solana", "idl", "healthaccess_audit.json"),
+    join(homedir(), "Skola", "ha-solana", "idls", "healthaccess_audit.json"),
     join(homedir(), "Skola", "ha-solana", "target", "idl", "healthaccess_audit.json"),
   ];
 }

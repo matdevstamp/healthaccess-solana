@@ -20,8 +20,10 @@ import { PublicKey, type TransactionInstruction } from "@solana/web3.js";
 import { env } from "@/lib/env";
 import { ACCESS_EVENT_LEN, canonicalBytes, ZERO_HASH } from "./hash";
 import {
+  SYSTEM_PROGRAM,
   TRAIL_SEED,
   accountDiscriminator,
+  idlInstruction,
   instructionDiscriminator,
   loadIdl,
   type AuditIdl,
@@ -116,7 +118,16 @@ export function encodeRecordAccess(
   return out;
 }
 
-/** Build the `record_access` instruction with the program and authority resolved. */
+/**
+ * Build the `record_access` instruction with the program and authority resolved.
+ *
+ * The account list comes from the IDL rather than a hand-written array. Anchor
+ * resolves accounts **positionally**, so a missing entry is not a type error —
+ * it is a transaction the cluster rejects at simulation time, on the demo,
+ * with nothing local to debug. `system_program` is declared even though the
+ * handler never touches it, and maintaining that list by hand is exactly how
+ * it went missing the first time.
+ */
 export function recordAccessInstruction(input: {
   event: Parameters<typeof canonicalBytes>[0];
   prevHash: Uint8Array;
@@ -129,13 +140,27 @@ export function recordAccessInstruction(input: {
     throw new Error("SOLANA_PROGRAM_ID is not set; the audit program has not been deployed");
   }
 
+  const idl = input.idl ?? loadIdl();
+  const trail = trailAddress(program);
+
+  const keys = (idlInstruction(idl, "record_access").accounts ?? []).map((account) => {
+    if (account.name === "authority") {
+      return { pubkey: input.authority, isSigner: true, isWritable: true };
+    }
+    if (account.name === "trail") {
+      return { pubkey: trail, isSigner: false, isWritable: true };
+    }
+    // Anything else the IDL declares and we do not construct. Every declared
+    // account must be supplied; the system program is the only one the client
+    // can name without context, which is why authority and trail are matched
+    // by name above rather than by position.
+    return { pubkey: SYSTEM_PROGRAM, isSigner: false, isWritable: false };
+  });
+
   return {
     programId: program,
-    keys: [
-      { pubkey: input.authority, isSigner: true, isWritable: true },
-      { pubkey: trailAddress(program), isSigner: false, isWritable: true },
-    ],
-    data: Buffer.from(encodeRecordAccess(input.event, input.prevHash, input.idl ?? loadIdl())),
+    keys,
+    data: Buffer.from(encodeRecordAccess(input.event, input.prevHash, idl)),
   };
 }
 
