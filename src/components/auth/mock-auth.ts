@@ -37,7 +37,7 @@ export const MOCK_USERS: Array<SessionUser & { displayName: string }> = [
     role: "patient",
     organizationId: null,
     patientId: 1,
-    displayName: "Anna Andersson",
+    displayName: "Anna Kowalska",
   },
   {
     id: 5,
@@ -53,7 +53,7 @@ export const MOCK_USERS: Array<SessionUser & { displayName: string }> = [
     role: "primary_care",
     organizationId: 3,
     patientId: null,
-    displayName: "Vårdcentralen Ekfors (nurse)",
+    displayName: "Ekfors Primary Care Centre (nurse)",
   },
 ];
 

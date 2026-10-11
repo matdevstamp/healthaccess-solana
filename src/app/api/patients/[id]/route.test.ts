@@ -41,7 +41,7 @@ function get(id: string) {
 const journal = {
   patient: {
     id: 1,
-    name: "Anna Andersson",
+    name: "Anna Kowalska",
     dateOfBirth: "1990-01-01",
     personalNumber: "199001011234",
     recordCount: 1,
@@ -139,7 +139,7 @@ describe("GET /api/patients/[id]", () => {
 
     expect(response.status).toBe(200);
     expect(body.ok).toBe(true);
-    expect(body.data.patient.name).toBe("Anna Andersson");
+    expect(body.data.patient.name).toBe("Anna Kowalska");
     expect(recordAccessEvent).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 1, patientId: 1, recordId: null, action: "view" }),
     );

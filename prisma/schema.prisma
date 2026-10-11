@@ -70,7 +70,7 @@ model User {
 
 model Patient {
   id             Int      @id @default(autoincrement())
-  personalNumber String   @unique @map("personal_number") // Swedish personnummer, 12 digits
+  personalNumber String   @unique @map("personal_number") // national ID number, 12 digits
   firstName      String   @map("first_name")
   lastName       String   @map("last_name")
   dateOfBirth    DateTime @db.Date @map("date_of_birth")

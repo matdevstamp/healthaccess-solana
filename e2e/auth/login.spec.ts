@@ -14,7 +14,7 @@ test.describe("auth", () => {
   test("sends a patient directly to their own journal", async ({ page }) => {
     await page.goto("/login");
     await page.getByRole("combobox", { name: "Demo user" }).click();
-    await page.getByRole("option", { name: "Anna Andersson - Patient" }).click();
+    await page.getByRole("option", { name: "Anna Kowalska - Patient" }).click();
     await page.getByLabel("Password").fill("test123");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(/\/patients\/1$/);

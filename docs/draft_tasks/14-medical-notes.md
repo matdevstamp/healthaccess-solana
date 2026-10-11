@@ -88,7 +88,7 @@ All (all):
 
 ```
 ┌─────────────────────────────────────┐
-│ Add Note to Patient: Anna Andersson │
+│ Add Note to Patient: Anna Kowalska  │
 ├─────────────────────────────────────┤
 │ Note Content:                       │
 │ ┌─────────────────────────────────┐ │
@@ -112,10 +112,10 @@ All (all):
 #### For Healthcare Staff
 ```
 ┌─────────────────────────────────────┐
-│ Notes for Anna Andersson            │
+│ Notes for Anna Kowalska             │
 ├─────────────────────────────────────┤
 │ ┌─────────────────────────────────┐ │
-│ │ Note by Dr. Svensson (Private)  │ │
+│ │ Note by Dr. S. Berg (Private)   │ │
 │ │ 2024-01-15 10:30                │ │
 │ │ Patient shows signs of anxiety  │ │
 │ │ [Edit] [Delete]                 │ │

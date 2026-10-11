@@ -36,7 +36,7 @@ function lastFindManyArgs(): FindManyArgs {
 const patientRow = {
   id: 1,
   firstName: "Anna",
-  lastName: "Andersson",
+  lastName: "Kowalska",
   dateOfBirth: new Date("1990-01-01T00:00:00.000Z"),
   personalNumber: "199001011234",
   records: [{ createdAt: new Date("2026-08-18T00:00:00.000Z"), _count: { notes: 3 } }],
@@ -49,7 +49,7 @@ beforeEach(() => {
 
 describe("searchDatabasePatients query building", () => {
   it("matches every whitespace-separated word against first or last name", async () => {
-    await searchDatabasePatients("anna andersson", ["name"], 1, 1);
+    await searchDatabasePatients("anna kowalska", ["name"], 1, 1);
 
     const { where } = lastFindManyArgs();
     expect(where.OR).toEqual([
@@ -63,8 +63,8 @@ describe("searchDatabasePatients query building", () => {
           },
           {
             OR: [
-              { firstName: { contains: "andersson", mode: "insensitive" } },
-              { lastName: { contains: "andersson", mode: "insensitive" } },
+              { firstName: { contains: "kowalska", mode: "insensitive" } },
+              { lastName: { contains: "kowalska", mode: "insensitive" } },
             ],
           },
         ],
@@ -73,18 +73,18 @@ describe("searchDatabasePatients query building", () => {
   });
 
   it("collapses repeated whitespace", async () => {
-    await searchDatabasePatients("  anna   andersson  ", ["name"], 1, 1);
+    await searchDatabasePatients("  anna   kowalska  ", ["name"], 1, 1);
 
     const conditions = lastFindManyArgs().where.OR as Array<{ AND: unknown[] }>;
     expect(conditions[0]?.AND).toHaveLength(2);
   });
 
-  it("searches Swedish characters case-insensitively through the insensitive mode", async () => {
-    await searchDatabasePatients("Åsa Öberg", ["name"], 1, 1);
+  it("searches Polish characters case-insensitively through the insensitive mode", async () => {
+    await searchDatabasePatients("Łukasz Żółkiewski", ["name"], 1, 1);
 
     const conditions = lastFindManyArgs().where.OR as Array<{ AND: Array<{ OR: unknown[] }> }>;
-    expect(JSON.stringify(conditions)).toContain("Åsa");
-    expect(JSON.stringify(conditions)).toContain("Öberg");
+    expect(JSON.stringify(conditions)).toContain("Łukasz");
+    expect(JSON.stringify(conditions)).toContain("Żółkiewski");
     expect(JSON.stringify(conditions)).toContain("insensitive");
   });
 
@@ -213,7 +213,7 @@ describe("searchDatabasePatients row mapping", () => {
 
     expect(patient).toMatchObject({
       id: 1,
-      name: "Anna Andersson",
+      name: "Anna Kowalska",
       dateOfBirth: "1990-01-01",
       personalNumber: "199001011234",
       recordCount: 1,

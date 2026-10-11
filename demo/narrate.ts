@@ -1,5 +1,5 @@
 /**
- * Generates the Swedish voice track: one clip per caption, voiced by that
+ * Generates the English voice track: one clip per caption, voiced by that
  * caption's speaker.
  *
  * Run this BEFORE recording. The recorder reads durations/index.json to decide

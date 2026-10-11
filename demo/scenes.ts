@@ -100,9 +100,9 @@ export async function uiLogin(
 
 export const DOCTOR_OPTION = "Dr. Sofia Berg - Doctor";
 export const NURSE_OPTION = "Nurse Alex Lind - Nurse";
-const PATIENT_OPTION = "Anna Andersson - Patient";
+const PATIENT_OPTION = "Anna Kowalska - Patient";
 const UNAUTH_OPTION = "Unauthorized visitor - Unauthorized";
-const CLINIC_OPTION = "Vårdcentralen Ekfors (nurse) - Primary care";
+const CLINIC_OPTION = "Ekfors Primary Care Centre (nurse) - Primary care";
 
 /**
  * Every note the recording writes, in one place.
@@ -169,8 +169,8 @@ export const SCENES: Scene[] = [
 
   {
     id: "login-doctor",
-    label: "Inloggning som läkare",
-    chapter: "Inloggning",
+    label: "Login as doctor",
+    chapter: "Login",
     lanes: 1,
     run: async (page) => {
       await page.goto(`${SERVER_1}/login`, { waitUntil: "domcontentloaded" });
@@ -197,7 +197,7 @@ export const SCENES: Scene[] = [
 
   {
     id: "search-patient",
-    label: "Patientökning",
+    label: "Patient search",
     lanes: 1,
     loginAs: {
       option: DOCTOR_OPTION,
@@ -210,7 +210,7 @@ export const SCENES: Scene[] = [
       await humanRead(page, 500, 1000);
 
       await toast(page, "doctor-search");
-      await humanType(page, page.getByPlaceholder("Search patients..."), "Anna Andersson");
+      await humanType(page, page.getByPlaceholder("Search patients..."), "Anna Kowalska");
       await humanRead(page, 400, 900);
 
       await clickWhenReady(page, page.getByRole("button", { name: "Search" }));
@@ -219,7 +219,7 @@ export const SCENES: Scene[] = [
       await humanRead(page, 800, 1400);
 
       await humanClick(page, page.getByRole("link", { name: "Open journal" }));
-      await page.getByRole("heading", { name: /Anna Andersson/ }).waitFor({ timeout: 20_000 });
+      await page.getByRole("heading", { name: /Anna Kowalska/ }).waitFor({ timeout: 20_000 });
       await settle(page);
       await humanRead(page, 700, 1300);
     },
@@ -227,7 +227,7 @@ export const SCENES: Scene[] = [
 
   {
     id: "records",
-    label: "Journalposter från SQL",
+    label: "Journal entries from SQL",
     chapter: "Journal / SQL",
     lanes: 1,
     loginAs: {
@@ -236,7 +236,7 @@ export const SCENES: Scene[] = [
       heading: /Care staff dashboard/,
     },
     run: async (page) => {
-      await openAnnaJournal(page, SERVER_1, /Anna Andersson/);
+      await openAnnaJournal(page, SERVER_1, /Anna Kowalska/);
       await humanRead(page, 800, 1400);
 
       await toast(page, "doctor-records");
@@ -251,8 +251,8 @@ export const SCENES: Scene[] = [
 
   {
     id: "note-visibility",
-    label: "Skriva anteckning med synlighet",
-    chapter: "Synlighet",
+    label: "Write a note with visibility",
+    chapter: "Visibility",
     lanes: 1,
     loginAs: {
       option: DOCTOR_OPTION,
@@ -260,7 +260,7 @@ export const SCENES: Scene[] = [
       heading: /Care staff dashboard/,
     },
     run: async (page) => {
-      await openAnnaJournal(page, SERVER_1, /Anna Andersson/);
+      await openAnnaJournal(page, SERVER_1, /Anna Kowalska/);
       await openNotesTab(page);
       await humanRead(page, 700, 1200);
 
@@ -283,8 +283,8 @@ export const SCENES: Scene[] = [
 
   {
     id: "access-log",
-    label: "Accesslogg och verifiering",
-    chapter: "Accesslogg",
+    label: "Access log and verification",
+    chapter: "Access log",
     lanes: 1,
     loginAs: {
       option: DOCTOR_OPTION,
@@ -292,7 +292,7 @@ export const SCENES: Scene[] = [
       heading: /Care staff dashboard/,
     },
     run: async (page) => {
-      await openAnnaJournal(page, SERVER_1, /Anna Andersson/);
+      await openAnnaJournal(page, SERVER_1, /Anna Kowalska/);
       await openAccessLogTab(page);
       await page.getByTestId("access-log-row").first().waitFor({ timeout: 20_000 });
       await settle(page);
@@ -314,8 +314,8 @@ export const SCENES: Scene[] = [
 
   {
     id: "realtime-p2p",
-    label: "Realtid mellan två servrar",
-    chapter: "Realtid P2P",
+    label: "Realtime between two servers",
+    chapter: "Realtime P2P",
     lanes: 2,
     laneTitles: ["Dr. Sofia Berg · hospital-s", "Nurse Alex Lind · ambulance-a"],
     run: async (doctorPage, nursePage) => {
@@ -332,8 +332,8 @@ export const SCENES: Scene[] = [
         heading: /Care staff dashboard/,
       });
 
-      await openAnnaJournal(doctorPage, SERVER_1, /Anna Andersson/);
-      await openAnnaJournal(nursePage, SERVER_2, /Anna Andersson/);
+      await openAnnaJournal(doctorPage, SERVER_1, /Anna Kowalska/);
+      await openAnnaJournal(nursePage, SERVER_2, /Anna Kowalska/);
       await openNotesTab(doctorPage);
       await openNotesTab(nursePage);
 
@@ -365,7 +365,7 @@ export const SCENES: Scene[] = [
 
   {
     id: "patient-view",
-    label: "Patientens egen vy",
+    label: "The patient's own view",
     lanes: 1,
     loginAs: {
       option: PATIENT_OPTION,
@@ -400,15 +400,15 @@ export const SCENES: Scene[] = [
 
   {
     id: "url-tampering",
-    label: "URL-manipulation blockeras",
-    chapter: "URL-byte",
+    label: "URL tampering blocked",
+    chapter: "URL change",
     lanes: 1,
     loginAs: {
       option: PATIENT_OPTION,
       url: /\/patients\/1$/,
       heading: /My health record/,
     },
-    laneTitles: ["Anna Andersson · patient"],
+    laneTitles: ["Anna Kowalska · patient"],
     run: async (page) => {
       await humanRead(page, 700, 1300);
 
@@ -438,8 +438,8 @@ export const SCENES: Scene[] = [
 
   {
     id: "unauthorized",
-    label: "Obehörig nekas åtkomst",
-    chapter: "Obehörig",
+    label: "Unauthorized denied access",
+    chapter: "Unauthorized",
     lanes: 1,
     loginAs: {
       option: UNAUTH_OPTION,
@@ -455,8 +455,8 @@ export const SCENES: Scene[] = [
 
   {
     id: "primary-care",
-    label: "Vårdcentral får klinisk åtkomst",
-    chapter: "Vårdcentral",
+    label: "Primary care gets clinical access",
+    chapter: "Primary care",
     lanes: 1,
     loginAs: {
       option: CLINIC_OPTION,
@@ -484,7 +484,7 @@ export const SCENES: Scene[] = [
 
   {
     id: "outro",
-    label: "Sammanfattning",
+    label: "Summary",
     lanes: 1,
     loginAs: {
       option: DOCTOR_OPTION,
@@ -492,7 +492,7 @@ export const SCENES: Scene[] = [
       heading: /Care staff dashboard/,
     },
     run: async (page) => {
-      await openAnnaJournal(page, SERVER_1, /Anna Andersson/);
+      await openAnnaJournal(page, SERVER_1, /Anna Kowalska/);
       await openAccessLogTab(page);
       await page.getByTestId("access-log-row").first().waitFor({ timeout: 20_000 });
       await settle(page);

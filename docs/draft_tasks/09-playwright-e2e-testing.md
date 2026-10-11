@@ -262,7 +262,7 @@ test.describe('Patient Search', () => {
     await page.fill('[placeholder="Search patients..."]', 'Anna');
     await page.click('button:has-text("Search")');
     
-    await expect(page.locator('text=Anna Andersson')).toBeVisible();
+    await expect(page.locator('text=Anna Kowalska')).toBeVisible();
   });
 
   test('should show empty state for no results', async ({ loginAs, page }) => {

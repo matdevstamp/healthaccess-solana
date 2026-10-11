@@ -12,7 +12,7 @@ test.describe("patient search", () => {
     const data = await apiGet<PatientSearchResponse>(request, "/api/patients?q=Anna&filter=name");
 
     expect(data.total).toBe(1);
-    expect(data.patients[0]?.name).toBe("Anna Andersson");
+    expect(data.patients[0]?.name).toBe("Anna Kowalska");
     expect(data.patients[0]?.dateOfBirth).toBe("1990-01-01");
   });
 
@@ -40,12 +40,12 @@ test.describe("patient search", () => {
     });
     expect(login.status()).toBe(200);
     for (const path of [
-      "/api/patients?q=ANNA%20ANDERSSON&filter=name",
+      "/api/patients?q=ANNA%20KOWALSKA&filter=name",
       "/api/patients?q=1990-01&filter=dob",
       "/api/patients?q=19900101-1234&filter=personalNumber",
     ]) {
       const data = await apiGet<PatientSearchResponse>(request, path);
-      expect(data.patients[0]?.name).toBe("Anna Andersson");
+      expect(data.patients[0]?.name).toBe("Anna Kowalska");
     }
     for (const params of ["page=0", "page=1.5", "page=oops", "filter=unknown"]) {
       expect((await request.get(`/api/patients?${params}`)).status()).toBe(400);
@@ -116,7 +116,7 @@ test.describe("patient search", () => {
     const { data } = await response.json();
     expect(data.patient).toMatchObject({
       id: 1,
-      name: "Anna Andersson",
+      name: "Anna Kowalska",
       dateOfBirth: "1990-01-01",
     });
     expect(data.records).toContainEqual(
@@ -154,7 +154,7 @@ test.describe("patient search", () => {
   });
 
   test("lets primary-care staff search and open a journal", async ({ request }) => {
-    // The vårdcentral role carries the same clinical permissions as hospital
+    // The primary care role carries the same clinical permissions as hospital
     // staff, so the whole staff flow has to work for it end to end.
     const login = await request.post("/api/auth/login", {
       data: { username: "vc_test", password: "test123" },
@@ -174,7 +174,9 @@ test.describe("patient search", () => {
   }) => {
     await page.goto("/login");
     await page.getByRole("combobox", { name: "Demo user" }).click();
-    await page.getByRole("option", { name: "Vårdcentralen Ekfors (nurse) - Primary care" }).click();
+    await page
+      .getByRole("option", { name: "Ekfors Primary Care Centre (nurse) - Primary care" })
+      .click();
     await page.getByLabel("Password").fill("test123");
     await page.getByRole("button", { name: "Sign in" }).click();
 

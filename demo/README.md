@@ -1,48 +1,48 @@
 # Demo
 
-Reproducerbart presentations-demo för Awesome Journal: en inspelad MP4 med
-svenska undertexter och två syntetiska röster, som täcker de flöden som
-kraven i [`../docs/Raw_Requirements.md`](../docs/Raw_Requirements.md) kräver.
+A reproducible presentation demo for Awesome Journal: a recorded MP4 with English
+captions and two synthetic voices, covering the flows required by
+[`../docs/Raw_Requirements.md`](../docs/Raw_Requirements.md).
 
 ## Presentation
 
-- **Gamma-dokument:** [Awesome Journal — presentation](https://gamma.app/docs/Awesome-Journal-sutbjt9liz0ezby?follow_on_start=true&following_id=pm3dsbunkjcrnnm&mode=doc)
-- **Video:** `out/demo.mp4` (~6,5 min, 1920x1080)
-- **Split-screen-video:** `out/demo-parallel.mp4` (~2,5 min, 1920x1080)
+- **Gamma document:** [Awesome Journal — presentation](https://gamma.app/docs/Awesome-Journal-sutbjt9liz0ezby?follow_on_start=true&following_id=pm3dsbunkjcrnnm&mode=doc)
+- **Video:** `out/demo.mp4` (~6.5 min, 1920x1080)
+- **Split-screen video:** `out/demo-parallel.mp4` (~2.5 min, 1920x1080)
 
-> Gamma-dokumentet kräver inloggning. Länken ovan pekar på presentationen som
-> följer med inlämningen.
+> The Gamma document requires a login. The link above points to the presentation
+> that ships with the submission.
 
-> Videofilmerna ligger i `out/` och är **inte** versionskontrollerade. Kör
-> `npm run demo` för att generera dem på nytt från den spårade koden.
+> The videos live in `out/` and are **not** version-controlled. Run
+> `npm run demo` to regenerate them from the tracked code.
 
-## Scener
+## Scenes
 
-| # | Scene | Visar |
+| # | Scene | Shows |
 |---|-------|-------|
-| 1 | `intro` | Projektnamn och demo-sammanfattning |
-| 2 | `login-doctor` | JWT-login som läkare |
-| 3 | `search-patient` | Patientsökning |
-| 4 | `records` | Anteckningar i PostgreSQL/SQL |
-| 5 | `note-visibility` | `internal` dold, `shared` synlig för patient |
-| 6 | `access-log` | Access-loggen och blockchain-verifieringen |
-| 7 | `realtime-p2p` | Samma anteckning på två servrar (split-screen) |
-| 8 | `patient-view` | Patienten ser bara sina egna uppgifter |
-| 9 | `url-tampering` |byte av `userId` i URL blockeras |
-| 10 | `unauthorized` | Obehörig roll nekas journal |
-| 11 | `primary-care` | Vårdcentral får delat underlag |
-| 12 | `outro` | Sammanfattning |
+| 1 | `intro` | Project name and demo summary |
+| 2 | `login-doctor` | JWT login as doctor |
+| 3 | `search-patient` | Patient search |
+| 4 | `records` | Notes read from PostgreSQL/SQL |
+| 5 | `note-visibility` | `private` hidden, `all` visible to the patient |
+| 6 | `access-log` | The access log and blockchain verification |
+| 7 | `realtime-p2p` | Same note on two servers (split-screen) |
+| 8 | `patient-view` | Patient sees only their own data |
+| 9 | `url-tampering` | changing the `userId` in the URL is blocked |
+| 10 | `unauthorized` | Unauthorized role denied the journal |
+| 11 | `primary-care` | Primary care gets shared access |
+| 12 | `outro` | Summary |
 
-## Köra själv
+## Running it yourself
 
-Kräver två körande servrar, en seedad databas och Chromium:
+Needs two running servers, a seeded database, and Chromium:
 
 ```bash
-# 1. Seed + bygg
+# 1. Seed + build
 npx prisma generate && node prisma/seed.js
 npm run build
 
-# 2. Två servrar, peer:ad med varandra
+# 2. Two servers, peered with each other
 SERVER_ID=hospital-s PEER_URL=http://localhost:3002 npm run start -- -p 3001
 SERVER_ID=ambulance-a PEER_URL=http://localhost:3001 npm run start -- -p 3002
 
@@ -52,70 +52,70 @@ npm run demo
 
 `npm run demo` = `demo:narrate` → `demo:record` → `demo:compose`.
 
-| Script | Gör |
-|--------|-----|
-| `npm run demo:narrate` | Genererar en MP3 per undertext med `edge-tts` till `out/audio/` |
-| `npm run demo:record` | Spelar in varje scen till `out/raw/` och skriver `out/timeline.json` |
-| `npm run demo:compose` | Lägger ihop `out/demo.mp4` med ton och bild i takt |
+| Script | Does |
+|--------|------|
+| `npm run demo:narrate` | Generates one MP3 per caption with `edge-tts` into `out/audio/` |
+| `npm run demo:record` | Records each scene into `out/raw/` and writes `out/timeline.json` |
+| `npm run demo:compose` | Stitches `out/demo.mp4` together with audio and frame timing |
 
-### Två versioner
+### Two versions
 
-`DEMO_SET` väljer vilken inspelning som görs:
+`DEMO_SET` chooses which recording is made:
 
-| Variabel | Utdata |
+| Variable | Output |
 |----------|--------|
-| `DEMO_SET=main` (standard) | `out/demo.mp4` — den linjära genomgången av alla krav |
-| `DEMO_SET=parallel` | `out/demo-parallel.mp4` — split-screen med båda servrarna sida vid sida |
+| `DEMO_SET=main` (default) | `out/demo.mp4` — the linear walkthrough of every requirement |
+| `DEMO_SET=parallel` | `out/demo-parallel.mp4` — split-screen with both servers side by side |
 
-`DEMO_SCENES=par-setup,par-realtime` spelar bara in några scener, vilket är det
-som gör att en enskild takt går att iterera på.
+`DEMO_SCENES=par-setup,par-realtime` records only some scenes, which is what
+makes a single beat iterable.
 
-### Undertexter
+### Captions
 
-`captions.ts` är enda källan för all text. Samma sträng används för toasten
-i bilden och för talet, så undertext och röst aldrig kan glida isär.
+`captions.ts` is the single source of all text. The same string is used for the
+on-screen toast and for the voice, so caption and voice can never drift apart.
 
-| Fält | Värde |
-|------|-------|
-| Röster | `sv-SE-SofieNeural`, `sv-SE-MattiasNeural` |
-| Hastighet | `-6%` |
+| Field | Value |
+|-------|-------|
+| Voices | `en-US-JennyNeural`, `en-US-GuyNeural` |
+| Rate | `-6%` |
 
-Texten ändras i `captions.ts`, sedan `npm run demo:narrate && npm run demo:record
+Change the text in `captions.ts`, then `npm run demo:narrate && npm run demo:record
 && npm run demo:compose`.
 
-### Utdata
+### Output
 
-`out/` är genererat och **versionseras inte**:
+`out/` is generated and **not versioned**:
 
-- `out/demo.mp4`, `out/demo-parallel.mp4` — färdiga presentationer
-- `out/audio/` — röstklipp + `index.json` (längder, text, talare)
-- `out/raw*/` — oredigerade skärminspelningar per scen och lane
-- `out/segments*/` — ffmpeg-delsteg
-- `out/timeline*.json` — scenordning och undertexternas tidsstämplar
+- `out/demo.mp4`, `out/demo-parallel.mp4` — finished presentations
+- `out/audio/` — voice clips + `index.json` (durations, text, speaker)
+- `out/raw*/` — unedited screen recordings per scene and lane
+- `out/segments*/` — ffmpeg intermediate steps
+- `out/timeline*.json` — scene order and caption timestamps
 
-Allt i `out/` går att återskapa med `npm run demo` från den spårade koden, så
-det finns ingen anledning att checka in ~40 MB video och ljud.
+Everything in `out/` can be recreated with `npm run demo` from the tracked code,
+so there is no reason to check in ~40 MB of video and audio.
 
-## Anteckningar om inspelningen
+## Notes on the recording
 
-- **Markören.** Playwright spelar inte in OS-pekaren. `human.ts` lägger därför
-  in en egen DOM-markör som följer musen, med en mjuk ring när något klickas.
-- **Inmatning.** Tangenttryck sker tecken för tecken med varierad fördröjning,
-  inte `fill()`, så videon ser ut att bli skriven för hand.
-- **Rörelse.** Musen färdas längs en kurva med lätt avdrift, och scroll sker i
-  små steg — inte i en enda `scrollTo`.
-- **Videokodning.** Ffmpeg på maskinen saknar `libx264`, så compose steget
-  använder `libopenh264` med fast bithastighet i stället för CRF.
+- **The cursor.** Playwright does not record the OS pointer. `human.ts` therefore
+  injects its own DOM cursor that follows the mouse, with a soft ring on each click.
+- **Typing.** Keystrokes are sent character by character with a varied delay, not
+  `fill()`, so the video looks hand-typed.
+- **Motion.** The mouse travels along a curved path with slight drift, and
+  scrolling happens in small steps — not a single `scrollTo`.
+- **Video encoding.** Ffmpeg on this machine lacks `libx264`, so the compose step
+  uses `libopenh264` with a fixed bitrate instead of CRF.
 
-## Miljövariabler
+## Environment variables
 
-| Variabel | Standard | Beskrivning |
-|----------|----------|-------------|
-| `DEMO_SET` | `main` | `main` eller `parallel`, se [Två versioner](#två-versioner) |
-| `DEMO_SCENES` | alla scener | Kommaseparerad lista, t.ex. `DEMO_SCENES=records,outro` |
-| `SERVER_1` | `http://localhost:3001` | Värdsjukhuset |
-| `SERVER_2` | `http://localhost:3002` | Ambulansen |
-| `DATABASE_URL` | från `.env` | Seedas och rensas av `record.spec.ts` |
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEMO_SET` | `main` | `main` or `parallel`, see [Two versions](#two-versions) |
+| `DEMO_SCENES` | all scenes | Comma-separated list, e.g. `DEMO_SCENES=records,outro` |
+| `SERVER_1` | `http://localhost:3001` | The host hospital |
+| `SERVER_2` | `http://localhost:3002` | The ambulance |
+| `DATABASE_URL` | from `.env` | Seeded and cleaned by `record.spec.ts` |
 
-Inspelningen skriver rader och städer upp dem efter sig via `deleteDemoNotes`,
-så körningen går att upprepa.
+The recording writes rows and cleans them up after itself via `deleteDemoNotes`,
+so the run is repeatable.

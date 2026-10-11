@@ -259,7 +259,7 @@ function SearchLoading() {
 function highlight(value: string, query: string) {
   const trimmedQuery = query.trim();
   const index = trimmedQuery
-    ? value.toLocaleLowerCase("sv-SE").indexOf(trimmedQuery.toLocaleLowerCase("sv-SE"))
+    ? value.toLocaleLowerCase("pl-PL").indexOf(trimmedQuery.toLocaleLowerCase("pl-PL"))
     : -1;
 
   if (index === -1) {
