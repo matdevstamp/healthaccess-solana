@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-09-03 08:13 UTC",
+  "generated_at": "2026-10-11 17:09 UTC",
   "repository": "matdevstamp/inl-3-awesome-journal",
   "tasks": {
     "01": {
       "title": "Project Setup & Group Contract",
       "gate": "1-Decisions",
       "stream": "",
-      "state": "Open",
+      "state": "Closed",
       "assignee": "Team",
       "deadline": "2026-09-04",
       "effort": "2h",
@@ -15,20 +15,20 @@
       "github_number": 1,
       "questions": [
         {
-          "question": "Which frontend framework will we use? (React, Vue, Svelte?)",
-          "resolved": false
+          "question": "Frontend: React inside Next.js (fullstack) — decided at kickoff",
+          "resolved": true
         },
         {
-          "question": "Which authentication method? (JWT, sessions, passwordless?)",
-          "resolved": false
+          "question": "Auth: JWT in an httpOnly cookie — decided at kickoff",
+          "resolved": true
         },
         {
-          "question": "How will we handle the blockchain implementation?",
-          "resolved": false
+          "question": "Blockchain: simple custom chain (stream D split TBD) — decided at kickoff",
+          "resolved": true
         },
         {
-          "question": "What database will we use? (PostgreSQL, MySQL, SQLite?)",
-          "resolved": false
+          "question": "Database: PostgreSQL (dev + prod) — decided at kickoff",
+          "resolved": true
         }
       ]
     },
@@ -36,7 +36,7 @@
       "title": "Database Choice Discussion",
       "gate": "1-Decisions",
       "stream": "",
-      "state": "Open",
+      "state": "Closed",
       "assignee": "Team",
       "deadline": "2026-09-04",
       "effort": "1h (meeting)",
@@ -45,38 +45,38 @@
       "github_number": 2,
       "questions": [
         {
-          "question": "Which database do we choose? (SQLite, PostgreSQL, or both?)",
-          "resolved": false
+          "question": "Which database do we choose? → **PostgreSQL** (dev and prod)",
+          "resolved": true
         },
         {
           "question": "How to handle the P2P requirement with the chosen database?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Should we use Docker for PostgreSQL in development?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "How to handle database seeding?",
-          "resolved": false
+          "resolved": true
         }
       ]
     },
     "03": {
-      "title": "Graphify Architecture Artifacts",
+      "title": "Ripwire Architecture Artifacts",
       "gate": "1-Decisions",
       "stream": "",
-      "state": "Open",
-      "assignee": "Scaffold pair (Person 1 + Person 2)",
-      "deadline": "2026-09-05",
+      "state": "Closed",
+      "assignee": "Team (Gate 1 — Matias coordinates)",
+      "deadline": "2026-09-07",
       "effort": "2h",
       "blocked_by": "#1, #2",
-      "related": "20",
+      "related": "#30",
       "github_number": 3,
       "questions": [
         {
-          "question": "Which graphify version and command will be documented in the README?",
-          "resolved": false
+          "question": "Which ripwire version and command will be documented in the README? Answer: `npm run ripwire` (ripwire 0.5.0), see `docs/ripwire.md`.",
+          "resolved": true
         }
       ]
     },
@@ -84,81 +84,81 @@
       "title": "Database Design & Setup",
       "gate": "2-Scaffold",
       "stream": "",
-      "state": "Open",
-      "assignee": "TBD",
-      "deadline": "2026-09-05",
+      "state": "Closed",
+      "assignee": "matdevstamp",
+      "deadline": "2026-09-07",
       "effort": "4h",
       "blocked_by": "#1, #2, #3",
       "related": "",
       "github_number": 4,
       "questions": [
         {
-          "question": "PostgreSQL vs SQLite? (see task 02-database-choice-discussion.md)",
-          "resolved": false
+          "question": "PostgreSQL vs SQLite? → **PostgreSQL** (see task 02-database-choice-discussion.md)",
+          "resolved": true
         },
         {
-          "question": "Should we use Prisma as the single source of truth?",
-          "resolved": false
+          "question": "Prisma as single source of truth? → yes; DBML dropped",
+          "resolved": true
         },
         {
           "question": "How to handle database seeding?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Do we need indexes for this project scale?",
-          "resolved": false
+          "resolved": true
         }
       ]
     },
     "05": {
-      "title": "Vite + Tailwind CSS + shadcn/ui Setup",
+      "title": "Next.js + Tailwind CSS + shadcn/ui Setup",
       "gate": "2-Scaffold",
       "stream": "",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-05",
+      "state": "Closed",
+      "assignee": "matdevstamp",
+      "deadline": "2026-09-07",
       "effort": "3h",
       "blocked_by": "#1, #3",
       "related": "",
-      "github_number": "",
+      "github_number": 6,
       "questions": [
         {
           "question": "Which shadcn/ui components do we need initially?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Should we use dark mode from the start?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Custom color palette or default shadcn colors?",
-          "resolved": false
+          "resolved": true
         }
       ]
     },
     "06": {
-      "title": "Backend Project Setup",
+      "title": "Backend Project Setup (Next.js Route Handlers & Services)",
       "gate": "2-Scaffold",
       "stream": "",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-06",
+      "state": "Closed",
+      "assignee": "matdevstamp",
+      "deadline": "2026-09-07",
       "effort": "4h",
-      "blocked_by": "#4, 05",
+      "blocked_by": "#4, #6",
       "related": "",
-      "github_number": "",
+      "github_number": 7,
       "questions": [
         {
-          "question": "PostgreSQL vs SQLite for development?",
-          "resolved": false
+          "question": "PostgreSQL vs SQLite for development? → PostgreSQL (task 02 decision)",
+          "resolved": true
         },
         {
-          "question": "Which ORM to use? (Prisma recommended)",
-          "resolved": false
+          "question": "Which ORM to use? → Prisma",
+          "resolved": true
         },
         {
           "question": "Should we use a logger library (winston, pino)?",
-          "resolved": false
+          "resolved": true
         }
       ]
     },
@@ -166,25 +166,25 @@
       "title": "TypeScript Strict Configuration",
       "gate": "2-Scaffold",
       "stream": "",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-06",
+      "state": "Closed",
+      "assignee": "matdevstamp",
+      "deadline": "2026-09-07",
       "effort": "2h",
-      "blocked_by": "05, 06",
+      "blocked_by": "#6, #7",
       "related": "",
-      "github_number": "",
+      "github_number": 8,
       "questions": [
         {
           "question": "Should we enable `exactOptionalPropertyTypes`?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "How to handle third-party library types?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Should we use `type` or `interface`?",
-          "resolved": false
+          "resolved": true
         }
       ]
     },
@@ -192,25 +192,25 @@
       "title": "ESLint + Prettier Configuration",
       "gate": "2-Scaffold",
       "stream": "",
-      "state": "Planned",
-      "assignee": "TBD",
+      "state": "Closed",
+      "assignee": "matdevstamp",
       "deadline": "2026-09-07",
       "effort": "2h",
-      "blocked_by": "05, 07",
+      "blocked_by": "#6, #8",
       "related": "",
-      "github_number": "",
+      "github_number": 9,
       "questions": [
         {
           "question": "Should we use Biome instead of ESLint + Prettier? (faster)",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Which import sorting order do we prefer?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Should we enforce strict TypeScript rules?",
-          "resolved": false
+          "resolved": true
         }
       ]
     },
@@ -218,29 +218,29 @@
       "title": "Playwright E2E Testing",
       "gate": "2-Scaffold",
       "stream": "",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-08",
+      "state": "Closed",
+      "assignee": "matdevstamp",
+      "deadline": "2026-09-07",
       "effort": "8h",
-      "blocked_by": "05, 06, 07, 08",
-      "related": "10, 19",
-      "github_number": "",
+      "blocked_by": "#6, #7, #8, #9",
+      "related": "#11, #29",
+      "github_number": 10,
       "questions": [
         {
           "question": "How to handle test data seeding?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Should we test on multiple browsers?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "How to handle real-time test assertions?",
-          "resolved": false
+          "resolved": true
         },
         {
           "question": "Should we mock API calls or use real backend?",
-          "resolved": false
+          "resolved": true
         }
       ]
     },
@@ -248,25 +248,25 @@
       "title": "GitHub Actions CI/CD Workflow",
       "gate": "2-Scaffold",
       "stream": "",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-08",
+      "state": "Closed",
+      "assignee": "matdevstamp",
+      "deadline": "2026-09-07",
       "effort": "3h",
-      "blocked_by": "05, 08, 07, 06",
-      "related": "09",
-      "github_number": "",
+      "blocked_by": "#6, #9, #8, #7",
+      "related": "#10",
+      "github_number": 11,
       "questions": [
         {
           "question": "Should we deploy on merge to main?",
-          "resolved": false
+          "resolved": true
         },
         {
-          "question": "Which hosting platform for deployment?",
-          "resolved": false
+          "question": "Should we run E2E tests in CI from the start or only near Gate 4?",
+          "resolved": true
         },
         {
-          "question": "Should we run E2E tests in CI?",
-          "resolved": false
+          "question": "Can the ruleset enforce the docs-direct carve-out per path?",
+          "resolved": true
         }
       ]
     },
@@ -274,17 +274,17 @@
       "title": "Backend API & Authentication",
       "gate": "3-Features",
       "stream": "A-Identity",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-16",
+      "state": "Closed",
+      "assignee": "Kassim10",
+      "deadline": "2026-09-10",
       "effort": "8h",
-      "blocked_by": "#4, 07, 06",
+      "blocked_by": "#4, #8, #7",
       "related": "",
-      "github_number": "",
+      "github_number": 13,
       "questions": [
         {
-          "question": "JWT vs session-based auth? (JWT recommended for simplicity)",
-          "resolved": false
+          "question": "JWT vs session-based auth? → JWT in httpOnly cookie (kickoff)",
+          "resolved": true
         },
         {
           "question": "Should we implement passwordless login?",
@@ -295,8 +295,8 @@
           "resolved": false
         },
         {
-          "question": "Should we use an API framework like Fastify instead of Express?",
-          "resolved": false
+          "question": "Express vs another framework? → no Express; Next.js route handlers (kickoff)",
+          "resolved": true
         }
       ]
     },
@@ -304,29 +304,29 @@
       "title": "Frontend UI Development",
       "gate": "3-Features",
       "stream": "A-Identity",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-16",
+      "state": "Closed",
+      "assignee": "rcilomba",
+      "deadline": "2026-09-11",
       "effort": "12h",
-      "blocked_by": "05, 07, 06",
+      "blocked_by": "#6, #8, #7",
       "related": "",
-      "github_number": "",
+      "github_number": 14,
       "questions": [
         {
-          "question": "React vs Vue vs Svelte? (React recommended)",
-          "resolved": false
+          "question": "React vs Vue vs Svelte? → React in Next.js (kickoff)",
+          "resolved": true
         },
         {
-          "question": "Which CSS framework? (Tailwind recommended)",
-          "resolved": false
+          "question": "Which CSS framework? → Tailwind + shadcn/ui (kickoff)",
+          "resolved": true
         },
         {
-          "question": "State management approach? (Context API vs Redux)",
-          "resolved": false
+          "question": "State management approach? → custom useSyncExternalStore session store; TanStack Query not adopted (PR #24)",
+          "resolved": true
         },
         {
-          "question": "Should we use a component library? (Material UI, Ant Design?)",
-          "resolved": false
+          "question": "Component library? → shadcn/ui (kickoff)",
+          "resolved": true
         }
       ]
     },
@@ -334,16 +334,16 @@
       "title": "Patient View & Search",
       "gate": "3-Features",
       "stream": "B-Patient",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-18",
+      "state": "Closed",
+      "assignee": "rcilomba",
+      "deadline": "2026-09-15",
       "effort": "6h",
-      "blocked_by": "#4, 11, 12",
-      "related": "14",
-      "github_number": "",
+      "blocked_by": "#4, #13, #14",
+      "related": "#16",
+      "github_number": 15,
       "questions": [
         {
-          "question": "How to handle Swedish characters in search? (å, ä, ö)",
+          "question": "How to handle Polish characters in search? (ł, ż, ó)",
           "resolved": false
         },
         {
@@ -364,13 +364,13 @@
       "title": "Medical Notes with Visibility Control",
       "gate": "3-Features",
       "stream": "C-Notes",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-18",
+      "state": "Closed",
+      "assignee": "Kassim10 (backend visibility) + rcilomba (UI)",
+      "deadline": "2026-09-22",
       "effort": "5h",
-      "blocked_by": "#4, 11, 12",
-      "related": "13",
-      "github_number": "",
+      "blocked_by": "#4, #13, #14",
+      "related": "#15",
+      "github_number": 16,
       "questions": [
         {
           "question": "Should notes support rich text or plain text only?",
@@ -394,13 +394,13 @@
       "title": "Blockchain Access Logging",
       "gate": "3-Features",
       "stream": "D-Audit",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-16",
+      "state": "Closed",
+      "assignee": "umoraghad0-del (huvudansvar, Stream D)",
+      "deadline": "2026-09-21",
       "effort": "8h",
-      "blocked_by": "#4, 07, 06",
+      "blocked_by": "#4, #8, #7",
       "related": "18",
-      "github_number": "",
+      "github_number": 17,
       "questions": [
         {
           "question": "Which blockchain library to use? (Consider crypto-js for simplicity)",
@@ -424,13 +424,13 @@
       "title": "P2P Network Implementation",
       "gate": "3-Features",
       "stream": "D-Audit",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-18",
+      "state": "Closed",
+      "assignee": "umoraghad0-del (pair-programmering)",
+      "deadline": "2026-09-21",
       "effort": "6h",
-      "blocked_by": "15, 06",
+      "blocked_by": "#17, #7",
       "related": "",
-      "github_number": "",
+      "github_number": 18,
       "questions": [
         {
           "question": "How to handle server startup order?",
@@ -455,16 +455,16 @@
       "gate": "4-Integration",
       "stream": "",
       "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-23",
+      "assignee": "rcilomba",
+      "deadline": "2026-09-24",
       "effort": "6h",
-      "blocked_by": "11, 12, 13, 14",
+      "blocked_by": "#13, #14, #15, #16",
       "related": "",
       "github_number": "",
       "questions": [
         {
-          "question": "How to handle organization-based access for vårdcentral?",
-          "resolved": false
+          "question": "How to handle organization-based access for primary care centre? Answered: primary care centre is the login role",
+          "resolved": true
         },
         {
           "question": "Should we implement audit logging for all access attempts?",
@@ -485,27 +485,27 @@
       "gate": "4-Integration",
       "stream": "",
       "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-23",
+      "assignee": "umoraghad0-del (pair-programmering)",
+      "deadline": "2026-09-28",
       "effort": "5h",
-      "blocked_by": "17, 14, 16, 12",
-      "related": "15",
+      "blocked_by": "#16, #18, #14, 17",
+      "related": "#17",
       "github_number": "",
       "questions": [
         {
-          "question": "Should we use Redis adapter for scaling?",
+          "question": "Should we use Redis adapter for scaling? (open — single-pair demo works without it)",
           "resolved": false
         },
         {
-          "question": "How to handle socket authentication?",
-          "resolved": false
+          "question": "How to handle socket authentication? (JWT session cookie verified at handshake + peer shared secret for P2P calls)",
+          "resolved": true
         },
         {
-          "question": "What's the reconnection strategy?",
-          "resolved": false
+          "question": "What's the reconnection strategy? (socket.io-client auto-reconnect, 5 attempts, client-side note dedup on resync)",
+          "resolved": true
         },
         {
-          "question": "Should we implement message acknowledgments?",
+          "question": "Should we implement message acknowledgments? (open — current flow relies on client-side dedup instead)",
           "resolved": false
         }
       ]
@@ -514,29 +514,29 @@
       "title": "Testing & Quality Assurance",
       "gate": "5-Delivery",
       "stream": "",
-      "state": "Planned",
-      "assignee": "TBD",
-      "deadline": "2026-09-29",
+      "state": "Closed",
+      "assignee": "Team",
+      "deadline": "2026-09-23",
       "effort": "8h",
-      "blocked_by": "17, 15, 16, 18",
-      "related": "09, 20",
-      "github_number": "",
+      "blocked_by": "#17, #18, 17, 18",
+      "related": "#10, #30",
+      "github_number": 29,
       "questions": [
         {
-          "question": "Which testing framework to use? (Jest recommended for Node.js)",
-          "resolved": false
+          "question": "Which testing framework to use? → Vitest (unit/integration) + Playwright (E2E), matching task 09.",
+          "resolved": true
         },
         {
-          "question": "How to set up test database?",
-          "resolved": false
+          "question": "How to set up test database? → Docker Postgres via `e2e/global-setup.ts`, migrated and seeded per run.",
+          "resolved": true
         },
         {
-          "question": "Should we implement E2E tests with Cypress?",
-          "resolved": false
+          "question": "Should we implement E2E tests with Cypress? → No, Playwright was already chosen in task 09.",
+          "resolved": true
         },
         {
-          "question": "How to handle socket.io testing?",
-          "resolved": false
+          "question": "How to handle socket.io testing? → Two `next start` instances (3001/3002) with real Socket.io ports; cross-server delivery is asserted over a WebSocket client.",
+          "resolved": true
         }
       ]
     },
@@ -544,29 +544,29 @@
       "title": "Documentation & README",
       "gate": "5-Delivery",
       "stream": "",
-      "state": "Planned",
-      "assignee": "TBD",
+      "state": "Closed",
+      "assignee": "Kassim10",
       "deadline": "2026-09-29",
       "effort": "4h",
       "blocked_by": "#1",
-      "related": "#3, 19",
-      "github_number": "",
+      "related": "#3, #29",
+      "github_number": 30,
       "questions": [
         {
           "question": "Which screenshot tool to use?",
           "resolved": false
         },
         {
-          "question": "How detailed should API documentation be?",
-          "resolved": false
+          "question": "How detailed should API documentation be? → route-handler table in README",
+          "resolved": true
         },
         {
-          "question": "Should we use a documentation generator (e.g., Swagger)?",
-          "resolved": false
+          "question": "Should we use a documentation generator? → no (shared types; kickoff)",
+          "resolved": true
         },
         {
-          "question": "How to format meeting notes consistently?",
-          "resolved": false
+          "question": "How to format meeting notes consistently? → `YYYY-MM-DD-<meeting-type>.md`; use the structure in [`docs/MEETING_TEMPLATE.md`](../MEETING_TEMPLATE.md) and keep raw transcripts in `docs/meetings/archive/`.",
+          "resolved": true
         }
       ]
     },
@@ -574,13 +574,13 @@
       "title": "Presentation Preparation",
       "gate": "5-Delivery",
       "stream": "",
-      "state": "Planned",
-      "assignee": "Team",
+      "state": "Closed",
+      "assignee": "Kassim10",
       "deadline": "2026-10-01",
       "effort": "6h",
-      "blocked_by": "19, 09, 20",
+      "blocked_by": "#29, #10, #30",
       "related": "",
-      "github_number": "",
+      "github_number": 31,
       "questions": [
         {
           "question": "Will we use slides or just live demo?",
@@ -596,6 +596,370 @@
         },
         {
           "question": "How to handle unexpected questions?",
+          "resolved": false
+        }
+      ]
+    },
+    "22": {
+      "title": "Solana Repo Split and Toolchain",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-10",
+      "effort": "5h",
+      "blocked_by": "",
+      "related": "24",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Does `anchor build` require platform tools (`cargo install --locked --git https://github.com/anza-xyz/platform-tools`)?",
+          "resolved": false
+        },
+        {
+          "question": "Which devnet RPC provider for E2E? The public endpoint rate-limits under parallel tests",
+          "resolved": false
+        }
+      ]
+    },
+    "23": {
+      "title": "Freeze the Interface Contract",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-10",
+      "effort": "3h",
+      "blocked_by": "",
+      "related": "24, 25",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Does Anchor 1.2 use `declare_program!` or classic `declare_id!`? Confirm against installed docs before task 24 writes the scaffold",
+          "resolved": false
+        },
+        {
+          "question": "Is the event emission API still `emit!(AccessLogged {...})` in 1.x?",
+          "resolved": false
+        }
+      ]
+    },
+    "24": {
+      "title": "Solana Program Scaffold",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-11",
+      "effort": "4h",
+      "blocked_by": "23",
+      "related": "27",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Confirm whether Anchor 1.2 requires `declare_program!` with an IDL file, or classic `declare_id!`",
+          "resolved": false
+        },
+        {
+          "question": "Does `anchor build` need platform tools (`cargo-build-sbf`) installed separately?",
+          "resolved": false
+        },
+        {
+          "question": "Should the IDL be committed at scaffold time or after task 27?",
+          "resolved": false
+        }
+      ]
+    },
+    "25": {
+      "title": "Pure Hash Chain Module",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-11",
+      "effort": "5h",
+      "blocked_by": "23",
+      "related": "27",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Should `chain_head` use SHA-256 directly or a domain-separated variant? Direct SHA-256 matches the contract and keeps client and program identical",
+          "resolved": false
+        },
+        {
+          "question": "Should `verify_chain` live here or in a later task? Contract puts it here",
+          "resolved": false
+        }
+      ]
+    },
+    "26": {
+      "title": "Durable Outbox and Solana Flusher",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-12",
+      "effort": "9h",
+      "blocked_by": "23",
+      "related": "32",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Flush on write plus a periodic sweep, or a fixed timer? The former gives snappy demo behavior without hammering devnet",
+          "resolved": false
+        },
+        {
+          "question": "Retain pending events for how long before giving up?",
+          "resolved": false
+        },
+        {
+          "question": "Batch multiple events per transaction to save fees, at the cost of per-event atomicity?",
+          "resolved": false
+        }
+      ]
+    },
+    "27": {
+      "title": "Build the Anchor Program",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-11",
+      "effort": "5h",
+      "blocked_by": "24, 25",
+      "related": "28, 29",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Should `record_access` cap `event_count` or payload age?",
+          "resolved": false
+        },
+        {
+          "question": "Emit the full `AccessEvent` on-chain, or only the hash with detail in Postgres?",
+          "resolved": false
+        }
+      ]
+    },
+    "28": {
+      "title": "Devnet Deploy",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-11",
+      "effort": "2h",
+      "blocked_by": "27",
+      "related": "30",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Which devnet RPC provider for the app and E2E?",
+          "resolved": false
+        },
+        {
+          "question": "Record the exact deploy command in the README so the deployment is reproducible?",
+          "resolved": false
+        }
+      ]
+    },
+    "29": {
+      "title": "Solana Program Tests",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-11",
+      "effort": "7h",
+      "blocked_by": "27, 28",
+      "related": "35",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Coverage threshold for the Rust program? The TS side uses 70%; mirror it?",
+          "resolved": false
+        },
+        {
+          "question": "Should the tamper test live in Rust, TypeScript, or both? Both proves client and program agree",
+          "resolved": false
+        }
+      ]
+    },
+    "30": {
+      "title": "Solana Client and Environment",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-12",
+      "effort": "5h",
+      "blocked_by": "27, 28",
+      "related": "32",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Cache the head hash or read per request? Per request is simpler and current enough",
+          "resolved": false
+        },
+        {
+          "question": "Should health fail loudly when the program is missing, or degrade to `status: degraded`?",
+          "resolved": false
+        }
+      ]
+    },
+    "31": {
+      "title": "Remove the Homemade Blockchain",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-12",
+      "effort": "6h",
+      "blocked_by": "30",
+      "related": "32",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Keep the two-server demo or drop to one and reclaim the time? Recommendation: keep, it is the HA story",
+          "resolved": false
+        },
+        {
+          "question": "Should `AccessLog` rows exist for pending events, or only anchored ones?",
+          "resolved": false
+        }
+      ]
+    },
+    "32": {
+      "title": "Wire Flusher to the Solana Program",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-12",
+      "effort": "5h",
+      "blocked_by": "31, 30",
+      "related": "33",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Flush immediately on write plus a periodic sweep, or on a fixed interval?",
+          "resolved": false
+        },
+        {
+          "question": "What is acceptable pending lag before the demo looks wrong?",
+          "resolved": false
+        }
+      ]
+    },
+    "33": {
+      "title": "Patient Wallet Integration",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-12",
+      "effort": "6h",
+      "blocked_by": "32",
+      "related": "34",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Does consent need revoking? Revocation on-chain is a real design problem, likely out of scope",
+          "resolved": false
+        },
+        {
+          "question": "Should patients read their own log entries directly from chain, bypassing the app?",
+          "resolved": false
+        }
+      ]
+    },
+    "34": {
+      "title": "Solana Verification UI",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-12",
+      "effort": "6h",
+      "blocked_by": "32",
+      "related": "33",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Should the chain panel be visible to staff too, or patients only?",
+          "resolved": false
+        },
+        {
+          "question": "Poll for pending entries or rely on the socket? Socket is smoother if the flusher emits",
+          "resolved": false
+        }
+      ]
+    },
+    "35": {
+      "title": "E2E and Submission Disclosure",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-12",
+      "effort": "4h",
+      "blocked_by": "29, 32",
+      "related": "36, 37",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Do the devnet specs need a funded CI wallet, or should the demo account be a documented devnet address?",
+          "resolved": false
+        },
+        {
+          "question": "Should the specs live in `e2e/solana/` as a separate directory?",
+          "resolved": false
+        }
+      ]
+    },
+    "36": {
+      "title": "Hackathon Documentation",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-12",
+      "effort": "5h",
+      "blocked_by": "32",
+      "related": "35, 37",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Remove the course logbooks from the fork; keep `gruppkontrakt.md` and the meeting notes for honest provenance",
+          "resolved": true
+        },
+        {
+          "question": "Mermaid in markdown, or a rendered image? Mermaid renders on GitHub and stays current",
+          "resolved": false
+        }
+      ]
+    },
+    "37": {
+      "title": "Hackathon Submission and Decks",
+      "gate": "Other",
+      "stream": "",
+      "state": "Planned",
+      "assignee": "matdevstamp",
+      "deadline": "2026-10-13",
+      "effort": "13h",
+      "blocked_by": "35, 36",
+      "related": "32",
+      "github_number": "",
+      "questions": [
+        {
+          "question": "Target the University award explicitly, or let it follow from the work?",
+          "resolved": false
+        },
+        {
+          "question": "Which track: Solana, or a general submission? Solana is a separate $100k pool",
+          "resolved": false
+        },
+        {
+          "question": "Is the repo public? It must be, or `hackathon@colosseum.com` needs access",
           "resolved": false
         }
       ]

@@ -163,5 +163,5 @@ If any step needs something not in the README, the README is incomplete.
 
 ## Questions to Resolve
 
-- [ ] Keep `gruppkontrakt.md` and the course logbooks in the fork, or remove them? Leaving them is honest; removing reduces noise
+- [x] Remove the course logbooks from the fork; keep `gruppkontrakt.md` and the meeting notes for honest provenance
 - [ ] Mermaid in markdown, or a rendered image? Mermaid renders on GitHub and stays current

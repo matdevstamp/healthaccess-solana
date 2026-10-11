@@ -6,7 +6,7 @@
 - **Status:** DONE
 - **Assignee:** matdevstamp
 - **Tags:** database, backend, required, gate:2-scaffold
-- **Dependencies:** 01-project-setup-group-contract.md, 02-database-choice-discussion.md, 03-graphify-architecture-artifacts.md
+- **Dependencies:** 01-project-setup-group-contract.md, 02-database-choice-discussion.md, 03-ripwire-architecture-artifacts.md
 - **Estimated Effort:** 4h
 - **GitHub Issue:** #4 (https://github.com/matdevstamp/inl-3-awesome-journal/issues/4)
 

@@ -1,38 +1,56 @@
-# Sequence: Permitted Read → Access Log → P2P
+# Sequence: Permitted Read → Outbox → On-chain Anchor
 
-En behörig användare läser en journal på Server 1. Den medicinska datan hämtas
-från PostgreSQL (stannar i SQL), en access-log läggs på blockkedjan och
-distribueras till Server 2, där en annan behörig användare ser händelsen live
-via Socket.IO — och även den läsningen loggas.
+An authorized user opens a record on server 1. Medical data is fetched from
+PostgreSQL and stays in SQL. The access is written to the durable outbox, then
+a background flusher commits it to the Solana program. Once anchored, the
+off-chain mirror carries the `slot`, `signature`, and `head_hash`, which
+`/api/access-log` can compare against chain state.
 
 ```mermaid
 sequenceDiagram
     autonumber
-    participant U1 as Läkare (Server 1)
-    participant S1 as Next.js Server 1
+    participant U as Staff (browser)
+    participant S as Next.js server
     participant DB as PostgreSQL
-    participant CHAIN as Access-log kedja
-    participant S2 as Next.js Server 2
-    participant U2 as Ambulanspersonal (Server 2)
+    participant F as Outbox flusher
+    participant CH as Solana program
+    participant T as AuditTrail PDA
 
-    U1->>S1: POST /api/login
-    S1-->>U1: JWT i httpOnly cookie
+    U->>S: POST /api/auth/login
+    S-->>U: JWT in httpOnly cookie
 
-    U1->>S1: GET /api/patients?name=… (med cookie)
-    S1->>S1: verifiera roll + behörighet
-    S1->>DB: hämta journal (SQL)
-    DB-->>S1: journaldata — stannar i SQL
-    S1-->>U1: journal + tillåtna anteckningar
+    U->>S: GET /api/patients/:id (with cookie)
+    S->>S: verify role + visibility
+    S->>DB: read journal (SQL)
+    DB-->>S: medical data — stays in SQL
+    S->>DB: INSERT access_log (status = pending)
+    S-->>U: journal + permitted notes
 
-    Note over S1: auditLogger skapar access-log-post
-    S1->>CHAIN: append access-log (hash-kedja)
-    CHAIN-->>S1: bekräftat block
+    Note over S: the read is already logged, even if the chain is unreachable
 
-    S1-->>S2: Socket.IO: access-log + anteckning broadcast
-    S2->>S2: visibility-kontroll mot roll
-    S2-->>U2: ny anteckning/access-log visas live
+    loop until anchored or attempts exhausted
+        F->>CH: read current head
+        CH-->>F: head_hash
+        F->>CH: record_access(event, prev_hash = head)
+        alt prev_hash matches head
+            CH->>T: head = sha256(prev ‖ borsh(event))
+            CH-->>F: signature, slot, AccessLogged
+            F->>DB: status = anchored, store slot + signature + head_hash
+        else another writer won the race
+            CH-->>F: ChainBroken
+            Note over F: re-read head and retry
+        end
+    end
 
-    U2->>S2: öppnar anteckningen
-    S2->>CHAIN: append egen access-log
-    S2-->>U1: tillbaka till Server 1 (P2P-synk)
+    U->>S: GET /api/access-log
+    S->>DB: read mirror
+    S->>CH: read current head
+    S-->>U: entries + verification (mirror head == chain head?)
 ```
+
+## Why the retry loop matters
+
+Two servers write to one global `AuditTrail`. `record_access` is optimistic
+concurrency: the transaction fails with `ChainBroken` if `prev_hash` is not the
+current head. The flusher therefore re-reads the head on **every** attempt — a
+blind retry with a stale `prev_hash` would fail identically forever.

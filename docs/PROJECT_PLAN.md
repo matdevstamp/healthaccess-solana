@@ -15,7 +15,7 @@ Deliver one reliable, demonstrable flow:
 5. Notes obey private, healthcare-only, and all-users visibility rules.
 6. The patient sees their own permitted notes and the complete access-log view; unauthorized users see only an access-denied page.
 
-The project must also leave behind understandable evidence: a working README, meeting notes, a Prisma schema with migrations, a generated Mermaid ER diagram, API documentation, tests, screenshots, and the two approved graphify artifacts.
+The project must also leave behind understandable evidence: a working README, meeting notes, a Prisma schema with migrations, a generated Mermaid ER diagram, API documentation, tests, screenshots, and the two approved ripwire artifacts.
 
 ## Requirements Loop
 
@@ -78,10 +78,10 @@ No stream starts until Gate 1 is met. Database-dependent backend work starts onl
 
 1. **01** - Sign `gruppkontrakt.md`, agree on roles, meetings, PR review, branch rules, and definition of done.
 2. **02** - Decide PostgreSQL for the shared two-server scenario; record the rejected alternatives and local setup decision.
-3. **03** - Run graphify on the initial repository and check in only `graphify-out/graph.html` and `graphify-out/GRAPH_REPORT.md`. Create the Mermaid system-context, data-flow, and access-log sequence diagrams.
+3. **03** - Run ripwire on the initial repository and check in only `ripwire-out/graph.html` and `ripwire-out/GRAPH_REPORT.md`. Create the Mermaid system-context, data-flow, and access-log sequence diagrams.
 4. **20 (initial slice)** - Create the README skeleton, project purpose, architecture links, setup placeholder, team section, and meeting-note index.
 
-**Gate 1 exit:** By end of Mon Sep 7 — contract agreed, GitHub rules active, decisions written, README points to planned artifacts, graphify ignore policy tested.
+**Gate 1 exit:** By end of Mon Sep 7 — contract agreed, GitHub rules active, decisions written, README points to planned artifacts, ripwire ignore policy tested.
 
 The Gate 1 meeting note must also contain the first requirements checkpoint against `docs/Raw_Requirements.md`.
 
@@ -109,6 +109,13 @@ Run a second raw-requirements checkpoint at this gate and remove or re-plan anyt
 | C - Notes and records | **14**, record display and note creation | note visibility enum and filtering rules |
 | D - Audit distribution | **15**, **16**, blockchain access log and two-server P2P transport | append-only log payload, server identity, chain verification |
 
+> **Superseded (hackathon).** Stream D described the original in-memory chain
+> and its P2P replication of the access log. The hackathon replaced both: the
+> trail now lives in the Solana program `healthaccess_audit` (a rolling
+> `head_hash` on a single `AuditTrail` PDA), and the two servers share that
+> chain instead of syncing a private copy. The access-log P2P routes were
+> removed. See `docs/hackathon/INTERFACE-CONTRACT.md`.
+
 UI work may use fixtures typed from the shared `src/lib/types/api.ts` module. Backend work may use seeded data. Owners do not edit another stream's files without a review note and an integration branch.
 
 Every stream follows the same small loop: write acceptance cases, implement the smallest behavior, run the focused test, then refactor only after it is green. The first test cases must cover the requirement's happy path and one relevant denial or error path.
@@ -131,7 +138,7 @@ Compare the working vertical flow line by line with `docs/Raw_Requirements.md` b
 
 11. **19** - Unit/integration tests for policy, visibility, URL tampering, access-log creation, and blockchain immutability boundary.
 12. **09** - Expand the early Playwright setup into critical role-based flows and the two-server demo; capture stable screenshots.
-13. **20 (final slice)** - Complete README: prerequisites, commands, environment variables, migrations, generated schema diagram, other diagrams, graphify regeneration, screenshots, API link, privacy boundary, team contributions, demo script, and meeting notes.
+13. **20 (final slice)** - Complete README: prerequisites, commands, environment variables, migrations, generated schema diagram, other diagrams, ripwire regeneration, screenshots, API link, privacy boundary, team contributions, demo script, and meeting notes.
 14. **21** - Rehearse the ten-minute presentation, explain four genuine challenges and solutions, verify the public/collaborator repository requirement, and perform the final GitHub checkout test.
 
 **Submission gate:** `main` is green, the repository contains no secrets or medical data, required artifacts are linked, at least two meetings per week are documented, and the exact demo works before class.
@@ -146,11 +153,10 @@ Protect these first: five-role login, patient search, journal view, server-side 
 
 - `gruppkontrakt.md` (root)
 - `README.md`
-- `docs/logbooks/*.csv` (per-member daily loggbok)
 - `docs/diagrams/*.md` (Mermaid diagrams rendered as Markdown pages on GitHub: `task-dependencies.md` auto-generated from draft tasks, `data-model.md` generated from `prisma/schema.prisma`, and the architecture pages `system-context.md`, `data-flow.md`, `sequence-access-log.md` from task 03; raw `.mmd` sources may exist but are never the review copy)
 - `docs/meetings/*.md`
-- `graphify-out/graph.html`
-- `graphify-out/GRAPH_REPORT.md`
+- `ripwire-out/graph.html`
+- `ripwire-out/GRAPH_REPORT.md`
 - `prisma/schema.prisma`
 
 ## Sources Consulted

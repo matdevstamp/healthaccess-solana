@@ -37,7 +37,7 @@ The contract should cover:
 
 ### Repository Structure
 ```
-├── docs/           # requirements, meetings, logbooks, diagrams, draft tasks
+├── docs/           # requirements, meetings, diagrams, draft tasks
 ├── src/            # one Next.js (fullstack) app per server
 │   ├── app/        # App Router pages + route handlers (src/app/api/...)
 │   └── lib/        # shared TS types, Prisma client, blockchain, P2P
@@ -52,7 +52,7 @@ The contract should cover:
 
 - [x] Create GitHub repository
 - [x] Write gruppkontrakt.md using provided template
-- [x] Add the per-member loggbok files under `docs/logbooks/` (or the format the group decides at kickoff)
+- [x] Add the per-member loggbok files under `docs/logbooks/` (or the format the group decides at kickoff) — later removed from the fork to reduce noise (see task 36)
 - [x] Record branch rule (app code via PR + 1 review; docs/ + Python tooling push direct) and apply the GitHub ruleset later with task 10
 - [x] Create README.md with initial project description
 - [x] Set up project board (GitHub Projects or similar)
@@ -67,7 +67,7 @@ The contract should cover:
 ## Done Criteria
 
 - [x] gruppkontrakt.md exists and is committed
-- [x] Logbook format decided at kickoff and each member's logbook file exists in `docs/logbooks/`
+- [x] Logbook format decided at kickoff and each member's logbook file existed in `docs/logbooks/` (since removed)
 - [x] README.md exists with project description
 - [x] Repository is public or postmodernistx is collaborator
 - [x] Branch protection rules are configured

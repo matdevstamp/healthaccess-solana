@@ -8,7 +8,7 @@
 - **Tags:** documentation, readme, required, gate:5-delivery
 - **Dependencies:** 01-project-setup-group-contract.md
 - **GitHub Issue:** #30 (https://github.com/matdevstamp/inl-3-awesome-journal/issues/30)
-- **Related:** 03-graphify-architecture-artifacts.md, 19-testing.md
+- **Related:** 03-ripwire-architecture-artifacts.md, 19-testing.md
 - **Estimated Effort:** 4h
 
 ## Requirements
@@ -28,7 +28,7 @@ Document the bug-report workflow: raw intake, lead triage, draft-task conversion
 
 The examples in this task are optional documentation starters, not mandatory technology choices. The team may document equivalent commands and tools if a new teammate can reproduce the project.
 - README must be usable by a new teammate on a clean machine, not merely describe the project
-- README must link to the Prisma-generated Mermaid ER diagram (`docs/diagrams/data-model.md`), the other Mermaid architecture diagrams, API documentation (route-handler list), meeting notes, and graphify report
+- README must link to the Prisma-generated Mermaid ER diagram (`docs/diagrams/data-model.md`), the other Mermaid architecture diagrams, API documentation (route-handler list), meeting notes, and ripwire report
 - Document the deliberate privacy boundary: medical content remains in SQL; only access-log data is represented on the blockchain
 - Include a reproducible demo script covering allowed and denied role flows, two servers, and live broadcasting
 
@@ -143,7 +143,7 @@ If React Query is selected, document the typed client setup, query-key conventio
 - [x] Write an initial README before feature work: purpose, scope, architecture, local setup placeholder, and team (initial slice 2026-09-04)
 - [ ] Add installation, environment variables, database migration/seed, and two-server startup instructions
 - [ ] Add database structure, generated data-model diagram link, and migration/seed regeneration instructions (including: `data-model.md` is emitted by the `generator erd` block in `prisma/schema.prisma`, so `npx prisma generate` refreshes it), plus the privacy boundary
-- [ ] Add API and Mermaid diagram links, graphify report link, screenshots, and demo script
+- [ ] Add API and Mermaid diagram links, ripwire report link, screenshots, and demo script
 - [ ] Keep README and meeting notes current at each weekly review
 - [ ] Keep a requirements traceability section current: requirement, implementation/task, test or demo evidence, owner, status
 - [ ] Re-read `docs/Raw_Requirements.md` before the final README and presentation review

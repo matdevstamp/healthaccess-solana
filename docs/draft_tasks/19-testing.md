@@ -76,7 +76,7 @@ Testing Levels:
 #### Patient Search
 ```
 ✅ Test search by name (first, last, partial)
-✅ Test search with Swedish characters (å, ä, ö)
+✅ Test search with Polish characters (ł, ż, ó)
 ✅ Test search with pagination
 ✅ Test search with filters
 ✅ Test empty search results
@@ -119,8 +119,8 @@ const testUsers = {
 
 // Test patients
 const testPatients = [
-    { id: 1, name: 'Anna Andersson', personalNumber: '198503151234' },
-    { id: 2, name: 'Erik Eriksson', personalNumber: '199207225678' }
+    { id: 1, name: 'Anna Kowalska', personalNumber: '198503151234' },
+    { id: 2, name: 'Mark Thompson', personalNumber: '199207225678' }
 ];
 ```
 
@@ -191,7 +191,7 @@ Excluded from the report (not exercised as application code): `prisma.ts`,
 No test asserts that a medical record can be created. The specifications ask
 for note creation, not record authoring:
 
-- `docs/Raw_Requirements.md` — staff add an "anteckning" and choose its visibility.
+- `docs/Raw_Requirements.md` — staff add a "note" and choose its visibility.
 - `docs/draft_tasks/14-medical-notes.md` — "create a note with an explicit visibility level".
 - `docs/draft_tasks/12-frontend-ui.md` US-06/07/08 — records are read-only
   ("I want to see ..."), with no create/edit requirement.

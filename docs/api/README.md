@@ -1,40 +1,41 @@
 # Backend API
 
-Backend-API:t är implementerat med Next.js Route Handlers under `src/app/api`.
+The backend API is implemented with Next.js Route Handlers under `src/app/api`.
 
-API:t använder JSON för request- och response-data. Autentisering hanteras med JWT som lagras i en httpOnly-cookie.
+The API uses JSON for request and response data. Authentication is handled with a JWT stored in an httpOnly cookie.
 
-## Autentisering
+## Authentication
 
 ### POST /api/auth/login
 
-Loggar in en användare med användarnamn och lösenord.
+Logs in a user with username and password.
 
-Systemet stödjer följande roller:
+The system supports the following roles:
 
 - doctor
 - nurse
 - ambulance
+- primary_care
 - patient
 - unauthorized
 
-Vid lyckad inloggning skapas en JWT-token som lagras i en httpOnly-cookie. Token innehåller information om den autentiserade användaren, bland annat roll och organisation.
+On successful login, a JWT token is created and stored in an httpOnly cookie. The token contains information about the authenticated user, including role and organization.
 
-Lösenord verifieras säkert med bcrypt.
+Passwords are verified securely with bcrypt.
 
-Felaktigt användarnamn eller lösenord returnerar samma felmeddelande för att inte avslöja om en viss användare finns i systemet.
+Incorrect username or password returns the same error message so as not to reveal whether a particular user exists in the system.
 
 ### POST /api/auth/logout
 
-Loggar ut den aktuella användaren genom att ta bort autentiseringscookien.
+Logs out the current user by removing the authentication cookie.
 
 ### GET /api/auth/me
 
-Returnerar information om den användare som för närvarande är autentiserad.
+Returns information about the currently authenticated user.
 
-Endpointen kräver en giltig autentiserad session.
+The endpoint requires a valid authenticated session.
 
-## Patienter
+## Patients
 
 ### GET /api/patients?q={query}&filter={filter}&page={page}
 
@@ -47,233 +48,243 @@ Invalid filters or page numbers return 400. Missing sessions return 401; forbidd
 The response uses `PatientSearchResponse` in `src/lib/types/api.ts`. Note counts exclude other
 authors' private notes. `lastVisit` is the latest record creation date, or `-` when no records exist.
 
-Söker efter patienter baserat på namn.
+Searches for patients based on name.
 
-Tillåtna roller:
+Allowed roles:
 
 - doctor
 - nurse
 - ambulance
 - primary_care
 
-Följande roller har inte tillgång till patientsökningen:
+The following roles do not have access to patient search:
 
 - patient
 - unauthorized
 
-Endpointen skyddas server-side med rollbaserad åtkomstkontroll.
+The endpoint is protected server-side with role-based access control.
 
 ## Health
 
 ### GET /api/health
 
-Returnerar information om API:ts och serverns status.
+Returns information about the API, the peer server, and the Solana connection.
 
-Endpointen används bland annat för att kontrollera att servern är igång.
+The response contains `solana` with:
 
-## Journaler
+- `reachable` — whether the RPC endpoint responds
+- `cluster` — `SOLANA_CLUSTER`
+- `programId` — configured program id, or `null`
+- `programDeployed` — `false` as long as `SOLANA_PROGRAM_ID` is empty
+- `headHash` — the chain's current head, or `null`
+- `currentSlot` — current slot as a decimal string
+- `pendingEvents` — number of outbox rows waiting to be anchored
+- `error` — error message if something went wrong, otherwise `null`
+
+The endpoint never crashes on an unreachable chain; it reports the state.
+
+## Journals
 
 ### GET /api/patients/:id
 
-Returnerar patient och journalvyn från SQL. Kräver JWT-cookie och rollen `doctor`,
-`nurse`, `ambulance`, `primary_care` eller `patient`.
+Returns the patient and journal view from SQL. Requires a JWT cookie and the role `doctor`,
+`nurse`, `ambulance`, `primary_care`, or `patient`.
 
-Patientrollen får endast öppna sitt eget patient-ID.
+The patient role may only open their own patient ID.
 
-Svaret följer `PatientJournalResponse` i `src/lib/types/api.ts`.
+The response follows `PatientJournalResponse` in `src/lib/types/api.ts`.
 
-Synligheten för anteckningar styrs av deras `visibility`:
+The visibility of notes is controlled by their `visibility`:
 
-- `private` visas endast författaren
-- `healthcare` visas för vårdpersonal
-- `all` kan visas för behöriga användare inklusive patienten
+- `private` is shown only to the author
+- `healthcare` is shown to healthcare staff
+- `all` can be shown to authorized users, including the patient
 
-En patient får information om att healthcare-anteckningar finns, men inte deras innehåll.
+A patient is informed that healthcare notes exist, but not their content.
 
-Ogiltigt ID ger 400, saknad session 401, nekad åtkomst 403 och okänt patient-ID 404.
-Patientens koppling till användar-ID valideras genom relationen mellan `User` och
-`Patient` i databasen (`users.patient` ↔ `patients.user_id`). Vyns audit-händelser
-hanteras separat av access-log/API:t.
+An invalid ID returns 400, a missing session 401, denied access 403, and an unknown patient ID 404.
+The patient's link to the user ID is validated through the relationship between `User` and
+`Patient` in the database (`users.patient` ↔ `patients.user_id`). The view's audit events
+are handled separately by the access-log API.
 
-## Anteckningar
+## Notes
 
-Anteckningar är kopplade till medicinska journalposter och har tre
-synlighetsnivåer:
+Notes are linked to medical records and have three
+visibility levels:
 
 - `private`
 - `healthcare`
 - `all`
 
-Anteckningar lagras i SQL-databasen och innehåller aldrig patientdata på blockkedjan.
+Notes are stored in the SQL database and never contain patient data on the blockchain.
 
-API:t använder gemensamma TypeScript-typer i:
+The API uses shared TypeScript types in:
 
 `src/lib/types/api.ts`
 
-Implementation och visibility-kontroller finns i:
+The implementation and visibility checks are in:
 
 - `src/app/api/notes/route.ts`
 - `src/app/api/notes/[id]/route.ts`
 
 ### GET /api/notes
 
-Hämtar anteckningar som användaren har rätt att se.
+Fetches notes that the user has permission to see.
 
-Åtkomsten kontrolleras server-side utifrån den autentiserade användarens
-roll och anteckningens synlighetsnivå.
+Access is checked server-side based on the authenticated user's
+role and the note's visibility level.
 
 ### POST /api/notes
 
-Skapar en ny anteckning.
+Creates a new note.
 
-Endpointen kräver autentisering och kontrollerar användarens behörighet innan
-anteckningen skapas.
+The endpoint requires authentication and checks the user's permission before the
+note is created.
 
 ### PATCH /api/notes/:id
 
-Uppdaterar en befintlig anteckning efter server-side behörighetskontroll.
+Updates an existing note after a server-side permission check.
 
 ### DELETE /api/notes/:id
 
-Tar bort en befintlig anteckning efter server-side behörighetskontroll.
+Deletes an existing note after a server-side permission check.
 
 ## Access logs
 
-Access-loggar används för att registrera åtkomst till patientdata.
+Access logs record every access to patient data and act as a
+durable outbox: the row is first written to SQL with `status = pending`, and a
+background process (the flusher) then anchors it to the Solana program
+`healthaccess_audit`. When a row is anchored, it carries Solana's `slot`, `signature`
+and the `head_hash` it committed to.
 
-Access-loggen sparas i SQL och synkroniseras sedan med projektets blockchain
-access-log chain.
+Medical information is never stored on the blockchain — only pseudonymized
+access events (patient and user IDs are salted and hashed before they are encoded).
 
-Medicinsk information lagras aldrig på blockkedjan.
-
-Blockchain-relaterad implementation finns i projektets access-loggning och
-P2P-lager.
+The implementation is in `src/lib/outbox/` (store, flusher, verify) and
+`src/lib/solana/` (encoding, PDA, chain reads). There is no longer any P2P sync of the
+access log: the chain is the shared state and Postgres is the shared
+mirror.
 
 ### GET /api/access-log
 
-Returnerar access-loggen tillsammans med `chainValid` och `viewerUserId`, och
-försöker först hämta peer-servarns loggar via `syncServerPeer()` (misslyckas det
-faller API:t tillbaka på den lokala loggen).
+Returns `accessLogs`, `actors` (usernames per id, looked up at read time),
+`viewerUserId`, and a `verification` block:
 
-Kräver `readAccessLogs`, alltså `doctor`, `nurse`, `ambulance` eller `patient`.
-En `patient` får endast loggar för sitt eget `patientId`; vårdpersonal får alla.
-Utan giltig session `401`, utan rätt behörighet `403`.
+- `localHead` — the mirror's computed head
+- `chainHead` — the chain's current head
+- `match` — whether the mirror still matches the chain
+- `checkedAt` — timestamp
+
+The verification is reported, never thrown: a patient asking whether their log
+is intact should get an answer even when the answer is negative or the RPC is unavailable.
+
+Requires `readAccessLogs`, that is, `doctor`, `nurse`, `ambulance`, `primary_care`,
+or `patient`. A `patient` gets only logs for their own `patientId` (filtered
+in the database query); healthcare staff get all. Without a valid session `401`, without the right
+permission `403`.
 
 ### GET /api/records
 
-Finns som route men är inte implementerad och returnerar `501 Not Implemented`.
-Funktionen tillhör Task 14.
+Exists as a route but is not implemented and returns `501 Not Implemented`.
+The feature belongs to Task 14.
 
-## P2P-endpoints
+## P2P endpoints
 
-Server-till-server-kommunikation mellan projektets två instanser. Dessa routes
-använder **inte** användarens JWT-session.
-
-### GET /api/p2p/access-log
-
-Hämtar den lokala blockchain-access-loggen, inklusive kontroll av kedjans
-giltighet.
-
-### POST /api/p2p/access-log
-
-Tar emot en access-logg från peer-servern. Meddelandet valideras strukturellt
-innan det accepteras.
+Server-to-server communication between the project's two instances. These routes
+do **not** use the user's JWT session.
 
 ### POST /api/p2p/note
 
-Tar emot en anteckningsnotis från peer-servern och vidarebefordrar den till den
-andra instansens klienter. Meddelandet valideras strukturellt innan det
-accepteras.
+Receives a note notification from the peer server and forwards it to the
+other instance's clients. The message is validated structurally before it
+is accepted.
 
-### Peer-autentisering
+> The access log is **no longer** synchronized between the servers. The previous
+> `GET`/`POST /api/p2p/access-log` routes were removed: the chain is the shared
+> state now, and both servers read and write against the same program. See
+> `docs/hackathon/INTERFACE-CONTRACT.md`.
 
-P2P-routsen kräver `x-peer-secret`-header med rätt värde. Kontrollen görs av
-`isPeerAuthorized()` i `src/lib/p2p/peer-auth.ts`:
+### Peer authentication
 
-| Route                          | Auth-krav                     |
-| ------------------------------ | ----------------------------- |
-| `POST /api/p2p/access-log`     | `x-peer-secret`, annars `401` |
-| `POST /api/p2p/note`           | `x-peer-secret`, annars `401` |
-| `GET /api/p2p/access-log`      | **ingen kontroll**            |
+The P2P route requires the `x-peer-secret` header with the correct value. The check is done by
+`isPeerAuthorized()` in `src/lib/p2p/peer-auth.ts`:
 
-Värdet läses ur `PEER_SECRET` (standard `dev-peer-secret-change-me`) och måste
-vara identiskt i båda instanserna.
+| Route                | Auth requirement              |
+| -------------------- | ----------------------------- |
+| `POST /api/p2p/note` | `x-peer-secret`, otherwise `401` |
 
-`GET /api/p2p/access-log` är det enda undantaget: handler`n
-(`src/app/api/p2p/access-log/route.ts:96`) tar emot `GET` utan
-`isPeerAuthorized`-kontroll och returnerar access-loggen direkt. Detta är en
-känd begränsning i demoläge — endpointen ska inte exponeras publikt. Att lägga
-till samma kontroll där är en möjlig uppföljning.
+The value is read from `PEER_SECRET` (default `dev-peer-secret-change-me`) and must
+be identical in both instances.
 
-## Roller och behörighet
+## Roles and permissions
 
-Systemet har sex roller:
+The system has six roles:
 
-| Roll         | Beskrivning               |
+| Role         | Description               |
 | ------------ | ------------------------- |
-| doctor       | Läkare                    |
-| nurse        | Sjuksköterska             |
-| ambulance    | Ambulanspersonal          |
-| primary_care | Vårdcentralpersonal       |
+| doctor       | Doctor                    |
+| nurse        | Nurse                     |
+| ambulance    | Ambulance staff           |
+| primary_care | Primary care staff        |
 | patient      | Patient                   |
-| unauthorized | Användare utan behörighet |
+| unauthorized | User without permission   |
 
-Skyddade API-routes kontrollerar autentisering och behörighet server-side med
-`requirePermission()`. Behörighetsmatrisen finns i `src/lib/auth/permissions.ts`; databasen lagrar
-användarens roll och organisationskoppling, men inte en separat lista med permissions.
+Protected API routes check authentication and permission server-side with
+`requirePermission()`. The permission matrix is in `src/lib/auth/permissions.ts`; the database stores
+the user's role and organization link, but not a separate list of permissions.
 
-| Roll         | Patientsökning | Journaler           | Skapa/ändra egna anteckningar | Accessloggar              |
+| Role         | Patient search | Journals            | Create/edit own notes         | Access logs               |
 | ------------ | -------------- | ------------------- | ----------------------------- | ------------------------- |
-| doctor       | Alla patienter | Alla patienter      | Ja                            | Alla loggar               |
-| nurse        | Alla patienter | Alla patienter      | Ja                            | Alla loggar               |
-| ambulance    | Alla patienter | Alla patienter      | Ja                            | Alla loggar               |
-| primary_care | Alla patienter | Alla patienter      | Ja                            | Alla loggar               |
-| patient      | Nej            | Endast egen journal | Nej                           | Endast egna patientloggar |
-| unauthorized | Nej            | Nej                 | Nej                           | Nej                       |
+| doctor       | All patients   | All patients        | Yes                           | All logs                  |
+| nurse        | All patients   | All patients        | Yes                           | All logs                  |
+| ambulance    | All patients   | All patients        | Yes                           | All logs                  |
+| primary_care | All patients   | All patients        | Yes                           | All logs                  |
+| patient      | No             | Own journal only    | No                            | Own patient logs only     |
+| unauthorized | No             | No                  | No                            | No                        |
 
-### Vårdcentral
+### Primary care centre
 
-Råkravet räknar vårdcentral som en av fem användarroller. Den implementeras därför som rollen
-`primary_care` med samma kliniska behörigheter som sjukhuspersonal, eftersom specen inte ger
-vårdcentral några egna unika behörigheter.
+The raw requirement counts primary care centre as one of five user roles. It is therefore implemented as the role
+`primary_care` with the same clinical permissions as hospital staff, because the spec does not give
+primary care centre any unique permissions of its own.
 
-Två saker är samtidigt sanna och det är lätt att blanda ihop dem:
+Two things are true at the same time, and it is easy to confuse them:
 
-- **Vårdcentralen är en organisation.** Den finns som `Organization.type = "clinic"` och personalen
-  kopplas till den via `User.organizationId`. Demoanvändaren `vc_test` tillhör `Vårdcentralen Ekfors`.
-- **Vårdcentralpersonalen är en inloggningsroll.** `primary_care` ger samma åtkomst som `doctor`,
-  `nurse` och `ambulance`.
+- **The primary care centre is an organization.** It exists as `Organization.type = "clinic"` and staff are
+  linked to it via `User.organizationId`. The demo user `vc_test` belongs to `Ekfors Primary Care Centre`.
+- **Primary care staff are a login role.** `primary_care` grants the same access as `doctor`,
+  `nurse`, and `ambulance`.
 
-Att rollen har samma permissions som sjukhuspersonal är ett medvetet val, inte ett glapp. Ingen
-organisationsbaserad filtrering är implementerad, så `primary_care` ser samma patienter som övrig
-personal. Att begränsa åtkomsten till den egna vårdcentralens patienter är en möjlig uppföljning, men
-det är en funktion kravet inte beskriver och den är inte gjord.
+That the role has the same permissions as hospital staff is a deliberate choice, not an oversight. No
+organization-based filtering is implemented, so `primary_care` sees the same patients as other
+staff. Restricting access to the primary care centre's own patients is a possible follow-up, but
+it is a feature the requirement does not describe and it has not been done.
 
-Rollen lades till via `ALTER TYPE "Role" ADD VALUE 'primary_care'`, se
+The role was added via `ALTER TYPE "Role" ADD VALUE 'primary_care'`, see
 `prisma/migrations/20261001000000_add_primary_care_role`.
 
-En saknad eller ogiltig JWT-session ger `401`. En autentiserad användare utan rätt permission ger
-`403`. Patienter som försöker öppna ett annat patient-ID stoppas både av API:t och av frontend innan
-journaldata hämtas. Mock-headers ger aldrig behörighet.
+A missing or invalid JWT session returns `401`. An authenticated user without the right permission returns
+`403`. Patients trying to open another patient ID are stopped both by the API and by the frontend before
+journal data is fetched. Mock headers never grant permission.
 
-## JWT och sessionshantering
+## JWT and session management
 
-JWT används för autentisering.
+JWT is used for authentication.
 
-Token lagras i en httpOnly-cookie och är därför inte direkt tillgänglig från JavaScript i webbläsaren.
+The token is stored in an httpOnly cookie and is therefore not directly accessible from JavaScript in the browser.
 
-Cookien använder även:
+The cookie also uses:
 
 - `httpOnly`
 - `sameSite: lax`
-- `secure` i production
+- `secure` in production
 - `path: /`
 
-JWT verifieras server-side innan skyddade resurser får användas.
+The JWT is verified server-side before protected resources may be used.
 
-## Standardsvar från API:t
+## Standard API responses
 
-Lyckade requests använder följande struktur:
+Successful requests use the following structure:
 
 ```json
 {
@@ -282,88 +293,88 @@ Lyckade requests använder följande struktur:
 }
 ```
 
-Fel använder följande struktur:
+Errors use the following structure:
 
 ```json
 {
   "ok": false,
   "error": {
     "code": "ERROR_CODE",
-    "message": "Felmeddelande"
+    "message": "Error message"
   }
 }
 ```
 
-Detta gör att API-routes använder ett konsekvent format för både lyckade requests och fel.
+This makes API routes use a consistent format for both successful requests and errors.
 
-## Validering
+## Validation
 
-Request-data valideras med Zod innan den behandlas.
+Request data is validated with Zod before it is processed.
 
-Exempelvis valideras inloggningsuppgifter innan användaren söks i databasen.
+For example, login credentials are validated before the user is looked up in the database.
 
-Ogiltig request-data returnerar ett lämpligt 4xx-svar.
+Invalid request data returns an appropriate 4xx response.
 
 ## Rate limiting
 
-Inloggningsendpointen använder rate limiting för att minska risken för missbruk och upprepade inloggningsförsök.
+The login endpoint uses rate limiting to reduce the risk of abuse and repeated login attempts.
 
-När gränsen överskrids returneras HTTP-status:
+When the limit is exceeded, the HTTP status returned is:
 
 `429 Too Many Requests`
 
 ## CORS
 
-API:t tillåter de två lokala origins som används av projektets demo-servrar:
+The API allows the two local origins used by the project's demo servers:
 
 - `http://localhost:3001`
 - `http://localhost:3002`
 
-Okända origins tillåts inte.
+Unknown origins are not allowed.
 
-Credentials stöds eftersom autentiseringen använder en httpOnly-cookie.
+Credentials are supported because authentication uses an httpOnly cookie.
 
-## Skydd av sidor
+## Page protection
 
-Next.js `proxy.ts` används för att stoppa oautentiserade requests till skyddade sidor innan sidan laddas.
+Next.js `proxy.ts` is used to stop unauthenticated requests to protected pages before the page loads.
 
-API-routes gör fortfarande sina egna autentiserings- och behörighetskontroller server-side.
+API routes still perform their own authentication and permission checks server-side.
 
-Proxy-lagret ersätter alltså inte säkerhetskontrollerna i API:t.
+The proxy layer therefore does not replace the security checks in the API.
 
 ## Shared API types
 
-Gemensamma TypeScript-typer för API-kontrakt finns i:
+Shared TypeScript types for the API contract are in:
 
 `src/lib/types/api.ts`
 
-Där definieras bland annat:
+Among other things, the following are defined there:
 
-- användarroller
-- synlighetsnivåer för anteckningar
-- sessionsanvändare
-- standardsvar från API:t
+- user roles
+- note visibility levels
+- session user
+- standard API responses
 - login request
 - login response
 - health response
 
-Projektet använder gemensamma TypeScript-typer istället för en OpenAPI-genererad klient eftersom frontend och backend finns i samma Next.js-applikation.
+The project uses shared TypeScript types instead of an OpenAPI-generated client because the frontend and backend live in the same Next.js application.
 
-## Tester
+## Tests
 
-Backendens autentisering och säkerhetsfunktioner testas med Playwright.
+The backend's authentication and security features are tested with Playwright.
 
-Tester finns bland annat för:
+Tests exist for, among other things:
 
-- lyckad inloggning
-- felaktiga inloggningsuppgifter
-- alla fem användarroller
-- validering av login-data
+- successful login
+- incorrect login credentials
+- all five user roles
+- validation of login data
 - logout
 - `/api/auth/me`
-- patientsökning och rollkontroll
+- patient search and role check
 - rate limiting
 - CORS
-- skydd av autentiserade sidor
+- protection of authenticated pages
 
-Testdata är fiktiv och skapas genom projektets seed-script.
+Test data is fictional and is created through the project's seed script.

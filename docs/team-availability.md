@@ -33,7 +33,7 @@ Example: `ALL` = free all day, `AM+PM` = morning and afternoon, `EVE` = only eve
 | Najma   | umoraghad0-del |       |       | **KICKOFF**        |       |       |                  |       |
 | Matias  | matdevstamp    |       |       | **KICKOFF**, 13–15 |       |       | 17–17:30 + 19–21 |       |
 
-**Gate 1 exit:** By end of Mon Sep 7 — contract signed, DB chosen, graphify done.
+**Gate 1 exit:** By end of Mon Sep 7 — contract signed, DB chosen, ripwire done.
 **Gate 2 exit:** By end of Tue Sep 8 — scaffold working, CI green, first test red/green.
 
 ## Week 2 — Sep 9–15 (Gate 3: Features Start)

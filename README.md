@@ -1,399 +1,321 @@
-# HealthAccess — Medical Records with Blockchain Access Logging
+# HealthAccess — Tamper-evident medical record access auditing on Solana
 
-Medicinska journaler lagras i en SQL-databas. Varje gång någon tittar på
-patientuppgifter genereras en **access log** som läggs på en blockkedja och
-distribueras mellan två körande servrar — så att ingen kan titta eller radera
-loggar i efterhand (GDPR-kravet om att patienter ska kunna se vem som har
-öppnat deras journal).
+Every time someone opens a patient record, that access is committed to the
+Solana blockchain. The medical data stays in PostgreSQL; the chain holds a
+rolling hash of the access log, so the log cannot be rewritten after the fact.
+Patients can see who looked at their records — and prove nobody edited the log
+afterward.
 
-**Kurs:** Inl 3 – Grupparbete · **Deadline:** fredag 2 oktober 2026 kl. 11.00
+Colosseum Crypto World's Fair · Solana track.
 
-[![PR Validation](https://github.com/matdevstamp/inl-3-awesome-journal/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/matdevstamp/inl-3-awesome-journal/actions/workflows/pr-validation.yml)
+## Origin
 
-## Privacy boundary (viktigt)
+This project began as a course assignment (Inl 3) built on a custom in-memory
+hash chain. That implementation is preserved in the git history. The Solana
+program, its tests, and the audit pipeline were built during the Colosseum
+Crypto World's Fair hackathon. The move to Solana is itself the point: the
+prototype had no signatures, so *immutable* was a claim rather than a
+guarantee. Here the guarantee is the chain.
 
-- Medicinska uppgifter lagras **endast i SQL-databasen** — aldrig på blockkedjan.
-- Endast **access-loggar** representeras på blockkedjan.
-- Rollbaserad åtkomst och access logs kontrolleras i kod och process.
+See [`docs/hackathon/INTERFACE-CONTRACT.md`](docs/hackathon/INTERFACE-CONTRACT.md)
+for the frozen design and [`docs/hackathon/FUTURE-WORK.md`](docs/hackathon/FUTURE-WORK.md)
+for what is deliberately not built yet.
 
-## Team
+## The problem
 
-| Namn | GitHub | Roll |
-|---|---|---|
-| Matias Marti | [`matdevstamp`](https://github.com/matdevstamp) | Koordinator/Lead, Gate 2-setup, docs |
-| Kassim Segerberg | [`Kassim10`](https://github.com/Kassim10) | Backend (Task 11, Task 14), dokumentation och presentation (Task 20, Task 21) |
-| Ramadan | [`rcilomba`](https://github.com/rcilomba) | UI/Frontend (alla vyer, shadcn/ui), Task 18 |
-| Najma Hasan | [`umoraghad0-del`](https://github.com/umoraghad0-del) | Roller och åtkomstkontroll, Task 17 |
+GDPR gives patients the right to know who accessed their records. The systems
+that hold those records — health providers, EHR vendors, insurers — keep an
+audit log, and the party being audited is the same party that owns the log.
+A log you can edit is not evidence.
 
-## Stack
+## How it works
 
-- **Frontend + backend:** fullstack Next.js (React + route handlers i samma
-  TypeScript-app), kört två gånger på port **3001** och **3002** för P2P-demon
-- **UI:** Tailwind CSS + shadcn/ui
-- **Auth:** JWT i httpOnly cookie, 6 användarroller (inkl. `primary_care` för vårdcentralpersonal)
-- **DB:** PostgreSQL via Prisma (schema = enda källan, Mermaid-ER genereras)
-- **Realtid/P2P:** Socket.IO för broadcast mellan servrarna
-- **Access-log:** enkel egen blockkedja (custom chain)
-
-## Kom igång (Setup)
-
-**Förkrav:** Node 22+, npm, och antingen Docker eller en lokal PostgreSQL 16.
-
-```bash
-npm ci                 # installera beroenden (genererar även Prisma-klienten)
-cp .env.example .env   # justera vid behov
-npm run db:up          # startar lokal Postgres i Docker (idempotent)
-npm run db:migrate     # skapar tabellerna (migrate dev)
-npm run db:seed        # fyller i testdata (users: *test / lösenord: test123)
-npm run dev            # server 1 på http://localhost:3001
-```
-
-### Två servrar (P2P-demon)
-
-Next.js 16 tillåter bara **en** `next dev` per projektmapp, så de två
-serverinstanserna (3001 `hospital-s`, 3002 `ambulance-a`) körs som
-produktionsservrar från en gemensam build:
-
-```bash
-npm run build
-SERVER_ID=hospital-s npm run start -- -p 3001 &    # peer: 3002
-SERVER_ID=ambulance-a npm run start -- -p 3002 &   # peer: 3001
-```
-
-`PEER_URL` pekar automatiskt på den andra instansen utifrån `SERVER_ID`
-(eller sätts explicit). `PEER_HEARTBEAT_MS` styr hur ofta servrarna pingar
-varandra (default 10 s).
-
-`PEER_SECRET` måste ha **samma värde i båda** instanserna — den autentiserar
-peer-anropen mellan servrarna (se [P2P-endpoints](#p2p-endpoints)). Värdet i
-`.env.example` är en platshållare och ska bytas ut.
-
-`npm run test` gör exakt detta automatiskt (se Testing).
-
-## Skript (npm)
-
-| Kommando | Vad det gör |
-|---|---|
-| `dev` / `dev:server2` | utvecklingsserver på 3001 / 3002 |
-| `build` / `start` | produktionsbuild / starta server |
-| `lint` · `typecheck` · `format:check` | eslint · `tsc --noEmit` · prettier-check |
-| `format` | prettier --write |
-| `test` · `test:install` | Playwright-suite · installera chromium |
-| `db:up` / `db:down` | starta / stoppa Postgres-container |
-| `db:migrate` / `db:deploy` | migrationer (dev) / tillämpa sparade migrationer |
-| `db:seed` | testdata (users, patient, journal, anteckning) |
-
-## Testing (Vitest + Playwright)
-
-Testerna är uppdelade i två lager:
-
-| Lager | Verktyg | Kommando | Täcker |
-| --- | --- | --- | --- |
-| Unit + integration | Vitest | `npm run test:unit` | Auktorisering, synlighetsregler, blockchain, P2P, patient-API:er |
-| E2E | Playwright | `npm run test:e2e` | Hela användarflöden mot två riktiga serverinstanser |
-
-Testerna är organiserade efter funktioner som autentisering, patienter, journaler, medicinska anteckningar, access-loggar och blockchain.
-
-Testerna verifierar bland annat autentisering, rollbaserad åtkomst, patient- och journalflöden, medicinska anteckningar, access-loggar och två-server-funktionalitet.
-
-### Täckning
-
-`npm run test:unit:coverage` mäter täckning för `src/lib/**/*.ts` och `src/app/api/**/route.ts`, med en tröskel på 70 %:
-
-| Mått | Värde |
-| --- | --- |
-| Statements | 99,13 % |
-| Branches | 97,55 % |
-| Functions | 100 % |
-| Lines | 99,13 % |
-
-Rapporten skrivs till `coverage/`. Undantagna från mätningen är `prisma.ts`,
-`socket-server.ts`, de interface-only typerna `blockchain/access-log.ts` och
-`p2p/message.ts` samt testfilerna.
-
-### Köra testerna
-
-Hela sviten (unit → build → E2E):
-
-`npm run test`
-
-Playwright startar `next start`, så ett produktionsbyggde måste finnas innan
-E2E körs. `npm run test` bygger därför först, men kör du `npm run test:e2e`
-direkt behöver du köra `npm run build` först. Lokalt återanvänds redan igångsatta
-servrar (`reuseExistingServer: !process.env.CI`) — döda en kvarvarande
-`next start`-process eller kör med `CI=1` efter att serverkod ändrats.
-
-Misslyckade tester sparar skärmbilder och traces under `test-results/` och en HTML-rapport i `playwright-report/`.
-
-Om Playwright saknar Chromium kan webbläsaren installeras med:
-
-`npm run test:install`
-
-### Demo-flöde
-
-1. Öppna `http://localhost:3001`.
-2. Logga in som **Doctor**.
-3. Sök efter patienten **Anna Andersson**.
-4. Öppna patientens journal.
-5. Skapa en medicinsk anteckning med synligheten `healthcare`.
-6. Öppna `http://localhost:3002`.
-7. Logga in som **Nurse**.
-8. Öppna samma patient och kontrollera att anteckningen visas.
-9. Visa att access-loggen registrerar åtkomsten.
-10. Logga in som **Patient**.
-11. Kontrollera att patienten endast kan se sin egen information och att
-    synlighetsreglerna för anteckningar följs.
-12. Logga in som **Unauthorized**.
-13. Kontrollera att användaren nekas åtkomst till skyddade resurser.
-14. Öppna access-loggen och visa att blockchain-kedjan är giltig.
-15. Visa att access-loggar kan synkroniseras mellan de två serverinstanserna.
-16. Logga in som **Primary care** (`vc_test`, vårdcentralen Ekfors) och visa att
-    vårdcentralpersonal får samma kliniska åtkomst som övrig personal.
+- **Medical data never touches the chain.** It lives in PostgreSQL. Only access
+  *events* are committed on-chain, and only in pseudonymous form.
+- **A rolling hash chain on Solana.** Each event folds into a running head:
+  `head = sha256(prev_hash || borsh(event))`. The head is stored in a single
+  `AuditTrail` PDA. Rewriting any past event changes every hash after it, and
+  the on-chain head no longer matches — the tamper is visible.
+- **A durable outbox.** A record access is written to Postgres first
+  (`pending`), then a background flusher submits it to the program. Every
+  attempt re-reads the current head, so two servers racing on one PDA resolve
+  by re-read-and-retry rather than last-write-wins.
+- **An off-chain mirror you can audit.** Once anchored, the row carries the
+  Solana `slot`, `signature`, and the `head_hash` it committed to. The API can
+  compare the local mirror against chain state and report a match.
 
 ### Privacy boundary
 
-Under demon ska det vara tydligt att:
+- Medical data: PostgreSQL only. **Never** on chain, not even hashed content.
+- On chain: pseudonymous access events. Patient and user ids are salted
+  (`ACCESS_HASH_SALT`) and hashed **before** they reach the program, so the
+  ledger carries accountability, not linkable identity.
+- Authorization: enforced server-side with a JWT in an httpOnly cookie and
+  role checks. The program does not decide who may read a record — it only
+  guarantees the log is append-only.
+- **The honest limit:** on-chain commitment prevents *retroactive* alteration.
+  It does not prove a malicious server logged truthfully at write time. That
+  distinction is the difference between a claim and a guarantee.
 
-- patientens medicinska information lagras i SQL
-- endast access-loggar representeras på blockkedjan
-- åtkomst kontrolleras server-side med JWT och roller
-- patienten får endast tillgång till sina egna uppgifter
+### Architecture
 
-## Felsökning
+```mermaid
+flowchart LR
+    B["Browser<br/>(Next.js UI)"]
+    subgraph S1["Next.js server — hospital-s :3001"]
+        R1["Route handlers<br/>JWT + role checks"]
+        OB1["Durable outbox"]
+    end
+    subgraph S2["Next.js server — ambulance-a :3002"]
+        R2["Route handlers"]
+    end
+    DB[("PostgreSQL<br/>medical data + access_logs")]
+    P["Solana program<br/>healthaccess_audit"]
+    T[("AuditTrail PDA<br/>rolling head_hash")]
 
-### Databasen startar inte
+    B --> R1
+    B --> R2
+    R1 <-->|"note sync + heartbeat (HTTP/Socket.IO)"| R2
+    R1 <--> DB
+    R2 <--> DB
+    OB1 -->|"record_access (background flush)"| P
+    S2 -.->|"own outbox flusher"| P
+    P --> T
+```
 
-Kontrollera att Docker körs och starta PostgreSQL med `npm run db:up`.
+Full diagrams: [`docs/diagrams/`](docs/diagrams/) — system context, data flow,
+and the access-log sequence.
 
-Om databasen behöver stängas av använder du `npm run db:down`.
+## Navigate the code
 
-Om databasen saknar schema kör du `npm run db:migrate` och sedan `npm run db:seed`.
+The repository is mapped with **[ripwire](docs/ripwire.md)**, a deterministic
+call-graph CLI (no LLM, no API key). Point it at the tree and it ranks every
+symbol, so you — or an AI agent — can find code before opening files:
 
-### Prisma-klienten saknas eller är inaktuell
+```bash
+ripwire .                                   # ranked map of the repo
+ripwire . --for="how the outbox flusher retries"   # orient on a task
+ripwire . --expand=flushEntry                # one symbol's body + callee signatures
+```
 
-Kör `npx prisma generate`.
+The committed outputs are [`ripwire-out/graph.html`](ripwire-out/graph.html)
+(interactive) and [`ripwire-out/GRAPH_REPORT.md`](ripwire-out/GRAPH_REPORT.md)
+(architecture summary); regenerate both with `npm run ripwire`. Agents that read
+[`AGENTS.md`](AGENTS.md) pick up the workflow automatically. The architecture
+review derived from ripwire is in
+[`docs/ARCHITECTURE_REVIEW.md`](docs/ARCHITECTURE_REVIEW.md).
 
-### Port 3001 eller 3002 används redan
+## Quick start
 
-Kontrollera vilken process som använder porten med `lsof -i :3001` eller `lsof -i :3002`.
+**Requires:** Node 22+, npm, and either Docker or a local PostgreSQL 16.
 
-Stoppa processen och starta servern igen.
+```bash
+git clone git@github.com:matdevstamp/healthaccess-solana.git
+cd healthaccess-solana
+npm ci                       # installs deps and runs prisma generate
+cp .env.example .env         # sets DATABASE_URL and demo defaults
+npm run db:up                # starts a local PostgreSQL 16 container
+npm run db:migrate           # creates the tables
+npm run db:seed              # test users, a patient, and sample notes
+npm run dev                  # http://localhost:3001
+```
 
-### Tester eller dependencies fungerar inte
+Seed logins are all `*_test` / `test123`:
 
-Installera projektets dependencies med `npm ci`.
+| Username | Role |
+|---|---|
+| `dr_test` | doctor |
+| `nurse_test` | nurse |
+| `amb_test` | ambulance |
+| `vc_test` | primary_care |
+| `patient_test` | patient |
+| `unauth_test` | unauthorized |
 
-Kör sedan testerna med `npm run test`.
+The app boots with an empty `SOLANA_PROGRAM_ID`: the audit view works
+off-chain and `/api/health` reports `programDeployed: false` instead of
+failing. To read and anchor on-chain, set `SOLANA_PROGRAM_ID` and generate a
+salt:
 
-Om Playwright saknar Chromium kör du `npm run test:install`.
+```bash
+openssl rand -hex 32   # paste into ACCESS_HASH_SALT in .env — never commit it
+```
 
-### Inloggning fungerar inte
+### Two servers (the P2P demo)
 
-Kontrollera att databasen är seedad med `npm run db:seed`.
+The demo runs the same build as two instances, so one node's note appears on the
+other live:
 
-Kontrollera även att `.env` är korrekt konfigurerad.
+```bash
+npm run build
+SERVER_ID=hospital-s  npm run start -- -p 3001 &   # peer: 3002
+SERVER_ID=ambulance-a npm run start -- -p 3002 &   # peer: 3001
+```
 
-### Två-server-demo fungerar inte
+`PEER_URL` is derived from `SERVER_ID` unless set explicitly. `PEER_SECRET`
+must match in both instances; it authenticates the `/api/p2p/*` calls. The
+value in `.env.example` is a placeholder — change it outside a solo dev box.
 
-Kontrollera att serverinstanserna körs på `http://localhost:3001` och
-`http://localhost:3002`.
+## The program
 
-Bygg projektet först:
+| | |
+|---|---|
+| Program | `healthaccess_audit` (Anchor) |
+| Program ID | `Co2EarRRbhBbisT1dcVoeYuNNs3fuRR1zFdyRd3ewxrE` |
+| Cluster | devnet (deploy config in `Anchor.toml`; localnet deploy works today) |
+| State | one `AuditTrail` PDA, seeds `[b"audit_trail"]`, 82 bytes |
+| Payload | 83-byte fixed `AccessEvent` — no `String`, no `Vec`, no PII |
+| Instructions | `initialize`, `record_access` |
+| Source | [`programs/healthaccess_audit/`](programs/healthaccess_audit/) |
+| IDL | [`idls/healthaccess_audit.json`](idls/healthaccess_audit.json) |
 
-`npm run build`
+`record_access` requires `prev_hash` to equal the current head (`ChainBroken`
+otherwise), folds the new event into the head, increments the event count, and
+emits `AccessLogged`.
 
-Starta sedan de två serverinstanserna:
+### Build and deploy
 
-`SERVER_ID=hospital-s npm run start -- -p 3001 &`
+```bash
+# Localnet (works today):
+anchor build -- --features anchor      # the feature flag is required; see notes
+anchor deploy --provider.cluster localnet
 
-`SERVER_ID=ambulance-a npm run start -- -p 3002 &`
+# Devnet (after funding the keypair):
+solana airdrop 2                       # rate-limited; retry
+SOLANA_PROGRAM_ID=<id> npm run build   # bake the id into the app
+```
 
-Kontrollera att båda servrarna körs och att `PEER_URL` pekar mot rätt
-peer-server.
+Then set `SOLANA_PROGRAM_ID` in `.env`.
 
-Om P2P- eller Socket.IO-synkroniseringen inte fungerar, starta om båda
-serverinstanserna och kontrollera därefter peer-anslutningen.
+**Deployment caveat.** The program keypair lives in `keys/` and is gitignored —
+a public repo must not leak spend authority. A fresh clone therefore cannot
+regenerate the *same* address: `anchor build` would mint a new keypair. The
+committed IDL and the `declare_id_matches_committed_idl()` guard keep the
+committed binary honest, but only the original keypair can redeploy to the
+address above. Back that file up.
 
-## Bug workflow
+## Environment variables
 
-Buggar hanteras genom följande flöde:
+| Variable | Default | Purpose |
+|---|---|---|
+| `SERVER_ID` | `hospital-s` | Which demo instance this is (`hospital-s` / `ambulance-a`) |
+| `PORT` | `3001` | HTTP port (server 2 uses `3002`) |
+| `DATABASE_URL` | local Postgres | Prisma connection string |
+| `JWT_SECRET` | — | Signs session cookies; **required at login** |
+| `JWT_EXPIRES_IN` | `24h` | Session lifetime |
+| `PEER_URL` | derived | The other instance's base URL |
+| `PEER_HEARTBEAT_MS` | `10000` | Peer ping interval |
+| `PEER_SECRET` | — | Shared secret for `/api/p2p/*` (same on both instances) |
+| `SOCKET_CORS_ORIGIN` | both origins | Socket.IO CORS allow-list |
+| `SOLANA_RPC_URL` | devnet | Cluster RPC endpoint |
+| `SOLANA_CLUSTER` | `devnet` | Cluster name, for display/health |
+| `SOLANA_COMMITMENT` | `confirmed` | `processed` / `confirmed` / `finalized` |
+| `SOLANA_PROGRAM_ID` | *(empty)* | Deployed program; empty ⇒ `programDeployed: false` |
+| `SOLANA_KEYPAIR_PATH` | `~/.config/solana/devnet.json` | Signing keypair (outside the repo) |
+| `ACCESS_HASH_SALT` | — | **Secret.** 32-byte hex that salts ids before hashing. **Never commit.** |
 
-1. **Raw intake** — buggen registreras utan patientdata, secrets eller annan känslig information.
-2. **Lead triage** — ansvarig lead bedömer buggen och prioriterar den.
-3. **Draft task** — buggen omvandlas till en konkret utvecklingsuppgift.
-4. **E2E reproduction** — felet reproduceras med ett automatiserat E2E-test när det är möjligt.
-5. **Red/green fix** — testet ska först visa felet och därefter passera efter fixen.
-6. **Review evidence** — ändringen granskas och testresultat dokumenteras.
-7. **Closure** — buggen stängs när fixen är verifierad och relevant dokumentation är uppdaterad.
+`ACCESS_HASH_SALT` and `JWT_SECRET` are read lazily, so the app boots for
+unrelated work and fails only when the value is actually needed.
 
-Se [BUG_REPORTING.md](docs/BUG_REPORTING.md) för det fullständiga bug-arbetsflödet.
-
-## Uppdatering av dokumentationen
-
-README och projektets dokumentation ska uppdateras när nya funktioner, API-routes, databastabeller eller arbetsflöden införs.
-
-Vid en större ändring ska relevant dokumentation uppdateras i samma arbetsflöde som koden. Det gäller exempelvis:
-
-- `README.md` för installation, demo, scripts och övergripande projektinformation
-- `docs/api/README.md` när API-routes eller API-kontrakt ändras
-- `docs/database.md` när datamodellen eller migrationer ändras
-- `docs/meetings/` för nya mötesanteckningar och requirements-checkpoints
-- `docs/BUG_REPORTING.md` och bug-loggen för ändringar i bugghanteringen
-- `docs/diagrams/` när arkitektur eller dataflöden förändras
-
-Innan en task stängs ska relevant dokumentation vara uppdaterad och länkar i README:n kontrollerade.
-
-## Kodkonventioner
-
-- **TypeScript strict** — `noUncheckedIndexedAccess` med mera; `any` är varning.
-  Delade API-typer bor i `src/lib/types/api.ts` (ingen genererad OpenAPI-klient).
-- **Format:** Prettier (`.prettierrc`); eslint flat config i `eslint.config.mjs`.
-- **Branchar:** `feature/<task-id>-<ämne>` eller `chore/<task-id>-<ämne>`.
-- **PR:** all appkod går via PR + **1 review** (ruleset aktiv på `main`;
-  ingen reviewar/mergar sin egen PR). `docs/` + `project_management/` pushas direkt.
-- PR-mallen: [.github/pull_request_template.md](.github/pull_request_template.md).
-
-## Databas & diagram
-
-`prisma/schema.prisma` är **enda källan** för datamodellen (beslut på kickoff —
-ingen DBML). En Mermaid-ER genereras automatiskt av `npx prisma generate`:
-
-- [Data model (ER)](docs/diagrams/data-model.md) — *genererad, redigera ej för hand*
-
-Migrations skapas via `npm run db:migrate` och sparas i `prisma/migrations/`.
-
-- [CREATE-script / initial migration](prisma/migrations/20260904_init/migration.sql) — SQL för att skapa databasschemat
-- [Databasdokumentation](docs/database.md) — tabeller, relationer, enums, index och seed-data
-
-Grunddatan är fiktiv (GDPR: inga journaler på blockkedjan, bara access-loggar).
-
-## Dokument & länkar
-
-- [Projektplan](docs/PROJECT_PLAN.md) — gates, deadlines, arbetssätt
-- [Gruppkontrakt](gruppkontrakt.md) — roller, regler, signering (v0.3)
-- [Raw requirements (kursuppgiften)](docs/Raw_Requirements.md) — scope-autoritet
-- [Mötesanteckningar](docs/meetings/) — minst 2 dokumenterade möten/vecka
-- [Mötesmall](docs/MEETING_TEMPLATE.md) — används för facilitator, timekeeper, note-taker, deltagare, beslut, blockers, action items och requirements-checkpoint
-- [Tillgänglighet & mötestider](docs/team-availability.md)
-- [Loggböcker](docs/logbooks/) — en CSV per person
-- [Bug reports](docs/bug-reports.csv) + [bug-arbetsflöde](docs/BUG_REPORTING.md)
-- [Arkitektur-review (graphify)](docs/ARCHITECTURE_REVIEW.md) — 2026-09-04
-- [Diagram](docs/diagrams/) — se nedan
-- [Databasdokumentation](docs/database.md) — databasstruktur, relationer, seed-data och migrationer
-- [API-dokumentation](docs/api/README.md) — endpoints, roller, autentisering och API-kontrakt
-
-## API endpoints
+## API
 
 | Method | Path | Purpose | Roles |
 |---|---|---|---|
-| POST | `/api/auth/login` | Logga in och skapa JWT-session | Alla roller |
-| POST | `/api/auth/logout` | Logga ut och ta bort sessionen | Autentiserad |
-| GET | `/api/auth/me` | Hämta aktuell användare | Autentiserad |
-| GET | `/api/health` | Kontrollera API/serverstatus | Publik |
-| GET | `/api/patients` | Söka och paginera patienter | doctor, nurse, ambulance, primary_care |
-| GET | `/api/patients/:id` | Hämta patient och journalvy | doctor, nurse, ambulance, primary_care, patient |
-| GET | `/api/notes?recordId={id}` | Hämta anteckningar för en journalpost enligt behörighet | doctor, nurse, ambulance, primary_care, patient |
-| POST | `/api/notes` | Skapa medicinsk anteckning | doctor, nurse, ambulance, primary_care |
-| PATCH | `/api/notes/:id` | Ändra en egen anteckning | doctor, nurse, ambulance, primary_care |
-| DELETE | `/api/notes/:id` | Ta bort en egen anteckning | doctor, nurse, ambulance, primary_care |
-| GET | `/api/access-log` | Visa access-loggar och kontrollera blockchainens giltighet | doctor, nurse, ambulance, primary_care, patient |
-| GET | `/api/p2p/access-log` | Hämta lokal blockchain-access-logg | P2P |
-| POST | `/api/p2p/access-log` | Ta emot och validera access-logg från peer-server | P2P |
-| POST | `/api/p2p/note` | Ta emot och validera anteckningsnotis från peer-server | P2P |
+| POST | `/api/auth/login` | Log in, set the JWT cookie | all |
+| POST | `/api/auth/logout` | Clear the session | authenticated |
+| GET | `/api/auth/me` | Current user | authenticated |
+| GET | `/api/health` | Status incl. `solana.programDeployed`, `headHash`, `pendingEvents` | public |
+| GET | `/api/patients` | Search + paginate patients | staff |
+| GET | `/api/patients/:id` | Patient + journal view | staff, patient (own) |
+| GET | `/api/notes?recordId={id}` | Notes for a record, per visibility | staff, patient |
+| POST | `/api/notes` | Create a note | staff |
+| PATCH / DELETE | `/api/notes/:id` | Edit / delete an own note | staff |
+| GET | `/api/access-log` | Access log + chain verification | all |
+| POST | `/api/p2p/note` | Peer note sync (shared-secret auth) | P2P |
+| GET | `/api/records` | Not implemented (`501`) | — |
 
-### P2P-endpoints
+Contract detail: [`docs/api/README.md`](docs/api/README.md).
+P2P routes authenticate with the `x-peer-secret` header, not a user session.
 
-P2P-endpoints används endast för intern kommunikation mellan projektets två
-serverinstanser.
+## Testing
 
-De använder **inte** användarens JWT-session. I stället autentiserar de varandra
-med en delad hemlighet: `PEER_SECRET` skickas som `x-peer-secret`-header på varje
-anrop, och `isPeerAuthorized()` i `src/lib/p2p/peer-auth.ts` avvisar anrop utan
-rätt värde med `401 Unauthorized peer`.
+| Layer | Tool | Command | Covers |
+|---|---|---|---|
+| Unit + integration | Vitest | `npm run test:unit` | Auth, visibility rules, hash chain, outbox flusher, Solana encoding, patient APIs |
+| Rust | `cargo test --features anchor` | — | Pure hash chain + program logic |
+| E2E | Playwright | `npm run test:e2e` | Full flows against two real servers |
+| Solana E2E | Playwright | `npm run test:e2e:solana` | On-chain anchoring (skips unless `SOLANA_PROGRAM_ID` is set) |
 
-`PEER_URL` konfigurerar vilken peer-server som används för synkronisering.
+`npm run test:unit:coverage` enforces a 70% threshold over `src/lib/**/*.ts` and
+`src/app/api/**/route.ts`. `npm run test` runs unit → build → E2E.
 
-`POST /api/p2p/access-log` och `POST /api/p2p/note` kräver `x-peer-secret` och
-validerar dessutom att inkommande meddelanden har rätt struktur innan de accepteras
-(annars `400`).
+E2E boots `next start`, so a production build must exist first; `npm run test`
+builds it for you. Install the browser once with `npm run test:install`.
 
-`GET /api/p2p/access-log` är ett undantag: handler`n har ingen auth-kontroll och
-returnerar den lokala kedjan direkt. Endpointen är avsedd för intern användning
-och bör inte exponeras publikt.
+## Demo
 
-`PEER_SECRET` måste ha samma värde i båda serverinstanserna. Värdet i
-`.env.example` är en platshållare (`dev-peer-secret-change-me`) och ska bytas ut
-innan projektet körs i en delad miljö.
+The demo is recorded, not clicked live. `demo/` generates a narration track and
+MP4s from the running app:
 
-`GET /api/records` finns som route men är ännu inte implementerad och returnerar `501 Not Implemented`.
+```bash
+npm run demo            # narrate → record → compose
+DEMO_SET=parallel npm run demo   # split-screen two-server version
+```
 
-API-kontrakt och detaljerad dokumentation finns i [API-dokumentationen](docs/api/README.md).
+Videos land in `demo/out/` and are not committed. See
+[`demo/README.md`](demo/README.md).
 
-Gemensamma TypeScript-typer finns i `src/lib/types/api.ts`. Projektet använder gemensamma typer mellan frontend och backend istället för en OpenAPI-genererad klient.
+## What is not shipped (and why)
 
-## Screenshots
+Documented rather than hidden — see
+[`docs/hackathon/FUTURE-WORK.md`](docs/hackathon/FUTURE-WORK.md):
 
-### Inloggning
+- **Patient wallet consent (task 33).** Letting a patient connect a Solana
+  wallet and record consent on-chain would change the frozen 83-byte payload,
+  so it was scoped out for the deadline.
+- **Devnet deployment.** Deploy config and app wiring are done; the public
+  devnet deploy is blocked on a funded keypair.
+- **LiteSVM integration tests.** Blocked on a Solana toolchain version
+  collision (`docs/hackathon/KNOWN-ISSUES.md`); the pure-model and app-level
+  tests cover the same rules today.
 
-![HealthAccess login](public/images/login-healthcare.jpg)
+## Repository layout
 
-### Vårdpersonal
+```
+programs/healthaccess_audit/   Anchor program (Rust)
+idls/                          Committed IDL (source of truth for the client)
+src/lib/solana/                TS client: encoding, PDA, chain reads
+src/lib/outbox/                Durable outbox: store, flusher, verify
+src/lib/p2p/                   Peer sync + heartbeat
+src/app/api/                   Route handlers
+prisma/                        Schema + migrations + seed
+e2e/                           Playwright specs (app + blockchain)
+demo/                          Reproducible recorded demo
+ripwire-out/                   Generated call graph + architecture report
+docs/                          API, database, diagrams, hackathon notes
+```
 
-![Doctors](public/images/doctors.jpg)
+## Tech stack
 
-### Vårdpersonal – alternativ vy
+- Next.js (React + route handlers in one TypeScript app), Tailwind + shadcn/ui
+- PostgreSQL via Prisma (schema is the single source; ER diagram is generated)
+- Solana: Anchor program (Rust) + `@solana/web3.js` client
+- Auth: JWT in an httpOnly cookie, six roles
+- Realtime: Socket.IO for note broadcast between the two servers
 
-![Doctors](public/images/doctors2.jpg)
+## Docs
 
-### Sjukhus
+- [Interface contract (on-chain design, frozen)](docs/hackathon/INTERFACE-CONTRACT.md)
+- [Future work / not shipped](docs/hackathon/FUTURE-WORK.md)
+- [Known issues](docs/hackathon/KNOWN-ISSUES.md)
+- [Parallel execution plan](docs/hackathon/PARALLEL-EXECUTION.md)
+- [Data model (ER, generated)](docs/diagrams/data-model.md)
+- [Database](docs/database.md) · [API](docs/api/README.md) · [Diagrams](docs/diagrams/)
+- [Code navigation with ripwire](docs/ripwire.md) · [Architecture review](docs/ARCHITECTURE_REVIEW.md)
 
-![Hospital](public/images/hospital.jpg)
+## Course context
 
-### Requirements traceability
-
-| Krav | Implementation / task | Test eller demo | Ansvarig | Status |
-|---|---|---|---|---|
-| JWT-autentisering och Backend API | Task 11 | E2E-tester under `e2e/auth/` + API-demo | Kassim | Implementerat |
-| Medicinska anteckningar med olika visibility-nivåer | Task 14 | E2E-tester under `e2e/notes/` + demo | Kassim | Implementerat |
-| Roller och åtkomstkontroll | Task 17 | E2E-tester + rollbaserad demo | Najma | Implementerat |
-| Realtidsbroadcasting mellan servrar | Task 18 | Två-server-demo på 3001/3002 | Ramadan | Implementerat |
-| Dokumentation, README och API-dokumentation | Task 20 | `README.md` + `docs/api/README.md` + `docs/database.md` | Kassim | Pågående |
-| Presentation och teknisk demo | Task 21 | Reproducerbart demo-flöde + presentation | Kassim | Pågående |
-| Medicinsk information ska inte lagras på blockchain | Task 15 | Privacy boundary + blockchain-demo | Team | Implementerat |
-| Access-loggar och blockchain-verifiering | Task 15 | Access-logg + blockchain-verifiering | Team | Implementerat |
-| P2P-synkronisering mellan servrar | Task 16 | Två-server-demo på 3001/3002 | Team | Implementerat |
-| Datamodell och PostgreSQL | Task 04 | `prisma/schema.prisma` + `docs/database.md` | Team | Implementerat |
-| E2E-testning | Task 09 + Task 19 | `npm run test` | Team | Pågående |
-
-### Graphify-artefakter (auto-genererade, commitas)
-
-- [Interaktiv graf](graphify-out/graph.html) — öppna i webbläsaren
-- [GRAPH_REPORT.md](graphify-out/GRAPH_REPORT.md) — rapport med communities/god nodes
-
-Graphify-körningen görs med `graphifyy` 0.9.47 (strukturell AST-extrahering;
-dokument/semantisk lager kräver en Gemini-nyckel). Bara `graph.html` +
-`GRAPH_REPORT.md` commitas — `graph.json`, cache och mellanfiler ignoreras
-(se `.gitignore`). Körs om före inlämning (se [ARKITEKTUR-REVIEW](docs/ARCHITECTURE_REVIEW.md)).
-
-### Diagram
-
-- [Systemkontext](docs/diagrams/system-context.md) — aktörer, två servrar, DB, kedja
-- [Dataflöde](docs/diagrams/data-flow.md) — SQL-data vs access-log-kedjan
-- [Sekvens: access-log](docs/diagrams/sequence-access-log.md) — tillåten läsning & loggspridning
-- [Data model (ER)](docs/diagrams/data-model.md) — genererad från Prisma-schemat
-- [Task dependency graph](docs/diagrams/task-dependencies.md) (auto-genererad)
-- [Task gantt](docs/diagrams/task-gantt.md) (auto-genererad)
-genererat från Prisma-schemat (task 04), API-dokumentation, skärmbilder,
-`graphify-out/graph.html` + `GRAPH_REPORT.md` (task 03), demo-manus.
-
-## Arbetsflöde (kort)
-
-- App-kod (Next.js/TS, Prisma, config) → **PR med ≥1 review** — ingen slår
-  ihop sin egen PR, inte heller lead.
-- Allt under `docs/` + Python-verktyget (`project_management/`) → direkt push.
-- GitHub-ruleset + PR-mall aktiveras med task 10 (före första app-kod-PR).
-
-## Status
-
-- **Pågående fas:** Gate 1 (tasks 01–03, beslut + repo-hygien) — wraps måndag 7 sep
-- Därefter: Gate 2 scaffold (tasks 04–10) t.o.m. tisdag 8 sep, features startar onsdag 9 sep
+This repository is the hackathon fork of the Inl 3 course project. The original
+course implementation is preserved in the git history, and
+[`docs/Raw_Requirements.md`](docs/Raw_Requirements.md) holds the original brief.
+The team's group contract (`gruppkontrakt.md`) and meeting notes are kept here
+for honest provenance; they have been translated to English.
