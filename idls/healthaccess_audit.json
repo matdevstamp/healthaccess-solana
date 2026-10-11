@@ -9,19 +9,8 @@
   "instructions": [
     {
       "name": "initialize",
-      "docs": [
-        "Create the audit trail. Idempotent-guarded by the `init` constraint."
-      ],
-      "discriminator": [
-        175,
-        175,
-        109,
-        31,
-        13,
-        152,
-        155,
-        237
-      ],
+      "docs": ["Create the audit trail. Idempotent-guarded by the `init` constraint."],
+      "discriminator": [175, 175, 109, 31, 13, 152, 155, 237],
       "accounts": [
         {
           "name": "payer",
@@ -35,19 +24,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  97,
-                  117,
-                  100,
-                  105,
-                  116,
-                  95,
-                  116,
-                  114,
-                  97,
-                  105,
-                  108
-                ]
+                "value": [97, 117, 100, 105, 116, 95, 116, 114, 97, 105, 108]
               }
             ]
           }
@@ -67,24 +44,13 @@
         "`prev_hash` must equal the current head. On a mismatch the transaction",
         "fails with `ChainBroken` and the caller re-reads the head and retries."
       ],
-      "discriminator": [
-        64,
-        187,
-        29,
-        123,
-        147,
-        64,
-        218,
-        100
-      ],
+      "discriminator": [64, 187, 29, 123, 147, 64, 218, 100],
       "accounts": [
         {
           "name": "authority",
           "writable": true,
           "signer": true,
-          "relations": [
-            "trail"
-          ]
+          "relations": ["trail"]
         },
         {
           "name": "trail",
@@ -93,19 +59,7 @@
             "seeds": [
               {
                 "kind": "const",
-                "value": [
-                  97,
-                  117,
-                  100,
-                  105,
-                  116,
-                  95,
-                  116,
-                  114,
-                  97,
-                  105,
-                  108
-                ]
+                "value": [97, 117, 100, 105, 116, 95, 116, 114, 97, 105, 108]
               }
             ]
           }
@@ -127,10 +81,7 @@
         {
           "name": "prev_hash",
           "type": {
-            "array": [
-              "u8",
-              32
-            ]
+            "array": ["u8", 32]
           }
         }
       ]
@@ -139,31 +90,13 @@
   "accounts": [
     {
       "name": "AuditTrail",
-      "discriminator": [
-        171,
-        223,
-        253,
-        181,
-        134,
-        88,
-        66,
-        26
-      ]
+      "discriminator": [171, 223, 253, 181, 134, 88, 66, 26]
     }
   ],
   "events": [
     {
       "name": "AccessLogged",
-      "discriminator": [
-        243,
-        53,
-        225,
-        71,
-        64,
-        120,
-        109,
-        25
-      ]
+      "discriminator": [243, 53, 225, 71, 64, 120, 109, 25]
     }
   ],
   "errors": [
@@ -200,19 +133,13 @@
           {
             "name": "patient_hash",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "actor_hash",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -240,9 +167,7 @@
     },
     {
       "name": "AccessLogged",
-      "docs": [
-        "Emit on every anchored access event so the mirror can be rebuilt off-chain."
-      ],
+      "docs": ["Emit on every anchored access event so the mirror can be rebuilt off-chain."],
       "type": {
         "kind": "struct",
         "fields": [
@@ -253,10 +178,7 @@
           {
             "name": "head_hash",
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
@@ -300,16 +222,12 @@
         "fields": [
           {
             "name": "version",
-            "docs": [
-              "Account layout version, so a future migration is detectable."
-            ],
+            "docs": ["Account layout version, so a future migration is detectable."],
             "type": "u8"
           },
           {
             "name": "authority",
-            "docs": [
-              "The organization allowed to append. Only this key may write."
-            ],
+            "docs": ["The organization allowed to append. Only this key may write."],
             "type": "pubkey"
           },
           {
@@ -319,24 +237,17 @@
               "entry changes it and is detectable."
             ],
             "type": {
-              "array": [
-                "u8",
-                32
-              ]
+              "array": ["u8", 32]
             }
           },
           {
             "name": "event_count",
-            "docs": [
-              "Monotonic count of anchored entries."
-            ],
+            "docs": ["Monotonic count of anchored entries."],
             "type": "u64"
           },
           {
             "name": "bump",
-            "docs": [
-              "Canonical bump, stored to avoid recomputing on every access."
-            ],
+            "docs": ["Canonical bump, stored to avoid recomputing on every access."],
             "type": "u8"
           }
         ]
