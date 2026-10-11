@@ -79,7 +79,6 @@ model Patient {
   userId         Int?     @unique @map("user_id")
 
   records    MedicalRecord[]
-  accessLogs AccessLog[]
 
   @@index([lastName, firstName], map: "idx_patients_name")
   @@map("patients")
@@ -122,6 +121,13 @@ model Note {
 
 /// Audit trail of who viewed/edited what, and the durable outbox that anchors
 /// each event on Solana. Task 15's homemade chain is replaced by this.
+///
+/// `patient_id` is a plain integer, not a foreign key. A foreign key here is
+/// the wrong constraint: it lets a missing Patient row *suppress the record*
+/// that someone tried to access it, and `view_not_found` is precisely the
+/// event that has no Patient row to point at. An audit trail is append-only
+/// evidence; it must not be able to fail to record because its subject is
+/// absent.
 model AccessLog {
   id               Int      @id @default(autoincrement())
   /// Stable id shared with the peer and with the broadcast payload.
@@ -130,7 +136,7 @@ model AccessLog {
   serverId         String   @map("server_id") // which of the two servers handled it
   user             User     @relation(fields: [userId], references: [id])
   userId           Int      @map("user_id")
-  patient          Patient  @relation(fields: [patientId], references: [id])
+  /// Intentionally NOT a foreign key. See the note on the model.
   patientId        Int      @map("patient_id")
   record           MedicalRecord? @relation(fields: [recordId], references: [id])
   recordId         Int?     @map("record_id")

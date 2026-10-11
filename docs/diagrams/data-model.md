@@ -97,6 +97,5 @@ all all
     "notes" }o--|| "medical_records" : "record"
     "notes" }o--|| "users" : "author"
     "access_logs" }o--|| "users" : "user"
-    "access_logs" }o--|| "patients" : "patient"
     "access_logs" }o--|o "medical_records" : "record"
 ```
