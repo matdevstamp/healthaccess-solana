@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   decodeTrail,
+  encodeInitialize,
   encodeRecordAccess,
+  initializeInstruction,
   initialHead,
   isProgramConfigured,
   programId,
@@ -28,6 +30,7 @@ import { PublicKey } from "@solana/web3.js";
  */
 
 const PROGRAM = new PublicKey("11111111111111111111111111111111");
+const AUTHORITY = new PublicKey("SysvarC1ock11111111111111111111111111111111");
 
 const event: OnChainAccessEvent = {
   patientHash: new Uint8Array(32).fill(3),
@@ -143,16 +146,15 @@ describe("encodeRecordAccess", () => {
 
 describe("recordAccessInstruction", () => {
   it("keys the authority as signer and the trail as writable", () => {
-    const authority = new PublicKey("SysvarC1ock11111111111111111111111111111111");
     const instruction = recordAccessInstruction({
       event,
       prevHash: ZERO_HASH,
-      authority,
+      authority: AUTHORITY,
       id: PROGRAM,
     });
 
     expect(instruction.programId.equals(PROGRAM)).toBe(true);
-    expect(instruction.keys[0]?.pubkey.equals(authority)).toBe(true);
+    expect(instruction.keys[0]?.pubkey.equals(AUTHORITY)).toBe(true);
     expect(instruction.keys[0]?.isSigner).toBe(true);
     expect(instruction.keys[0]?.isWritable).toBe(true);
     expect(instruction.keys[1]?.pubkey.equals(trailAddress(PROGRAM))).toBe(true);
@@ -165,7 +167,7 @@ describe("recordAccessInstruction", () => {
       recordAccessInstruction({
         event,
         prevHash: ZERO_HASH,
-        authority: new PublicKey("SysvarC1ock11111111111111111111111111111111"),
+        authority: AUTHORITY,
       }),
     ).toThrow(/SOLANA_PROGRAM_ID/);
   });
@@ -197,5 +199,32 @@ describe("loadIdl", () => {
 
   it("falls back rather than throwing when no build output exists", () => {
     expect(() => loadIdl()).not.toThrow();
+  });
+});
+
+describe("initializeInstruction", () => {
+  it("sends the bare discriminator — the account is created by its init constraint", () => {
+    expect(encodeInitialize(CONTRACT_IDL)).toEqual(
+      instructionDiscriminator(CONTRACT_IDL, "initialize"),
+    );
+    expect(encodeInitialize(CONTRACT_IDL)).toHaveLength(8);
+  });
+
+  it("keys the payer as signer and the trail as writable", () => {
+    const instruction = initializeInstruction({
+      payer: AUTHORITY,
+      id: PROGRAM,
+      idl: CONTRACT_IDL,
+    });
+
+    expect(instruction.programId.equals(PROGRAM)).toBe(true);
+    expect(instruction.keys[0]?.pubkey.equals(AUTHORITY)).toBe(true);
+    expect(instruction.keys[0]?.isSigner).toBe(true);
+    expect(instruction.keys[1]?.pubkey.equals(trailAddress(PROGRAM))).toBe(true);
+    expect(instruction.keys[1]?.isWritable).toBe(true);
+  });
+
+  it("explains itself when the program has not been deployed", () => {
+    expect(() => initializeInstruction({ payer: AUTHORITY })).toThrow(/SOLANA_PROGRAM_ID/);
   });
 });

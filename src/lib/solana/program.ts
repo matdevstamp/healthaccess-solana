@@ -164,6 +164,51 @@ export function recordAccessInstruction(input: {
   };
 }
 
+/**
+ * `initialize()` — create the one global trail.
+ *
+ * Instruction data is the Anchor discriminator and nothing else: the account
+ * is created by the `init` constraint from its seeds, not from argument bytes.
+ *
+ * Written here so nobody has to hand-roll it at the CLI. It is also the first
+ * thing that has to succeed before anything else can work: until the trail
+ * exists, `record_access` has no account to write to and every flusher attempt
+ * fails.
+ */
+export function encodeInitialize(idl: AuditIdl = loadIdl()): Uint8Array {
+  return Uint8Array.from(instructionDiscriminator(idl, "initialize"));
+}
+
+export function initializeInstruction(input: {
+  payer: PublicKey;
+  id?: PublicKey;
+  idl?: AuditIdl;
+}): TransactionInstruction {
+  const program = input.id ?? programId();
+  if (!program) {
+    throw new Error("SOLANA_PROGRAM_ID is not set; the audit program has not been deployed");
+  }
+
+  const idl = input.idl ?? loadIdl();
+  const trail = trailAddress(program);
+
+  const keys = (idlInstruction(idl, "initialize").accounts ?? []).map((account) => {
+    if (account.name === "payer") {
+      return { pubkey: input.payer, isSigner: true, isWritable: true };
+    }
+    if (account.name === "trail") {
+      return { pubkey: trail, isSigner: false, isWritable: true };
+    }
+    return { pubkey: SYSTEM_PROGRAM, isSigner: false, isWritable: false };
+  });
+
+  return {
+    programId: program,
+    keys,
+    data: Buffer.from(encodeInitialize(idl)),
+  };
+}
+
 /** The head a freshly initialized, empty trail reports. */
 export function initialHead(): Uint8Array {
   return Uint8Array.from(ZERO_HASH);

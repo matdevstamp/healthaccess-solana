@@ -52,3 +52,32 @@ export async function probeConnection(): Promise<{ reachable: boolean; slot: big
     return { reachable: false, slot: null };
   }
 }
+
+/** Whether the audit trail has been created yet. */
+export async function isTrailInitialized(): Promise<boolean> {
+  const { readTrail } = await import("./chain");
+  return (await readTrail()) !== null;
+}
+
+/**
+ * Create the audit trail. Idempotent in effect, not in call: Anchor's `init`
+ * constraint rejects a second call with `AccountAlreadyInitialized`, which is a
+ * terminal error by design — re-initializing would discard the head hash.
+ */
+export async function initializeTrail(): Promise<string> {
+  const { Transaction } = await import("@solana/web3.js");
+  const { loadKeypair } = await import("./submitter");
+  const { initializeInstruction } = await import("./program");
+
+  const authority = loadKeypair();
+  const connection = getConnection();
+  const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
+
+  const transaction = new Transaction({
+    feePayer: authority.publicKey,
+    blockhash,
+    lastValidBlockHeight,
+  }).add(initializeInstruction({ payer: authority.publicKey }));
+
+  return connection.sendTransaction(transaction, [authority]);
+}
