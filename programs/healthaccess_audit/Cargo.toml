@@ -28,11 +28,14 @@ anchor = ["dep:anchor-lang"]
 # heavy dependency graph, and a plain `cargo test` must stay fast and free of
 # it. Run with: cargo test --features litesvm
 litesvm = [
+  "dep:anchor-litesvm",
   "dep:litesvm",
   "dep:solana-message",
   "dep:solana-transaction",
   "dep:solana-signer",
   "dep:solana-keypair",
+  "dep:solana-pubkey",
+  "dep:solana-system-program",
 ]
 
 [dependencies]
@@ -42,11 +45,18 @@ sha2 = "0.10"
 # Test-only, but declared as regular optional dependencies: Cargo does not allow
 # optional dev-dependencies. Unused in the library, so they cost nothing at
 # runtime and never appear in the program binary.
-litesvm = { version = "0.15.0", optional = true }
-solana-message = { version = "4", optional = true }
-solana-transaction = { version = "4", optional = true }
+#
+# Versions are pinned to what `anchor-litesvm` 0.4.0 resolves. Mismatching them
+# (litesvm 0.15 against its 0.11 expectation) fails to compile deep inside the
+# litesvm crate with confusing struct-field errors.
+anchor-litesvm = { version = "0.4.0", optional = true }
+litesvm = { version = "0.11.0", optional = true }
+solana-message = { version = "3", optional = true }
+solana-transaction = { version = "3", optional = true }
 solana-signer = { version = "3", optional = true }
 solana-keypair = { version = "3", optional = true }
+solana-pubkey = { version = "3", optional = true }
+solana-system-program = { version = "3", optional = true }
 
 [dev-dependencies]
 hex = "0.4"

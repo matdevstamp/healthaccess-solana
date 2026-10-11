@@ -118,25 +118,12 @@ mod tests {
             }
         }
     }
-
-    #[cfg(feature = "anchor")]
-    #[test]
-    fn anchor_codes_match_pure_codes() {
-        use anchor_lang::error::ErrorCode;
-
-        // `#[error_code]` numbers variants from 6000 upward in declaration order,
-        // so the enum order must mirror `AuditError` exactly.
-        assert_eq!(
-            ErrorCode::from(HealthAccessError::Unauthorized).code(),
-            AuditError::Unauthorized.code()
-        );
-        assert_eq!(
-            ErrorCode::from(HealthAccessError::ChainBroken).code(),
-            AuditError::ChainBroken.code()
-        );
-        assert_eq!(
-            ErrorCode::from(HealthAccessError::AccountAlreadyInitialized).code(),
-            AuditError::AccountAlreadyInitialized.code()
-        );
-    }
 }
+
+// The check that `#[error_code]` assigns exactly the codes pinned above lives
+// in `tests/error_codes.rs` instead of here.
+//
+// It cannot be a unit test: `anchor idl build` compiles the library in test
+// mode, and under `cfg(test)` Anchor's `ErrorCode` has a different shape, so the
+// assertion would not compile for the IDL build. An integration test links the
+// normally-compiled library, where `ErrorCode` resolves correctly.
