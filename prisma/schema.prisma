@@ -120,10 +120,12 @@ model Note {
   @@map("notes")
 }
 
-/// Audit trail of who viewed/edited what. Synced (hashes only) to the
-/// blockchain by the access-log chain in task 15.
+/// Audit trail of who viewed/edited what, and the durable outbox that anchors
+/// each event on Solana. Task 15's homemade chain is replaced by this.
 model AccessLog {
   id               Int      @id @default(autoincrement())
+  /// Stable id shared with the peer and with the broadcast payload.
+  eventId          String?  @unique @map("event_id")
   action           String // view | edit | create
   serverId         String   @map("server_id") // which of the two servers handled it
   user             User     @relation(fields: [userId], references: [id])
@@ -132,9 +134,27 @@ model AccessLog {
   patientId        Int      @map("patient_id")
   record           MedicalRecord? @relation(fields: [recordId], references: [id])
   recordId         Int?     @map("record_id")
-  blockchainSynced Boolean  @default(false) @map("blockchain_synced")
+
+  // ── Outbox (task 26) ────────────────────────────────────────────────
+  /// pending → anchored once the program returns a signature; failed is terminal.
+  status           String   @default("pending")
+  /// Solana slot. BigInt: slots exceed Number.MAX_SAFE_INTEGER.
+  slot             BigInt?  @map("slot")
+  signature        String?
+  /// Chain head this event was anchored onto, hex.
+  headHash         String?  @map("head_hash")
+  /// Flusher attempts so far. Makes retry behaviour observable.
+  attempt          Int      @default(0)
+  /// Why the last attempt failed. Makes failure diagnosable.
+  error            String?
+  /// When a flusher claimed this row. Exclusivity is not crash-safe by itself:
+  /// a process killed mid-flush would strand its rows forever without this.
+  claimedAt        DateTime? @map("claimed_at")
+  /// Client-supplied time. The chain slot remains the trusted clock.
+  clientTime       DateTime @default(now()) @map("client_time")
   createdAt        DateTime @default(now()) @map("created_at")
 
   @@index([patientId], map: "idx_access_logs_patient")
+  @@index([status, id], map: "idx_access_logs_status")
   @@map("access_logs")
 }

@@ -71,12 +71,20 @@ all all
 
   "access_logs" {
     Int id "🗝️"
+    String event_id "❓"
     String action 
     String server_id 
     Int user_id 
     Int patient_id 
     Int record_id "❓"
-    Boolean blockchain_synced 
+    String status 
+    BigInt slot "❓"
+    String signature "❓"
+    String head_hash "❓"
+    Int attempt 
+    String error "❓"
+    DateTime claimed_at "❓"
+    DateTime client_time 
     DateTime created_at 
     }
   

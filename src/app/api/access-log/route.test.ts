@@ -25,6 +25,9 @@ vi.mock("@/lib/prisma", () => ({
   prisma: { user: { findMany: (...args: unknown[]) => findMany(...args) } },
 }));
 
+const verifyLocalOutbox = vi.fn();
+vi.mock("@/lib/outbox/verify", () => ({ verifyLocalOutbox }));
+
 const { GET } = await import("@/app/api/access-log/route");
 const { signSessionToken } = await import("@/lib/auth");
 import { makeSessionUser } from "@/test-utils/session";
@@ -51,6 +54,14 @@ beforeEach(() => {
     isValid: () => true,
   });
   findMany.mockReset().mockResolvedValue([]);
+  verifyLocalOutbox
+    .mockReset()
+    .mockResolvedValue({
+      localHead: "aa",
+      chainHead: "aa",
+      match: true,
+      checkedAt: "2026-10-11T00:00:00.000Z",
+    });
 });
 
 describe("GET /api/access-log", () => {
@@ -127,6 +138,55 @@ describe("GET /api/access-log", () => {
       where: { id: { in: [1, 4] } },
       select: { id: true, username: true, role: true },
     });
+  });
+
+  it("reports whether the local mirror matches the chain head", async () => {
+    authenticate(user("doctor"));
+
+    const body = (await (await GET()).json()) as {
+      data: { verification: { localHead: string; chainHead: string; match: boolean } };
+    };
+
+    expect(body.data.verification).toEqual({
+      localHead: "aa",
+      chainHead: "aa",
+      match: true,
+      checkedAt: "2026-10-11T00:00:00.000Z",
+    });
+  });
+
+  it("surfaces a tampered mirror as match: false instead of failing the request", async () => {
+    authenticate(user("doctor"));
+    verifyLocalOutbox.mockResolvedValue({
+      localHead: "bb",
+      chainHead: "aa",
+      match: false,
+      checkedAt: "2026-10-11T00:00:00.000Z",
+    });
+
+    const response = await GET();
+    const body = (await response.json()) as { data: { verification: { match: boolean } } };
+
+    expect(response.status).toBe(200);
+    expect(body.data.verification.match).toBe(false);
+  });
+
+  it("degrades to match: false when verification itself is unreachable", async () => {
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    authenticate(user("doctor"));
+    verifyLocalOutbox.mockRejectedValue(new Error("rpc down"));
+
+    const response = await GET();
+    const body = (await response.json()) as {
+      data: { verification: { match: boolean; localHead: string }; accessLogs: typeof logs };
+    };
+
+    expect(response.status).toBe(200);
+    expect(body.data.verification.match).toBe(false);
+    expect(body.data.verification.localHead).toBe("");
+    // The audit view itself must still render.
+    expect(body.data.accessLogs).toEqual(logs);
+    consoleWarn.mockRestore();
   });
 
   it("reports chainValid false instead of failing when the chain is broken", async () => {

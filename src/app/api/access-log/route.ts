@@ -3,7 +3,8 @@ import { fail, ok } from "@/lib/api/http";
 import { getAccessLogBlockchain } from "@/lib/blockchain/access-log-service";
 import { syncServerPeer } from "@/app/api/p2p/server-peer";
 import { prisma } from "@/lib/prisma";
-import type { AccessLogActorMap } from "@/lib/types/api";
+import { verifyLocalOutbox } from "@/lib/outbox/verify";
+import type { AccessLogActorMap, ChainVerificationBlock } from "@/lib/types/api";
 
 export async function GET() {
   try {
@@ -34,10 +35,27 @@ export async function GET() {
       actors.map((actor) => [String(actor.id), { username: actor.username, role: actor.role }]),
     );
 
+    // Verification is reported, never raised. A patient asking "is my log
+    // intact?" deserves an answer even when the answer is bad, and an
+    // unreachable RPC should not blank the audit view.
+    let verification: ChainVerificationBlock;
+    try {
+      verification = await verifyLocalOutbox();
+    } catch (error) {
+      console.warn("Chain verification unavailable; reporting it as unknown.", error);
+      verification = {
+        localHead: "",
+        chainHead: "",
+        match: false,
+        checkedAt: new Date().toISOString(),
+      };
+    }
+
     return ok({
       accessLogs,
       actors: actorMap,
       chainValid: blockchain.isValid(),
+      verification,
       viewerUserId: user.id,
     });
   } catch (error) {
