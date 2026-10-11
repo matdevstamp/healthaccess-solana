@@ -39,3 +39,7 @@ blob-report/
 # text. Everything under demo/out is build output — regenerate it with
 # `npm run demo`, which needs the Edge TTS voices and the two local servers.
 demo/out/
+target/
+.anchor/
+*.keypair.json
+test-ledger/
