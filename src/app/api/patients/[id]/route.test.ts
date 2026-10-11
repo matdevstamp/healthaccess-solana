@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * Route-handler tests for /api/patients/[id]. The route owns the id guard, the
- * per-patient access check and, crucially, the blockchain access-log event for
- * every outcome (view, view_denied, view_not_found) so the audit trail has no
- * hole where a read was not recorded.
+ * per-patient access check and, crucially, the access-log event for every
+ * outcome (view, view_denied, view_not_found) so the audit trail has no hole
+ * where a read was not recorded.
  */
 
 const cookieValue = vi.fn();
@@ -13,14 +13,11 @@ vi.mock("next/headers", () => ({
   cookies: () => Promise.resolve({ get: (name: string) => ({ value: cookieValue(name) }) }),
 }));
 
-const createAccessLog = vi.fn();
-vi.mock("@/lib/blockchain/access-log-service", () => ({ createAccessLog }));
+const recordAccessEvent = vi.fn();
+vi.mock("@/lib/outbox/record", () => ({ recordAccessEvent }));
 
 const getDatabasePatientJournal = vi.fn();
 vi.mock("@/lib/patients/journal", () => ({ getDatabasePatientJournal }));
-
-const sendAccessLogToPeer = vi.fn();
-vi.mock("@/lib/p2p/transport", () => ({ sendAccessLogToPeer }));
 
 const { GET } = await import("@/app/api/patients/[id]/route");
 const { signSessionToken } = await import("@/lib/auth");
@@ -60,17 +57,10 @@ const journal = {
   hiddenNotesCount: 0,
 };
 
-/** A minimal block, as createAccessLog returns. */
-function block(action: string) {
-  return { index: 1, timestamp: "t", data: { action } };
-}
-
 beforeEach(() => {
   cookieValue.mockReset();
-  // The block the route forwards to the peer echoes the action it logged.
-  createAccessLog.mockReset().mockImplementation(({ action }: { action: string }) => block(action));
+  recordAccessEvent.mockReset().mockResolvedValue({ eventId: "evt-1" });
   getDatabasePatientJournal.mockReset().mockResolvedValue(journal);
-  sendAccessLogToPeer.mockReset().mockResolvedValue(undefined);
 });
 
 describe("GET /api/patients/[id]", () => {
@@ -104,7 +94,7 @@ describe("GET /api/patients/[id]", () => {
     const response = await get("2");
 
     expect(response.status).toBe(403);
-    expect(createAccessLog).toHaveBeenCalledWith({
+    expect(recordAccessEvent).toHaveBeenCalledWith({
       userId: 4,
       patientId: 2,
       recordId: null,
@@ -113,12 +103,18 @@ describe("GET /api/patients/[id]", () => {
     });
   });
 
-  it("syncs the denied event to the peer", async () => {
+  it("awaits the durable outbox write for a denied event", async () => {
     authenticate(user("patient", { id: 4, patientId: 1 }));
+    let written = false;
+    recordAccessEvent.mockImplementation(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 5));
+      written = true;
+      return { eventId: "evt-1" };
+    });
 
     await get("2");
 
-    expect(sendAccessLogToPeer).toHaveBeenCalledWith({ action: "view_denied" });
+    expect(written).toBe(true);
   });
 
   it("returns 404 and logs view_not_found for a missing patient", async () => {
@@ -129,7 +125,7 @@ describe("GET /api/patients/[id]", () => {
 
     expect(response.status).toBe(404);
     expect((await response.json()).error.code).toBe("PATIENT_NOT_FOUND");
-    expect(createAccessLog).toHaveBeenCalledWith(
+    expect(recordAccessEvent).toHaveBeenCalledWith(
       expect.objectContaining({ patientId: 99, action: "view_not_found" }),
     );
   });
@@ -143,17 +139,22 @@ describe("GET /api/patients/[id]", () => {
     expect(response.status).toBe(200);
     expect(body.ok).toBe(true);
     expect(body.data.patient.name).toBe("Anna Andersson");
-    expect(createAccessLog).toHaveBeenCalledWith(
+    expect(recordAccessEvent).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 1, patientId: 1, recordId: null, action: "view" }),
     );
   });
 
-  it("syncs the view event to the peer", async () => {
+  it("fails the read closed when the audit write fails", async () => {
+    // Deliberate, and the reason it is worth a test: returning a patient's
+    // record while silently dropping the record that they read it is exactly
+    // the failure mode an audit trail exists to prevent.
     authenticate(user("doctor"));
+    recordAccessEvent.mockRejectedValue(new Error("db gone"));
 
-    await get("1");
+    const response = await get("1");
 
-    expect(sendAccessLogToPeer).toHaveBeenCalledWith({ action: "view" });
+    expect(response.status).toBe(500);
+    expect((await response.json()).error.code).toBe("PATIENT_JOURNAL_FAILED");
   });
 
   it("lets a patient open their own journal", async () => {
@@ -162,7 +163,7 @@ describe("GET /api/patients/[id]", () => {
     const response = await get("1");
 
     expect(response.status).toBe(200);
-    expect(createAccessLog).toHaveBeenCalledWith(
+    expect(recordAccessEvent).toHaveBeenCalledWith(
       expect.objectContaining({ patientId: 1, action: "view" }),
     );
   });
@@ -172,7 +173,7 @@ describe("GET /api/patients/[id]", () => {
 
     await get("1");
 
-    const { serverId } = createAccessLog.mock.calls[0]?.[0] as { serverId: string };
+    const { serverId } = recordAccessEvent.mock.calls[0]?.[0] as { serverId: string };
     expect(serverId).toBe(process.env.SERVER_ID);
   });
 

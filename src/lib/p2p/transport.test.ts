@@ -1,34 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  checkPeerHealth,
-  fetchAccessLogsFromPeer,
-  fetchPeerHealth,
-  sendAccessLogToPeer,
-  sendNoteToPeer,
-} from "@/lib/p2p/transport";
+import { checkPeerHealth, fetchPeerHealth, sendNoteToPeer } from "@/lib/p2p/transport";
 import {
   getPeerSecret,
   isPeerAuthorized,
   peerAuthHeaders,
   PEER_SECRET_HEADER,
 } from "@/lib/p2p/peer-auth";
-import type { BlockchainAccessLog } from "@/lib/blockchain/access-log";
 import type { Note } from "@/lib/types/api";
 
 const PEER_URL = "http://localhost:3002";
-
-function accessLog(): BlockchainAccessLog {
-  return {
-    eventId: "event-1",
-    userId: 1,
-    patientId: 1,
-    recordId: 1,
-    action: "view",
-    serverId: "hospital-s",
-    timestamp: "2026-09-29T10:00:00.000Z",
-  };
-}
 
 function note(): Note {
   return {
@@ -87,69 +68,6 @@ describe("peer auth", () => {
 
   it("exposes the secret as a header for outgoing calls", () => {
     expect(peerAuthHeaders()).toEqual({ [PEER_SECRET_HEADER]: getPeerSecret() });
-  });
-});
-
-describe("sendAccessLogToPeer", () => {
-  it("posts an access_log envelope with the peer auth header", async () => {
-    fetchMock.mockResolvedValue(jsonResponse({ ok: true }));
-
-    await sendAccessLogToPeer(accessLog());
-
-    const [url, init] = fetchMock.mock.calls[0] ?? [];
-    expect(url).toBe(`${PEER_URL}/api/p2p/access-log`);
-    expect(init.method).toBe("POST");
-    expect(init.headers[PEER_SECRET_HEADER]).toBe(getPeerSecret());
-
-    const payload = JSON.parse(init.body) as {
-      type: string;
-      from: string;
-      data: BlockchainAccessLog;
-    };
-    expect(payload.type).toBe("access_log");
-    expect(payload.from).toBe("hospital-s");
-    expect(payload.data).toEqual(accessLog());
-  });
-
-  it("forwards a relayed log under the origin server, not the local one", async () => {
-    fetchMock.mockResolvedValue(jsonResponse({ ok: true }));
-
-    // syncServerPeer re-pushes logs this server received from its peer, so the
-    // envelope must name the peer as the originator. Stamping the local id
-    // would trip the peer's `from === data.serverId` check and drop the log.
-    await sendAccessLogToPeer({
-      ...accessLog(),
-      eventId: "event-from-peer",
-      serverId: "ambulance-a",
-    });
-
-    const [, init] = fetchMock.mock.calls[0] ?? [];
-    const payload = JSON.parse(init.body) as {
-      from: string;
-      data: BlockchainAccessLog;
-    };
-
-    expect(payload.data.serverId).toBe("ambulance-a");
-    expect(payload.from).toBe("ambulance-a");
-  });
-
-  it("warns instead of throwing when the peer rejects the sync", async () => {
-    fetchMock.mockResolvedValue(jsonResponse({}, { status: 500 }));
-
-    await expect(sendAccessLogToPeer(accessLog())).resolves.toBeUndefined();
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining("Peer sync failed with status 500"),
-    );
-  });
-
-  it("keeps the local log when the peer is unreachable", async () => {
-    fetchMock.mockRejectedValue(new Error("ECONNREFUSED"));
-
-    await expect(sendAccessLogToPeer(accessLog())).resolves.toBeUndefined();
-    expect(console.warn).toHaveBeenCalledWith(
-      expect.stringContaining("remains stored locally"),
-      expect.any(Error),
-    );
   });
 });
 
@@ -214,30 +132,5 @@ describe("checkPeerHealth", () => {
     fetchMock.mockRejectedValue(new Error("ECONNREFUSED"));
 
     expect(await checkPeerHealth()).toBe(false);
-  });
-});
-
-describe("fetchAccessLogsFromPeer", () => {
-  it("returns the peer chain when it verifies", async () => {
-    fetchMock.mockResolvedValue(
-      jsonResponse({ data: { accessLogs: [accessLog()], chainValid: true } }),
-    );
-
-    expect(await fetchAccessLogsFromPeer()).toEqual([accessLog()]);
-    expect(fetchMock.mock.calls[0]?.[0]).toBe(`${PEER_URL}/api/p2p/access-log`);
-  });
-
-  it("throws on a non-ok response", async () => {
-    fetchMock.mockResolvedValue(jsonResponse({}, { status: 500 }));
-
-    await expect(fetchAccessLogsFromPeer()).rejects.toThrow("status 500");
-  });
-
-  it("refuses to ingest a chain the peer reports as invalid", async () => {
-    fetchMock.mockResolvedValue(
-      jsonResponse({ data: { accessLogs: [accessLog()], chainValid: false } }),
-    );
-
-    await expect(fetchAccessLogsFromPeer()).rejects.toThrow("blockchain is invalid");
   });
 });

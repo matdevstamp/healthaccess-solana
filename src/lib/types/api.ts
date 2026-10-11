@@ -188,6 +188,41 @@ export interface NoteDeleteResponse {
 export type AccessLogActorMap = Record<string, { username: string; role: Role }>;
 
 /**
+ * One recorded access event, as the app sees it.
+ *
+ * Lives in SQL and in the outbox, not on chain — the on-chain form is
+ * `OnChainAccessEvent`, where the two ids are 32-byte salted hashes and there
+ * is no `eventId` at all. Keeping them apart is the point: this shape carries
+ * ids, so it must never cross the chain boundary, and `toChainEvent` is the
+ * one function allowed to convert between them.
+ */
+export interface AccessLogEvent {
+  eventId: string;
+  userId: number;
+  patientId: number;
+  recordId: number | null;
+  action: string;
+  serverId: string;
+  /** Client-supplied ISO time. The Solana slot is the trusted clock. */
+  timestamp: string;
+  /** Anchoring state. Absent on a live socket push, which has not flushed yet. */
+  status?: AnchorStatus;
+  signature?: string | null;
+  /** Decimal string. BigInt on chain; a number would corrupt it silently. */
+  slot?: string | null;
+  headHash?: string | null;
+}
+
+/** GET /api/access-log payload. */
+export interface AccessLogResponse {
+  accessLogs: AccessLogEvent[];
+  actors: AccessLogActorMap;
+  /** Whether the local mirror still agrees with chain state. */
+  verification: ChainVerificationBlock;
+  viewerUserId: number;
+}
+
+/**
  * Access event preview for the patient journal.
  *
  * Named apart from the contract's `AccessLogPreview` (which is the anchored,

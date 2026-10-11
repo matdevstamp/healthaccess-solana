@@ -27,7 +27,6 @@ export default defineConfig({
         "src/lib/prisma.ts",
         "src/lib/realtime/socket-server.ts",
         // Interface-only modules: no runtime code to cover.
-        "src/lib/blockchain/access-log.ts",
         "src/lib/p2p/message.ts",
         // Test files and test-only factories.
         "**/*.test.ts",

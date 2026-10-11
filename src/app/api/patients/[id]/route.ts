@@ -1,9 +1,8 @@
 import { AuthError, requirePermission } from "@/lib/auth";
 import { canAccessPatient } from "@/lib/auth/permissions";
 import { fail, ok } from "@/lib/api/http";
-import { createAccessLog } from "@/lib/blockchain/access-log-service";
 import { env } from "@/lib/env";
-import { sendAccessLogToPeer } from "@/lib/p2p/transport";
+import { recordAccessEvent } from "@/lib/outbox/record";
 import { getDatabasePatientJournal } from "@/lib/patients/journal";
 import type { PatientJournalResponse } from "@/lib/types/api";
 
@@ -22,7 +21,9 @@ export async function GET(_request: Request, context: RouteContext) {
     }
 
     if (!canAccessPatient(user, patientId)) {
-      const block = createAccessLog({
+      // Logged before returning, not after: a refused access is an audit
+      // event, not an error, and it is the one a patient most needs to see.
+      await recordAccessEvent({
         userId: user.id,
         patientId,
         recordId: null,
@@ -30,14 +31,12 @@ export async function GET(_request: Request, context: RouteContext) {
         serverId: env.serverId,
       });
 
-      await sendAccessLogToPeer(block.data);
-
       return fail("UNAUTHORIZED", "Patients can only open their own journal.", 403);
     }
 
     const journal = await getDatabasePatientJournal(patientId, user);
     if (!journal) {
-      const block = createAccessLog({
+      await recordAccessEvent({
         userId: user.id,
         patientId,
         recordId: null,
@@ -45,19 +44,16 @@ export async function GET(_request: Request, context: RouteContext) {
         serverId: env.serverId,
       });
 
-      await sendAccessLogToPeer(block.data);
-
       return fail("PATIENT_NOT_FOUND", "Patient could not be found.", 404);
     }
 
-    const block = createAccessLog({
+    await recordAccessEvent({
       userId: user.id,
       patientId,
       recordId: null,
       action: "view",
       serverId: env.serverId,
     });
-    await sendAccessLogToPeer(block.data);
 
     return ok(journal satisfies PatientJournalResponse);
   } catch (error) {

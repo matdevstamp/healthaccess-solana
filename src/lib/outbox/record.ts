@@ -13,11 +13,82 @@
  */
 
 import { prismaOutboxStore, type EnqueueInput } from "./store";
+import type { AccessLogEvent } from "@/lib/types/api";
+
+/**
+ * Record one access event. This is the only write path for the audit trail.
+ *
+ * It used to be three: an in-memory chain, a Postgres row, and a P2P push to
+ * the peer. Three sources meant three places for a refused access to fail to
+ * land, which is the opposite of what an audit trail is for. There is one now.
+ *
+ * Ordering is deliberate:
+ *
+ * 1. The outbox row is written and awaited, so the event is durable in
+ *    Postgres before anything else happens. A process that dies after this
+ *    line still leaves an audit entry behind.
+ * 2. The realtime push and the chain flush are scheduled, never awaited. A
+ *    patient reading their record must not wait on a socket or a cluster.
+ *
+ * A failed durable write propagates. Failing closed on the audit trail is the
+ * deliberate choice: a silently dropped audit entry is the failure mode this
+ * whole design exists to prevent.
+ */
+export async function recordAccessEvent(input: {
+  userId: number;
+  patientId: number;
+  recordId: number | null;
+  action: string;
+  serverId: string;
+}): Promise<AccessLogEvent> {
+  const event: AccessLogEvent = {
+    eventId: crypto.randomUUID(),
+    userId: input.userId,
+    patientId: input.patientId,
+    recordId: input.recordId,
+    action: input.action,
+    serverId: input.serverId,
+    timestamp: new Date().toISOString(),
+    status: "pending",
+    signature: null,
+    slot: null,
+    headHash: null,
+  };
+
+  await enqueueAccessEvent({
+    eventId: event.eventId,
+    userId: event.userId,
+    patientId: event.patientId,
+    recordId: event.recordId,
+    action: event.action,
+    serverId: event.serverId,
+    clientTime: new Date(event.timestamp),
+  });
+
+  // Both of these are fire and forget. Neither can fail the request.
+  void broadcastSafely(event);
+  scheduleFlush();
+
+  return event;
+}
 
 /** Persist an access event as `pending`. Returns the row id. */
 export async function enqueueAccessEvent(input: EnqueueInput): Promise<number> {
   const row = await prismaOutboxStore.enqueue(input);
   return row.id;
+}
+
+async function broadcastSafely(event: AccessLogEvent): Promise<void> {
+  // Imported lazily so a module-graph cycle between the outbox and the socket
+  // layer cannot bite, and so a test that only exercises the outbox never
+  // touches the socket server.
+  const { broadcastAccessLogCreated } = await import("@/lib/realtime/broadcast");
+
+  try {
+    await broadcastAccessLogCreated(event);
+  } catch (error) {
+    console.warn("Real-time access-log broadcast failed.", error);
+  }
 }
 
 let draining: Promise<unknown> | null = null;

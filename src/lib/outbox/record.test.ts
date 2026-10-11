@@ -24,7 +24,7 @@ vi.mock("@/lib/solana/submitter", () => ({ solanaSubmitter }));
 const getConnection = vi.fn();
 vi.mock("@/lib/solana/client", () => ({ getConnection }));
 
-const { enqueueAccessEvent, isDraining, resetDrain, scheduleFlush } =
+const { enqueueAccessEvent, isDraining, recordAccessEvent, resetDrain, scheduleFlush } =
   await import("@/lib/outbox/record");
 
 beforeEach(() => {
@@ -38,6 +38,83 @@ beforeEach(() => {
 
 afterEach(() => {
   resetDrain();
+});
+
+describe("recordAccessEvent", () => {
+  it("writes one durable row carrying a fresh eventId", async () => {
+    await recordAccessEvent({
+      userId: 1,
+      patientId: 2,
+      recordId: 3,
+      action: "view",
+      serverId: "hospital-s",
+    });
+
+    expect(enqueue).toHaveBeenCalledTimes(1);
+    const written = enqueue.mock.calls[0]?.[0] as { eventId: string; action: string };
+    expect(written.eventId).toMatch(/^[0-9a-f-]{36}$/);
+    expect(written.action).toBe("view");
+  });
+
+  it("returns the event it recorded, for the caller to inspect or broadcast", async () => {
+    const event = await recordAccessEvent({
+      userId: 1,
+      patientId: 2,
+      recordId: null,
+      action: "view_denied",
+      serverId: "hospital-s",
+    });
+
+    expect(event).toMatchObject({
+      userId: 1,
+      patientId: 2,
+      recordId: null,
+      action: "view_denied",
+      serverId: "hospital-s",
+      status: "pending",
+    });
+    expect(event.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it("uses the same eventId for the row and the returned event", async () => {
+    const event = await recordAccessEvent({
+      userId: 1,
+      patientId: 2,
+      recordId: 3,
+      action: "view",
+      serverId: "hospital-s",
+    });
+
+    expect((enqueue.mock.calls[0]?.[0] as { eventId: string }).eventId).toBe(event.eventId);
+  });
+
+  it("propagates a failed durable write, because a dropped audit entry is the failure this prevents", async () => {
+    enqueue.mockRejectedValue(new Error("database is gone"));
+
+    await expect(
+      recordAccessEvent({
+        userId: 1,
+        patientId: 2,
+        recordId: 3,
+        action: "view",
+        serverId: "hospital-s",
+      }),
+    ).rejects.toThrow("database is gone");
+
+    expect(flushPending).not.toHaveBeenCalled();
+  });
+
+  it("schedules the chain flush without awaiting it", async () => {
+    await recordAccessEvent({
+      userId: 1,
+      patientId: 2,
+      recordId: 3,
+      action: "view",
+      serverId: "hospital-s",
+    });
+
+    await vi.waitFor(() => expect(flushPending).toHaveBeenCalledTimes(1));
+  });
 });
 
 describe("enqueueAccessEvent", () => {
