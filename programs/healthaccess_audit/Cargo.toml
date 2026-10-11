@@ -2,7 +2,7 @@
 name = "healthaccess_audit"
 version.workspace = true
 edition.workspace = true
-license.workspace = true
+rust-version.workspace = true
 description = "Tamper-evident access-log commitment for HealthAccess on Solana"
 
 [lib]
@@ -11,14 +11,45 @@ name = "healthaccess_audit"
 
 [features]
 default = []
-# The Anchor entrypoints (lib.rs). Off by default so that `cargo test` runs the
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+
+# The Anchor entrypoints live behind this feature so that `cargo test` runs the
 # pure hash-chain modules with nothing but cargo installed. Task 25 depends on
-# this: see docs/hackathon/INTERFACE-CONTRACT.md section 4.
+# this; see docs/hackathon/INTERFACE-CONTRACT.md section 4.
 anchor = ["dep:anchor-lang"]
 
+# LiteSVM integration tests (task 29). Opt-in because the Solana stack is a
+# heavy dependency graph, and a plain `cargo test` must stay fast and free of
+# it. Run with: cargo test --features litesvm
+litesvm = [
+  "dep:litesvm",
+  "dep:solana-message",
+  "dep:solana-transaction",
+  "dep:solana-signer",
+  "dep:solana-keypair",
+]
+
 [dependencies]
-anchor-lang = { version = "0.32.0", optional = true }
+anchor-lang = { version = "1.2.1", optional = true }
 sha2 = "0.10"
+
+# Test-only, but declared as regular optional dependencies: Cargo does not allow
+# optional dev-dependencies. Unused in the library, so they cost nothing at
+# runtime and never appear in the program binary.
+litesvm = { version = "0.15.0", optional = true }
+solana-message = { version = "4", optional = true }
+solana-transaction = { version = "4", optional = true }
+solana-signer = { version = "3", optional = true }
+solana-keypair = { version = "3", optional = true }
 
 [dev-dependencies]
 hex = "0.4"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(target_os, values("solana"))'] }
