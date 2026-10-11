@@ -41,5 +41,15 @@ blob-report/
 demo/out/
 target/
 .anchor/
-*.keypair.json
 test-ledger/
+
+# ---- Solana keypairs ----
+# `*.keypair.json` below does NOT cover Anchor's program keypairs: those are
+# named `<program>-keypair.json` (hyphen), so the glob never matched them and
+# `keys/` was committable. Anchor writes the program keypair to `keys/`, and
+# losing it means losing the program address.
+keys/
+
+# Anchor's own per-program naming, in case a keypair is written elsewhere.
+*-keypair.json
+*.keypair.json
