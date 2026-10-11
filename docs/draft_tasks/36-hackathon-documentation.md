@@ -6,17 +6,17 @@
 - **Status:** TODO
 - **Assignee:** matdevstamp
 - **Tags:** documentation, disclosure, required
-- **Dependencies:** 29-solana-client-and-ha-demo.md
-- **Related:** 32-solana-e2e-and-disclosure.md, 33-hackathon-submission-and-decks.md
+- **Dependencies:** 32-wire-flusher-to-program.md
+- **Related:** 35-solana-e2e-and-disclosure.md, 37-hackathon-submission-and-decks.md
 - **Estimated Effort:** 5h
 
 ## Requirements
 
-- The README describes the Solana architecture, not the removed homemade chain
-- Setup instructions work from a clean clone on a machine with no `.env`
+- The README describes the Solana architecture
+- Setup instructions work from a clean clone with no `.env`
 - The program ID, deployment command, and devnet cluster are documented
 - Architecture diagrams match the implemented system
-- The origin and prior-work disclosure are stated plainly in the README
+- The origin and prior-work disclosure are stated plainly
 - No document claims a capability the code does not implement
 
 ## User Stories
@@ -24,11 +24,20 @@
 - As a judge, I want the README to explain the architecture so that I can evaluate the engineering without reading the code
 - As a builder, I want setup steps I can follow from scratch so that a fresh clone runs
 - As a judge, I want the origin disclosed so that I can judge prior work fairly
-- As a reader, I want diagrams that match the code so that I do not waste time on stale documentation
 
 ## Design
 
-Documentation is a judged artifact here. Colosseum reviews the repository directly, and inconsistent docs cost credibility faster than missing features.
+Documentation is a judged artifact. Colosseum reviews the repository directly,
+and inconsistent docs cost credibility faster than missing features.
+
+### Two phases
+
+**Early phase (wave 0, no code needed):** the origin section, the problem
+statement, the architecture outline. These describe a design already frozen in
+`INTERFACE-CONTRACT.md`.
+
+**Final phase (wave 6):** verify every claim against the running system,
+regenerate diagrams, fix what drifted.
 
 ### README structure
 
@@ -38,15 +47,15 @@ Documentation is a judged artifact here. Colosseum reviews the repository direct
 | Problem | Patients cannot verify who accessed their records |
 | How it works | Anchor program, rolling head hash, outbox, Postgres mirror |
 | Architecture diagram | Rendered Mermaid, current topology |
-| **Origin** | Course-project origin and prior work, stated plainly |
+| **Origin** | Course-project origin and prior work |
 | Quick start | Clean-clone setup |
 | Program details | Devnet program ID, deploy command, cluster |
-| Testing | How to run unit, LiteSVM, and E2E suites |
-| Demo | Link to the demo video, or the flow outline |
+| Testing | Unit, LiteSVM, E2E |
+| Demo | Video link or flow outline |
 
 ### The origin disclosure
 
-Short, factual, near the top. Not an apology and not buried:
+Short, factual, near the top. Not an apology, not buried:
 
 ```markdown
 ## Origin
@@ -58,14 +67,13 @@ Colosseum Crypto World's Fair hackathon.
 ```
 
 The history is public and the rules require disclosure, so the disclosure
-should read as confidence rather than damage control. The same facts go in
-the submission form, stated more completely.
+should read as confidence rather than damage control.
 
 ### Corrections to existing docs
 
-Three categories, and they must not be conflated:
+Three categories; do not conflate them.
 
-**Became true after this project** (keep, and they are now accurate):
+**Become true after this project:**
 
 | Location | Claim |
 |---|---|
@@ -76,22 +84,18 @@ Three categories, and they must not be conflated:
 
 | Location | Old claim | New |
 |---|---|---|
-| `demo/captions.ts:88` | signing over chain-P2P | chain sync is gone; access logs go to Solana |
+| `demo/captions.ts:88` | signing over chain-P2P | chain sync gone; logs go to Solana |
 | `README.md:36` | custom chain implementation | Solana Anchor program |
-| `docs/api/README.md:140-206` | `/api/p2p/access-log`, `chainValid` | deleted in task 28 |
+| `docs/api/README.md:140-206` | `/api/p2p/access-log`, `chainValid` | deleted in task 31 |
 | `docs/database.md:136-153` | old `AccessLog` fields | `slot`, `signature`, `status`, `headHash` |
-| `docs/PROJECT_PLAN.md:110` | Stream D contract: append-only log payload | superseded by the on-chain trail |
+| `docs/PROJECT_PLAN.md:110` | Stream D: append-only log payload | superseded by the on-chain trail |
 
-**Was suggested by the course, never built** (must be labeled as such):
-
-`docs/Raw_Requirements.md:112-127` suggests pub/priv-key signing, Merkle
-trees, and mining. Signing is now implemented on-chain. Merkle trees and
-mining remain unbuilt. Label them rather than deleting them, so a judge
-comparing against the brief sees the gap acknowledged rather than hidden.
+**Suggested by the course, never built** (`docs/Raw_Requirements.md:112-127`):
+Merkle trees and mining. Signing is now implemented on-chain. Label the others
+rather than deleting them, so a judge comparing against the brief sees the gap
+acknowledged rather than hidden.
 
 ### Diagrams
-
-Regenerate for the actual topology:
 
 ```mermaid
 flowchart LR
@@ -105,31 +109,29 @@ flowchart LR
     Q --> U[Audit view]
 ```
 
-Files to regenerate in `docs/diagrams/`: `system-context.md`,
-`data-flow.md`, `data-model.md` (generated from Prisma; regenerate via
-`prisma generate`), and `sequence-access-log.md`.
+Regenerate `docs/diagrams/`: `system-context.md`, `data-flow.md`,
+`sequence-access-log.md`. `data-model.md` is generated by `prisma generate`;
+never hand-edit it.
 
 ### Clean-clone verification
 
 The test that this task is actually done:
 
-```
+```bash
 git clone <repo> && cd healthaccess-solana
 npm ci
 npm run db:up && npm run db:migrate && npm run db:seed
 npm run dev
 ```
 
-Verify the app boots, login works, and a record view produces an anchored
-access log. If any step needs something not in the README, the README is
-incomplete.
+If any step needs something not in the README, the README is incomplete.
 
 ## Tasks
 
-- [ ] Rewrite the README for the Solana architecture
-- [ ] Add the origin and disclosure section
-- [ ] Record the devnet program ID and deploy command
-- [ ] Document `SOLANA_*` environment variables
+- [ ] Write the origin and disclosure section
+- [ ] Write the problem statement and architecture overview
+- [ ] Add the devnet program ID and deploy command
+- [ ] Document `SOLANA_*` and `ACCESS_HASH_SALT`
 - [ ] Document the devnet keypair setup path
 - [ ] Regenerate `docs/diagrams/` for the new topology
 - [ ] Regenerate `docs/diagrams/data-model.md` via `prisma generate`
@@ -140,28 +142,26 @@ incomplete.
 - [ ] Label Merkle/mining as unbuilt in `Raw_Requirements.md`
 - [ ] Audit every doc for claims the code does not support
 - [ ] Verify setup from a clean clone
-- [ ] Add documentation link to task 33's deck footer
 
 ## Done Criteria
 
 - [ ] README describes the Solana architecture end to end
 - [ ] Program ID, cluster, and deploy command are documented
-- [ ] All `SOLANA_*` variables documented with defaults
+- [ ] All env variables documented, with the salt flagged as secret
 - [ ] Origin disclosure present and accurate
 - [ ] Diagrams match the implemented topology
-- [ ] No doc claims unbuilt capability without labeling it as such
+- [ ] No doc claims unbuilt capability without labeling it
 - [ ] Setup verified from a clean clone
 - [ ] Deleted P2P routes are no longer documented
 
 ## Notes
 
-- This task is **not** droppable, unlike the UI polish in task 31. Judges read the repo, and stale documentation reads as carelessness
-- `data-model.md` is generated by `prisma generate` via `prisma-erd-generator`; never hand-edit it
-- Update task 22's toolchain baseline in the same pass if the Anchor version differs from the assumed one
-- The disclosure note is deliberately short. A long explanation invites scrutiny it does not need
+- **Not droppable**, unlike the UI polish in task 34. Judges read the repo, and stale documentation reads as carelessness
+- `data-model.md` is generated; never hand-edit
+- Keep the course repo untouched. This fork is the hackathon deliverable
+- The disclosure is deliberately short
 
 ## Questions to Resolve
 
-- [ ] Should the course repo be archived with a pointer to this repo, or left untouched?
-- [ ] Keep `gruppkontrakt.md` and the course logbooks in the fork, or remove them from the hackathon repo? Leaving them is honest; removing them reduces noise
-- [ ] Should the architecture diagram be Mermaid in markdown, or a rendered image? Mermaid renders on GitHub and stays current
+- [ ] Keep `gruppkontrakt.md` and the course logbooks in the fork, or remove them? Leaving them is honest; removing reduces noise
+- [ ] Mermaid in markdown, or a rendered image? Mermaid renders on GitHub and stays current

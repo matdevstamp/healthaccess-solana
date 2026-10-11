@@ -6,8 +6,8 @@
 - **Status:** TODO
 - **Assignee:** matdevstamp
 - **Tags:** testing, disclosure, required
-- **Dependencies:** 26-solana-program-tests.md, 29-solana-client-and-ha-demo.md
-- **Related:** 33-hackathon-submission-and-decks.md, 34-hackathon-documentation.md
+- **Dependencies:** 29-solana-program-tests.md, 32-wire-flusher-to-program.md
+- **Related:** 36-hackathon-documentation.md, 37-hackathon-submission-and-decks.md
 - **Estimated Effort:** 4h
 
 ## Requirements
@@ -17,7 +17,7 @@
 - Devnet specs are separated from the default fast suite
 - The prior course repository is disclosed accurately in the submission form
 
-Documentation rewrite lives in task 34, not here.
+Documentation rewrite lives in task 36.
 
 ## User Stories
 
@@ -29,31 +29,37 @@ Documentation rewrite lives in task 34, not here.
 
 ### E2E against devnet
 
-The existing suite is fully local and fast. These specs are the exception and must be tagged so they do not slow the default run.
+Two specs matter:
+
+**Anchoring.** A record view produces a signature that resolves on-chain.
 
 ```ts
 test("viewing a record anchors an access log on devnet", async ({ page }) => {
-  // login as doctor, search patient, open journal
-  // assert row shows an anchored state with a signature
-  // assert the signature resolves on the explorer API
-  // assert local head matches chain head
+  await loginAs(page, "doctor");
+  await page.goto(`/patients/${patientId}`);
+  await expect(page.getByTestId("access-log-row").first())
+    .toContainText(/anchored/i);
+  const sig = await signatureFrom(page);
+  expect(await signatureResolvesOnExplorer(sig)).toBe(true);
 });
 ```
 
-Two specs matter:
+**Tamper detection.** Mutate a local log row, refetch, assert `match: false`.
 
-1. **Anchoring.** A record view produces a signature that resolves on-chain.
-2. **Tamper detection.** Mutate a local log row, refetch, assert `match: false`.
+That second spec is the one that proves the headline claim, so it is not
+optional.
 
-The tamper spec is the one that proves the headline claim, so it is not optional.
-
-Tag as `@devnet` and exclude from the default `npm run test`. Run explicitly in CI against a keyed RPC.
+Tag both `@devnet` and exclude them from `npm run test`.
 
 ### Disclosure
 
-Colosseum's rules require disclosure of relevant prior development work, with misrepresentation voiding prizes. The README wording lives in task 34; the full submission-form disclosure belongs here.
+Colosseum requires disclosure of relevant prior development work, with
+misrepresentation voiding prizes. The README wording is task 36; the submission
+form disclosure belongs here.
 
-The disclosure must name the course project and link it. Judges can inspect the history, and a verified disclosure is strictly safer than an unverified claim of originality.
+The disclosure must name the course project and link it. Judges can inspect the
+history, and a verified disclosure is strictly safer than an unverified claim
+of originality.
 
 ## Tasks
 
@@ -75,10 +81,10 @@ The disclosure must name the course project and link it. Judges can inspect the 
 ## Notes
 
 - **CUT LINE:** the CI job is droppable; keep the two specs, drop the automation
-- Devnet airdrops and rate limits make CI flaky; a manual-triggered job is more reliable than every push
+- Airdrops and devnet rate limits make CI flaky; a manual-triggered job beats every push
 - The disclosure is short on purpose; a long explanation invites scrutiny it does not need
 
 ## Questions to Resolve
 
 - [ ] Do the devnet specs need a funded CI wallet, or should the demo account be a documented devnet address?
-- [ ] Should the E2E specs live in `e2e/solana/` as a separate directory?
+- [ ] Should the specs live in `e2e/solana/` as a separate directory?
