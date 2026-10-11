@@ -55,33 +55,19 @@ pub use constants::*;
 #[cfg(feature = "anchor")]
 use anchor_lang::prelude::*;
 
+// Generate the typed client surface (`accounts::*`, `instruction::*`) from the
+// committed IDL. Anchor 1.2 reads `../../idl/healthaccess_audit.json` relative
+// to this crate at compile time, which is what lets the LiteSVM integration
+// tests build real instructions instead of hand-rolling discriminators.
+#[cfg(feature = "anchor")]
+declare_program!(healthaccess_audit);
+
 // Program ID. Generated at `anchor init` time; must match `Anchor.toml` and the
 // deployed program. Replaced by the real keypair on `anchor build`.
 #[cfg(feature = "anchor")]
 declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
 
-#[cfg(feature = "anchor")]
-use crate::state::AccessEventArg as RecordAccessEvent;
-
-#[cfg(feature = "anchor")]
-#[program]
-pub mod healthaccess_audit {
-    use super::*;
-
-    /// Create the audit trail. Idempotent-guarded by the `init` constraint.
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
-        instructions::handle_initialize(ctx)
-    }
-
-    /// Append one access event to the chain.
-    ///
-    /// `prev_hash` must equal the current head. On a mismatch the transaction
-    /// fails with `ChainBroken` and the caller re-reads the head and retries.
-    pub fn record_access(
-        ctx: Context<RecordAccess>,
-        event: RecordAccessEvent,
-        prev_hash: [u8; 32],
-    ) -> Result<()> {
-        instructions::handle_record_access(ctx, event.into(), prev_hash)
-    }
-}
+// `declare_program!` generates the `healthaccess_audit` module (entrypoints plus
+// typed `accounts::*` / `instruction::*` clients) from the IDL, so there is no
+// separate `#[program]` block here. The handlers themselves live in
+// `instructions.rs`; the generated module is the entry surface.
