@@ -40,7 +40,7 @@ test.describe("patient search", () => {
     });
     expect(login.status()).toBe(200);
     for (const path of [
-      "/api/patients?q=ANNA%20ANDERSSON&filter=name",
+      "/api/patients?q=ANNA%20KOWALSKA&filter=name",
       "/api/patients?q=1990-01&filter=dob",
       "/api/patients?q=19900101-1234&filter=personalNumber",
     ]) {
