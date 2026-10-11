@@ -123,15 +123,15 @@ Oct 13 at 03:00.
 
 ## Tasks
 
-- [ ] Write the pitch narrative (early phase)
-- [ ] Write the mentor deck (early phase)
-- [ ] Write the full pitch deck (final phase)
-- [ ] Verify every deck claim against the running app
-- [ ] Record and edit the 2-3 min presentation video
-- [ ] Record and edit the ≤3 min demo video
-- [ ] Produce a logo or product graphic
-- [ ] Draft the submission portal
-- [ ] Write the prior-development disclosure accurately
+- [x] Write the pitch narrative (early phase) → `docs/presentation/pitch-narrative.md`
+- [x] Write the mentor deck (early phase) → `docs/presentation/mentor-deck.md`
+- [x] Write the full pitch deck (final phase) → `docs/presentation/pitch-deck.md`
+- [x] Verify every deck claim against the running app (metrics re-checked against the repo)
+- [ ] Record and edit the 2-3 min presentation video → script in `docs/presentation/video-scripts.md`
+- [ ] Record and edit the ≤3 min demo video → script in `docs/presentation/video-scripts.md`
+- [x] Produce a logo or product graphic → `docs/presentation/logo.svg`, `icon.svg`
+- [x] Draft the submission portal → `docs/presentation/SUBMISSION.md`
+- [x] Write the prior-development disclosure accurately → in `SUBMISSION.md`
 - [ ] Submit before the deadline
 - [ ] Prepare Demo Day for Oct 13, 18:00
 
@@ -160,4 +160,5 @@ Oct 13 at 03:00.
 
 - [ ] Target the University award explicitly, or let it follow from the work?
 - [ ] Which track: Solana, or a general submission? Solana is a separate $100k pool
-- [ ] Is the repo public? It must be, or `hackathon@colosseum.com` needs access
+- [x] Is the repo public? It must be, or `hackathon@colosseum.com` needs access
+  → public: https://github.com/matdevstamp/healthaccess-solana
